@@ -12,7 +12,7 @@ import java.time.LocalDate;
 public class AccountDTO {
 	
 	// [ 테이블 컬럼 ]
-	private Integer accountPk;			// 회원 Pk
+	private Integer accountPk;			// 회원 고유 번호 (Pk)
 	private String accountId;			// 회원 아이디
 	private String accountPasswordHash;	// 비밀번호 해시 값 (DB 저장용)
 	private String accountName;			// 회원 이름
@@ -26,4 +26,12 @@ public class AccountDTO {
 	private String condition; 			// 분기점
 	private String accountProvider; 	// "LOCAL"/"GOOGLE"...
 	private String accountPassword;		// 회원 비밀번호
+	
+	// [ 관리자용 멤버 변수 ]
+	private LocalDate accountJoinStartDate;   	// 가입일 시작
+	private LocalDate accountJoinEndDate;     	// 가입일 종료
+	private Integer accountTotalAmountMin;    	// 총 구매금액 최소
+	private Integer accountTotalAmountMax;    	// 총 구매금액 최대
+	private Integer accountTotalAmount;			// 총 구매 금액
+	
 }

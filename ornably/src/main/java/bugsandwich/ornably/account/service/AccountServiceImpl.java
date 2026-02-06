@@ -48,7 +48,7 @@ public class AccountServiceImpl implements AccountService {
 	
 	@Override
 	public AccountDTO getMyPageData(AccountDTO accountDTO) {
-		accountDTO.setCondition("SELECT_MY_PAGE_DATA");
+		accountDTO.setCondition("SELECT_MY_PAGE");
 		return accountRepository.seletOne(accountDTO);
 	}
 

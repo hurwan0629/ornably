@@ -19,17 +19,17 @@ public class ItemServiceImpl implements ItemService {
 
 	@Override
 	public boolean insertItem(ItemDTO itemDTO) {
-		return false;
+		return itemRepository.insert(itemDTO);
 	}
 
 	@Override
 	public boolean updateItem(ItemDTO itemDTO) {
-		return false;
+		return itemRepository.update(itemDTO);
 	}
 
 	@Override
 	public boolean deleteItem(ItemDTO itemDTO) {
-		return false;
+		return itemRepository.delete(itemDTO);
 	}
 
 	@Override
@@ -37,12 +37,12 @@ public class ItemServiceImpl implements ItemService {
 		return itemRepository.selectOne(itemDTO);
 	}
 	
-	
-
 	@Override
 	public List<ItemDTO> getItemList(ItemDTO itemDTO) {
 		return itemRepository.selectAll(itemDTO);
 	}
 	
-
+	
+	
+	
 }

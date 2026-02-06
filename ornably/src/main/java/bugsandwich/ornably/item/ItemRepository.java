@@ -75,21 +75,41 @@ public class ItemRepository {
 
 
 	// 상품 상세 조회
-	private static final String SELECT_ONE_ITEM =
-		    "SELECT " +
-		    "  I.ITEM_PK          AS itemPk, " +
-		    "  I.ITEM_NAME        AS itemName, " +
-		    "  I.ITEM_PRICE       AS itemPrice, " +
-		    "  I.ITEM_STOCK       AS itemStock, " +
-		    "  I.ITEM_DESCRIPTION AS itemDescription, " +
-		    "  I.ITEM_IMAGE_URL   AS itemImageUrl, " +
-		    "  IFNULL(ROUND(AVG(R.REVIEW_STAR), 2), 0) AS itemAvgStar " +
-		    "FROM ITEM I " +
-		    "LEFT JOIN REVIEW R ON I.ITEM_PK = R.ITEM_PK " +
-		    "WHERE I.ITEM_PK = ? " +
-		    "GROUP BY " +
-		    "  I.ITEM_PK, I.ITEM_NAME, I.ITEM_PRICE, I.ITEM_STOCK, " +
-		    "  I.ITEM_DESCRIPTION, I.ITEM_IMAGE_URL";
+	private static final String SELECT_ONE_ITEM_DETAIL =
+	    "SELECT " +
+	    "  i.ITEM_PK        AS itemPk, " +
+	    "  i.ITEM_NAME      AS itemName, " +
+	    "  i.ITEM_PRICE     AS itemPrice, " +
+	    "  i.ITEM_REGIST_DATE AS itemRegistDate, " +
+	    "  i.ITEM_IMAGE_URL AS itemImageUrl, " +
+	    "  i.ITEM_CATEGORY  AS itemCategory, " +
+
+	    // accountPk 기준 최고 할인율
+	    "  IFNULL(MAX(e.EVENT_DISCOUNT_RATE), 0) AS itemDiscountRate, " +
+
+	    // 최고 할인율 적용 가격
+	    "  CASE " +
+	    "    WHEN MAX(e.EVENT_DISCOUNT_RATE) IS NOT NULL " +
+	    "    THEN ROUND(i.ITEM_PRICE * (1 - MAX(e.EVENT_DISCOUNT_RATE) / 100), 0) " +
+	    "    ELSE i.ITEM_PRICE " +
+	    "  END AS itemDiscountedPrice, " +
+
+	    // 평균 별점
+	    "  IFNULL(ROUND(AVG(r.REVIEW_STAR), 2), 0) AS itemAvgStar " +
+
+	    "FROM ITEM i " +
+	    "LEFT JOIN REVIEW r ON i.ITEM_PK = r.ITEM_PK " +
+
+	    // accountPk가 적용되는 이벤트만
+	    "LEFT JOIN EVENT e " +
+	    "  ON e.ACCOUNT_PK = ? " +
+	    " AND JSON_CONTAINS(e.EVENT_TARGET_CATEGORY, JSON_QUOTE(i.ITEM_CATEGORY)) " +
+	    " AND CURRENT_DATE BETWEEN e.EVENT_START_DATE AND e.EVENT_END_DATE " +
+	    "WHERE i.ITEM_PK = ? " +
+	    "GROUP BY " +
+	    "  i.ITEM_PK, i.ITEM_NAME, i.ITEM_PRICE, i.ITEM_REGIST_DATE, " +
+	    "  i.ITEM_IMAGE_URL, i.ITEM_CATEGORY";
+
 
 
 	// 상품 전체 개수 (카테고리 + 검색)
@@ -123,6 +143,7 @@ public class ItemRepository {
 	
     
     
+    
     // ==============
  	//   관리자 쿼리문
  	// ==============
@@ -134,7 +155,7 @@ public class ItemRepository {
 		"    i.ITEM_NAME      AS itemName, " +
 		"    i.ITEM_PRICE     AS itemPrice, " +
 		"    i.ITEM_IMAGE_URL AS itemImageUrl, " +
-		"    DATE_FORMAT(i.ITEM_REGIST_DATE, '%Y-%m-%d') AS itemRegistDate " +
+		"    i.ITEM_REGIST_DATE AS itemRegistDate " +
 		"FROM ITEM i " +
 		"WHERE " +
 		"    ( ? IS NULL OR i.ITEM_PK = ? ) " +                 			// itemPk 검색
@@ -152,10 +173,10 @@ public class ItemRepository {
  	
  	// 상품 등록
  	private static final String ADMIN_INSERT_ITEM =
- 		"INSERT INTO ITEM (" +
- 		"ITEM_NAME, ITEM_PRICE, ITEM_STOCK, ITEM_IMAGE_URL, ITEM_DESCRIPTION, ITEM_CATEGORY, ITEM_REGIST_DATE" +
- 		") VALUES (?, ?, ?, ?, ?, ?, NOW())";
-	
+ 		    "INSERT INTO ITEM (" +
+ 		    "ITEM_NAME, ITEM_PRICE, ITEM_STOCK, ITEM_IMAGE_URL, ITEM_DESCRIPTION, ITEM_CATEGORY, ITEM_REGIST_DATE" +
+ 		    ") VALUES (?, ?, ?, ?, ?, ?, CURRENT_DATE)";
+
  	// 상품 상세 보기
  	private static final String ADMIN_SELECT_ONE_ITEM =
 		"SELECT " +
@@ -165,7 +186,7 @@ public class ItemRepository {
          "i.ITEM_CATEGORY 	AS itemCategory, " +
          "i.ITEM_IMAGE_URL 	AS itemImageUrl, " +
          "i.ITEM_STOCK AS itemStock, " +
-         "DATE_FORMAT(i.ITEM_REGIST_DATE, '%Y-%m-%d') AS itemRegistDate, " +
+         "i.ITEM_REGIST_DATE AS itemRegistDate, " +
          
          // 해당 상품의 총 판매량 / 리뷰 수 / 위시리스트 추가 수
          "IFNULL(SUM(oi.ORDERS_ITEM_COUNT), 0) AS itemSoldCount, " +
@@ -231,8 +252,8 @@ public class ItemRepository {
 			        itemDTO.getSort(),
 			        
 			        // paging
-			        itemDTO.getItemEndCount(),
-			        itemDTO.getItemStartCount()
+			        itemDTO.getItemLimit(),   // LIMIT
+			        itemDTO.getItemOffset()   // OFFSET
 			    );
 		}
 		
@@ -306,11 +327,12 @@ public class ItemRepository {
 	    }	  
 	    
         // 상품 상세 보기
-	    else if ("SELECT_ONE_ITEM".equals(itemDTO.getCondition())) {
+	    else if ("SELECT_ONE_ITEM_DETAIL".equals(itemDTO.getCondition())) {
 	    	System.out.println("[로그] selectOne의 SELECT_ONE_ITEM");	    	
 	    	return jdbcTemplate.queryForObject(
-                SELECT_ONE_ITEM,
+	    		SELECT_ONE_ITEM_DETAIL,
                 new BeanPropertyRowMapper<>(ItemDTO.class),
+                itemDTO.getAccountPk(),
                 itemDTO.getItemPk()
             );
 	    }
@@ -320,7 +342,11 @@ public class ItemRepository {
 			System.out.println("[로그] selectOne의 SELECT_WISHLIST_TOGGLE");			
 			return jdbcTemplate.queryForObject(
 			    SELECT_WISHLIST_TOGGLE,
-			    new BeanPropertyRowMapper<>(ItemDTO.class),
+			    (rs, rowNum) -> {
+			        ItemDTO data = new ItemDTO();
+			        data.setItemWishlistToggle(rs.getBoolean("itemWishlistToggle"));
+			        return data;
+			    },
 			    itemDTO.getAccountPk(),
 			    itemDTO.getItemPk()
 			);
@@ -406,8 +432,8 @@ public class ItemRepository {
 	    }
 	    
 	    // 관리자용 : 상품 설명 수정
-	    else if("ADMIN_UPDATE_DESCIPTION_ITEM".equals(itemDTO.getCondition())) {
-	    	System.out.println("[로그] update의 ADMIN_UPDATE_DESCIPTION_ITEM");
+	    else if("ADMIN_UPDATE_DESCRIPTION_ITEM".equals(itemDTO.getCondition())) {
+	    	System.out.println("[로그] update의 ADMIN_UPDATE_DESCRIPTION_ITEM");
 	    	result = jdbcTemplate.update(ADMIN_UPDATE_DESCRIPTION_ITEM, itemDTO.getItemDescription(), itemDTO.getItemPk());
 	    }
 	    

@@ -1,0 +1,32 @@
+*.class
+*.log
+
+# JVM 에러 로그
+hs_err_pid*
+
+# Maven
+/target/
+
+# 빌드될때 생기는 파일
+!.mvn/wrapper/maven-wrapper.jar
+
+# Eclipse
+.classpath
+.project
+.settings/
+.metadata/
+
+# IntelliJ
+.idea/
+*.iml
+
+# Spring
+application.yml
+application-*.yml
+application.properties
+application-*.properties
+
+# 로그
+logs/
+*.log
+/tmp/

@@ -26,7 +26,8 @@ public class ItemDTO {
 	// [ 추가 멤버 변수 ]
 	private String condition; 				// 분기점
 	private Integer accountPk;				// 회원 PK
-	private boolean itemWishlistToggle; 	// 찜 여부
+	private boolean itemWishlistToggle; 	// 찜 여부]
+	private Integer cartCount; 				// 구매 개수 ( 장바구니 개수 )
 	
 	// [ 관리자용 멤버 변수 ]
 	private Integer itemPriceMin;           // 최소 가격

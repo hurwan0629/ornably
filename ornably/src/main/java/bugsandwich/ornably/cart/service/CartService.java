@@ -1,5 +1,16 @@
 package bugsandwich.ornably.cart.service;
 
-public interface CartService {
+import java.util.List;
 
+import bugsandwich.ornably.cart.CartDTO;
+
+
+
+public interface CartService {
+	boolean insertCart(CartDTO cartDTO);
+	boolean updateCart(CartDTO cartDTO);
+	boolean deleteCart(CartDTO cartDTO);
+	
+	CartDTO getCartData(CartDTO boardDTO);
+	List<CartDTO> getCartList(CartDTO boardDTO);
 }

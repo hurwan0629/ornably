@@ -11,8 +11,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import bugSandwich.ornably.account.AccountDTO;
-import bugSandwich.ornably.event.Service.EventService;
+import bugsandwich.ornably.account.AccountDTO;
+import bugsandwich.ornably.account.AccountRepository;
+import bugsandwich.ornably.event.Service.EventService;
 
 @Service
 public class LocalUserDetailsService implements UserDetailsService {

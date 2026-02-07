@@ -1,5 +1,5 @@
 package bugsandwich.ornably.wishlist;
 
-public class WishlistRepository {
+public class WishListRepository {
 
 }

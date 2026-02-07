@@ -1,5 +1,27 @@
 package bugsandwich.ornably.address;
 
-public class AddressRepository {
+import java.util.List;
 
+import bugsandwich.ornably.cart.CartDTO;
+
+public class AddressRepository {
+	public AddressDTO selectOne(AddressDTO addressDTO) {
+		return null;
+	}
+
+	public List<AddressDTO> selectAll(AddressDTO addressDTO) {
+		return null;
+	}
+
+	public boolean update(AddressDTO addressDTO) {
+		return false;
+	}
+
+	public boolean delete(AddressDTO addressDTO) {
+		return false;
+	}
+
+	public boolean insert(AddressDTO addressDTO) {
+		return false;
+	}
 }

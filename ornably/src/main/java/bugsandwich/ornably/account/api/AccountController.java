@@ -109,7 +109,7 @@ public class AccountController {
 	@PreAuthorize("hasRole('USER')")
 	@PostMapping("/user/account/check-password")
 	public ResponseEntity<Map<String, Object>> checkPassword(
-			RequestBody AccountDTO accountDTO,
+			@RequestBody AccountDTO accountDTO,
 			@AuthenticationPrincipal OrnablyUser ornablyUser) {
 		boolean correct = this.PasswordEncoder.matches(accountDTO.getAccountPassword(), ornablyUser.getPassword());
 
@@ -127,10 +127,12 @@ public class AccountController {
 		// 2. 장바구니 삭제
 		// 3. 찜 목록 삭제
 		// 4. 회원 id를 NULL로 바꾸기
-		accountService.accountWithdraw(accountDTO);
-		
-		
-		
+		if(accountService.accountWithdraw(accountDTO)) {
+			return ResponseEntity.noContent().build();
+		}
+		else {
+			return ResponseEntity.internalServerError().build();
+		}
 	}
 	
 	@PreAuthorize("hasRole('ADMIN')")
@@ -154,24 +156,28 @@ accountTotalAmountMax={number}	- 기본값: Integer.max
         	accountDTO.setAccountName(null);
         }
 
-        if (accountDTO.getAccountJoinStartDate() == null)
-        	accountDTO.setAccountJoinStartDate(LocalDate.of(2026, 1, 1));
+        if (accountDTO.getAccountJoinStartDate() == null) {
+        	        	accountDTO.setAccountJoinStartDate(LocalDate.of(2026, 1, 1));
+        }
 
-        if (accountDTO.getAccountJoinEndDate() == null)
+        if (accountDTO.getAccountJoinEndDate() == null) {        	
         	accountDTO.setAccountJoinEndDate(LocalDate.of(9999, 12, 31));
+        }
 
-        if (accountDTO.getAccountRole() == null || accountDTO.getAccountRole().isBlank())
-        	accountDTO.setAccountRole("ALL");
+        if (accountDTO.getAccountRole() == null || accountDTO.getAccountRole().isBlank()) {
+        		accountDTO.setAccountRole("ALL");
+        }
 
         if (accountDTO.getAccountTotalAmountMin() == null) {
-        	accountDTO.setAccountTotalAmountMin(0);        	
+        		accountDTO.setAccountTotalAmountMin(0);        	
         }
         if (accountDTO.getAccountTotalAmountMax() == null) {
-        	accountDTO.setAccountTotalAmountMax(Integer.MAX_VALUE);
+        		accountDTO.setAccountTotalAmountMax(Integer.MAX_VALUE);
         }
         
         List<AccountDTO> accountDatas = accountService.getAdminSearchAccount(accountDTO);
 		
+        return ResponseEntity.ok(Map.of("accountDatas", accountDatas));
 	}
 	
 	@PreAuthorize("hasRole('ADMIN')")
@@ -191,7 +197,7 @@ accountTotalAmountMax={number}	- 기본값: Integer.max
 				"accountName", accountDTO.getAccountName(),
 				"accountDate", accountDTO.getAccountDate(),
 				"accountRole", accountDTO.getAccountRole(),
-				"accountEventOptIn", accountDTO.getAccountEventOptIn(),
+				"accountEventOptIn", accountDTO.isAccountEventOptIn(),
 				"accountTotalAmount", accountDTO.getAccountTotalAmount(),
 				"reviewDatas", reviewDatas
 				));

@@ -53,6 +53,10 @@ public class OrnablyUser implements UserDetails,OAuth2User{
         this.authorities = authorities;
         this.attributes = attributes;
     }
+    
+    public String getAccountRole() {
+    		return accountRole;
+    }
 	
 	public Integer getAccountPk() {
 		return accountPk;

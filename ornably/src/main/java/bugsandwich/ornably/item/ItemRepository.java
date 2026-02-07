@@ -231,8 +231,8 @@ public class ItemRepository {
 			        itemDTO.getSort(),
 			        
 			        // paging
-			        itemDTO.getItemEndCount(),
-			        itemDTO.getItemStartCount()
+			        itemDTO.getItemLimit(),
+			        itemDTO.getItemOffset()
 			    );
 		}
 		

@@ -69,8 +69,8 @@ public class ItemController {
         //37번째 데이터 부터 12개 조회
         
         // DB 페이지네이션 전달 준비
-        itemDTO.setItemSizeCount(limit);
-        itemDTO.setItemStartCount(offset);
+        itemDTO.setItemLimit(limit);
+        itemDTO.setItemOffset(offset);
         
         
         // 분기점

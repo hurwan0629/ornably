@@ -2,6 +2,8 @@ package bugsandwich.ornably.review;
 
 import java.time.LocalDate;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -29,9 +31,12 @@ public class ReviewDTO {
 	private String itemName; 			// 리뷰 할 상품 이름
 	private String itemImageUrl;		// 리뷰 할 상품 이미지
 	private Integer reviewTotalCount;	// 리뷰 개수
+	private MultipartFile reviewImage;
 	
 	// [ 페이지네이션 ]
 	private Integer startReviewNum;		//리뷰 페이지네이션 시작 
 	private Integer endReviewNum;		//리뷰 페이지네이션 끝
 	private String reviewAccountName;	//리뷰 페이지네이션시 사용할 사용자이름
+	private Integer page;
+	private Integer dataCount;
 }

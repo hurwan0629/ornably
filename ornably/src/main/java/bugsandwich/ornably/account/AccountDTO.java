@@ -26,4 +26,9 @@ public class AccountDTO {
 	private String condition; 			// 분기점
 	private String accountProvider; 	// "LOCAL"/"GOOGLE"...
 	private String accountPassword;		// 회원 비밀번호
+	private Integer accountTotalAmountMin;
+	private Integer accountTotalAmountMax;
+	private Integer accountTotalAmount;
+	private LocalDate accountJoinEndDate;
+	private LocalDate accountJoinStartDate;
 }

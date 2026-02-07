@@ -1,6 +1,5 @@
 package bugsandwich.ornably.security;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -72,6 +71,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 		if(accountPk != null) {
 			//기존회원
 			authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+
 		} else {
 			//신규회원 (온보딩 필요함)
 			authorities = List.of(new SimpleGrantedAuthority("ROLE_ONBOARD"));
@@ -171,7 +171,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 	//소셜 제공자에서 받은 정보를 공통형태로 묶기위한 클래스
 	private record SocialUserInfo(String provider,String providerId,String name, String email) {}
-
 }
 
 

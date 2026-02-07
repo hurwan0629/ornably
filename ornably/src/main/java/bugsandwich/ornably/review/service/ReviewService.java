@@ -28,5 +28,4 @@ public interface ReviewService {
 	// getter
 	public Set<String> getAllowedExtentionSet();
 	public Long getAllowedImageMaxBytes();
-	
 }

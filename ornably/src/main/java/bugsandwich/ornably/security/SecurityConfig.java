@@ -98,7 +98,7 @@ public class SecurityConfig {
 				.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
 				// ✅ React 페이지/정적리소스는 열어두기
-//				.requestMatchers("/", "/index.html", "/assets/**", "/favicon.ico", "/error").permitAll()
+				.requestMatchers("/", "/index.html", "/images/**", "/favicon.ico", "/error").permitAll()
 				
 				//OAuth2 진입 콜백 허용
 				.requestMatchers("/oauth2/**","/login/oauth2/**").permitAll()
@@ -143,7 +143,9 @@ public class SecurityConfig {
 				.userInfoEndpoint(userInfo -> userInfo
 						.userService(customOAuth2UserService))
 				// OAuth2 로그인 성공 시 권한에 따라 상태분기
-				.successHandler(loginSuccessHandler)
+				.successHandler((req, res, auth) -> {
+	                   res.sendRedirect("http://localhost:5173/");
+	              })
 				)
 
 		// 로그아웃 설정
@@ -154,12 +156,7 @@ public class SecurityConfig {
 				.invalidateHttpSession(true) // 세션무효화
 				.clearAuthentication(true) //인증정보 제거
 				.deleteCookies("JSESSIONID") // 세션 식별에 사용되는 JSESSIONID 쿠키 삭제
-				.logoutSuccessHandler((request,response,authentiction) -> {
-					//로그아웃 성공시 200 + json으로 응답
-					response.setStatus(HttpServletResponse.SC_OK); //상태코드 200 출력
-					response.setContentType("application/json; charset=UTF-8"); //json 인코딩
-					response.getWriter().write("{\"success\": true}"); // 응답할 json 내용
-				}));
+				.logoutSuccessUrl("http://localhost:5173/"));
 
 		// 설정이 완료된 SecurityFilterChain 반환
 		return http.build();

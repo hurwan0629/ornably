@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,14 +25,16 @@ import bugsandwich.ornably.item.ItemDTO;
 import bugsandwich.ornably.item.service.ItemService;
 import bugsandwich.ornably.security.OrnablyUser;
 
+
 @RestController
+@RequestMapping("/api")
 public class ItemController {
 
 	@Autowired
 	private ItemService itemService;
 	
 //  ===================== 상품 목록 보기  =====================
-    @GetMapping("/api/all/item")
+    @GetMapping("/all/item")
     public ResponseEntity<Map<String, Object>> getAllItems(
     		@ModelAttribute ItemDTO itemDTO,
     		@AuthenticationPrincipal OrnablyUser ornablyUser
@@ -96,7 +99,7 @@ public class ItemController {
     
 
 //  ===================== 상품 상세 보기 =====================
-    @GetMapping("/api/all/item/{itemPk}")
+    @GetMapping("/all/item/{itemPk}")
     public ResponseEntity<Map<String, Object>> getItemDetail(
     		@PathVariable int itemPk, 
     		@ModelAttribute ItemDTO itemDTO,
@@ -124,7 +127,7 @@ public class ItemController {
  * ===========================================================
  */ 
 //  ===================== 관리자 상품 목록 보기 =====================
-    @GetMapping("/api/admin/item/search")
+    @GetMapping("/admin/item/search")
     public ResponseEntity<Map<String, Object>> adminSearchItem (@ModelAttribute ItemDTO itemDTO) {
     	System.out.println("[ItemController.adminSearchItem]  받은 itemDTO = "+itemDTO);
         try {
@@ -158,7 +161,7 @@ public class ItemController {
     
     
 //  ===================== 관리자 상품 삭제 =====================
-    @DeleteMapping("/api/admin/item/{itemPk}")
+    @DeleteMapping("/admin/item/{itemPk}")
     public ResponseEntity<Void> adminDeleteItem(@PathVariable int itemPk, @ModelAttribute ItemDTO itemDTO){
     	System.out.println("[ItemController.adminDeleteItem]  받은 itemPk = :"+itemPk);
     	
@@ -188,7 +191,7 @@ public class ItemController {
     
 
 //  ===================== 관리자 상품 상세 보기 =====================
-    @GetMapping("/api/admin/item/manage/{itemPk}")
+    @GetMapping("/admin/item/manage/{itemPk}")
     public ResponseEntity<Map<String, Object>> adminItemDetail (@PathVariable int itemPk, @ModelAttribute ItemDTO itemDTO){
     	System.out.println("[ItemController.adminItemDetail] 받은 itemDTO : "+ itemDTO);
     	
@@ -209,7 +212,7 @@ public class ItemController {
 
     
 //  ===================== 관리자 상품 이름 수정 =====================
-     @PatchMapping("/api/account/item/{itemPk}/itemName")
+     @PatchMapping("/account/item/{itemPk}/itemName")
      public ResponseEntity<?> itemNameUpdate(@PathVariable int itemPk, @ModelAttribute ItemDTO itemDTO){
     	System.out.println("[ItemController.itemNameUpdate] 받은 itemDTO : " + itemDTO ); 
     	
@@ -239,7 +242,7 @@ public class ItemController {
      
      
 // ===================== 관리자 상품 가격 수정 =====================
-		@PatchMapping("/api/account/item/{itemPk}/itemPrice")
+		@PatchMapping("/account/item/{itemPk}/itemPrice")
 		public ResponseEntity<?> itemPriceUpdate(@PathVariable int itemPk, @ModelAttribute ItemDTO itemDTO) {
 			System.out.println("[ItemController.itemPriceUpdate] 받은 itemDTO : " + itemDTO);
 
@@ -297,7 +300,7 @@ public class ItemController {
 		
 		
 // ===================== 관리자 상품 설명 수정 =====================		
-		@PatchMapping("/api/account/item/{itemPk}/itemStock")
+		@PatchMapping("/api/account/item/{itemPk}/itemDesciption")
 		public ResponseEntity<?> itemDesciptionUpdate(@PathVariable int itemPk, @ModelAttribute ItemDTO itemDTO){
 			System.out.println("[ItemController.itemDesciptionUpdate] 받은 itemDTO : " + itemDTO);
 			

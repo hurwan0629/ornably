@@ -2,6 +2,9 @@ package bugsandwich.ornably.orders;
 
 import java.util.List;
 
+import org.springframework.stereotype.Repository;
+
+@Repository
 public class OrdersRepository {
 	public OrdersDTO selectOne(OrdersDTO ordersDTO) {
 		return null;

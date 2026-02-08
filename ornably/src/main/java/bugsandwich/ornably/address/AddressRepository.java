@@ -2,8 +2,9 @@ package bugsandwich.ornably.address;
 
 import java.util.List;
 
-import bugsandwich.ornably.cart.CartDTO;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class AddressRepository {
 	public AddressDTO selectOne(AddressDTO addressDTO) {
 		return null;

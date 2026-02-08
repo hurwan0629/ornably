@@ -2,6 +2,9 @@ package bugsandwich.ornably.event;
 
 import java.util.List;
 
+import org.springframework.stereotype.Repository;
+
+@Repository
 public class EventRepository {
 	public EventDTO selectOne(EventDTO eventDTO) {
 		return null;

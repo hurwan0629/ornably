@@ -14,6 +14,92 @@ public class ItemRepository {
 	
 
 	// 상품 목록 조회 (카테고리 + 검색 + 페이징 + 정렬)
+	// 상품 목록 조회 (이벤트 최대할인율 + 리뷰 평균별점 + 카테고리/검색/정렬/페이징)
+	private static final String SELECT_ALL_ITEM =
+	    "WITH "
+	  + "acct AS ( "
+	  + "  SELECT "
+	  + "    a.ACCOUNT_PK AS accountPk, "
+	  + "    DATE(a.ACCOUNT_DATE) AS joinedDate, "
+	  + "    a.ACCOUNT_ROLE AS accountRole, "
+	  + "    IFNULL(SUM(oi.ORDERS_ITEM_PRICE * oi.ORDERS_ITEM_COUNT), 0) AS totalAmount "
+	  + "  FROM account a "
+	  + "  LEFT JOIN orders o ON o.ACCOUNT_PK = a.ACCOUNT_PK "
+	  + "  LEFT JOIN orders_item oi ON oi.ORDERS_PK = o.ORDERS_PK "
+	  + "  WHERE a.ACCOUNT_PK = ? "
+	  + "  GROUP BY a.ACCOUNT_PK, DATE(a.ACCOUNT_DATE), a.ACCOUNT_ROLE "
+	  + "), "
+	  + "event_max AS ( "
+	  + "  SELECT "
+	  + "    i.ITEM_PK AS itemPk, "
+	  + "    MAX(IFNULL(e.EVENT_DISCOUNT_RATE, 0)) AS maxDiscountRate "
+	  + "  FROM item i "
+	  + "  JOIN event e "
+	  + "    ON JSON_CONTAINS(e.EVENT_TARGET_CATEGORY, JSON_QUOTE(i.ITEM_CATEGORY)) "
+	  + "   AND CURRENT_DATE BETWEEN e.EVENT_START_DATE AND e.EVENT_END_DATE "
+	  + "  LEFT JOIN acct a ON 1 = 1 "
+	  + "  WHERE ( "
+	  + "    (a.accountPk IS NULL AND (e.EVENT_TARGET_ACCOUNT->>'$.type') = 'ALL') "
+	  + "    OR "
+	  + "    (a.accountPk IS NOT NULL AND ( "
+	  + "         (e.EVENT_TARGET_ACCOUNT->>'$.type') = 'ALL' "
+	  + "      OR ( "
+	  + "         (e.EVENT_TARGET_ACCOUNT->>'$.type') = 'AMOUNT' "
+	  + "         AND a.totalAmount >= CAST(e.EVENT_TARGET_ACCOUNT->>'$.amount' AS UNSIGNED) "
+	  + "      ) "
+	  + "      OR ( "
+	  + "         (e.EVENT_TARGET_ACCOUNT->>'$.type') = 'JOINED' "
+	  + "         AND a.joinedDate BETWEEN "
+	  + "             STR_TO_DATE(e.EVENT_TARGET_ACCOUNT->>'$.startDate', '%Y-%m-%d') "
+	  + "             AND STR_TO_DATE(e.EVENT_TARGET_ACCOUNT->>'$.endDate', '%Y-%m-%d') "
+	  + "      ) "
+	  + "      OR ( "
+	  + "         (e.EVENT_TARGET_ACCOUNT->>'$.type') = 'MEMBER_TYPE' "
+	  + "         AND JSON_CONTAINS( "
+	  + "               JSON_EXTRACT(e.EVENT_TARGET_ACCOUNT, '$.memberType'), "
+	  + "               JSON_QUOTE(a.accountRole) "
+	  + "             ) "
+	  + "      ) "
+	  + "    )) "
+	  + "  ) "
+	  + "  GROUP BY i.ITEM_PK "
+	  + "), "
+	  + "review_avg AS ( "
+	  + "  SELECT "
+	  + "    r.ITEM_PK AS itemPk, "
+	  + "    IFNULL(ROUND(AVG(r.REVIEW_STAR), 2), 0) AS itemAvgStar "
+	  + "  FROM review r "
+	  + "  GROUP BY r.ITEM_PK "
+	  + ") "
+	  + "SELECT "
+	  + "  i.ITEM_PK AS itemPk, "
+	  + "  i.ITEM_NAME AS itemName, "
+	  + "  i.ITEM_PRICE AS itemPrice, "
+	  + "  i.ITEM_IMAGE_URL AS itemImageUrl, "
+	  + "  i.ITEM_CATEGORY AS itemCategory, "
+	  + "  IFNULL(em.maxDiscountRate, 0) AS itemDiscountRate, "
+	  + "  CASE "
+	  + "    WHEN IFNULL(em.maxDiscountRate, 0) > 0 "
+	  + "      THEN ROUND(i.ITEM_PRICE * (1 - IFNULL(em.maxDiscountRate, 0) / 100), 0) "
+	  + "    ELSE i.ITEM_PRICE "
+	  + "  END AS itemDiscountedPrice, "
+	  + "  IFNULL(ra.itemAvgStar, 0) AS itemAvgStar "
+	  + "FROM item i "
+	  + "LEFT JOIN event_max em ON em.itemPk = i.ITEM_PK "
+	  + "LEFT JOIN review_avg ra ON ra.itemPk = i.ITEM_PK "
+	  + "WHERE "
+	  + "  ( ? = 'ALL' OR i.ITEM_CATEGORY = ? ) "
+	  + "  AND ( ? IS NULL OR ? = '' OR i.ITEM_NAME LIKE CONCAT('%', ?, '%') ) "
+	  + "ORDER BY "
+	  + "  CASE WHEN ? = 'popular' THEN IFNULL(ra.itemAvgStar, 0) END DESC, "
+	  + "  CASE WHEN ? = 'discount' THEN IFNULL(em.maxDiscountRate, 0) END DESC, "
+	  + "  CASE WHEN ? = 'new-reverse' THEN i.ITEM_PK END ASC, "
+	  + "  CASE WHEN ? = 'default' THEN i.ITEM_PK END DESC, "
+	  + "  i.ITEM_PK DESC "
+	  + "LIMIT ? OFFSET ? ";
+
+			
+/*
 	private static final String SELECT_ALL_ITEM =
 	    "SELECT " +
 	    "  i.ITEM_PK        AS itemPk, " +
@@ -39,8 +125,8 @@ public class ItemRepository {
 	    // accountPk가 적용되는 EVENT만 JOIN
 	    "LEFT JOIN EVENT e " +
 	    "  ON e.ACCOUNT_PK = ? " +
-	    " AND JSON_CONTAINS(e.EVENT_TARGET_CATEGORY, JSON_QUOTE(i.ITEM_CATEGORY)) " +
-	    " AND CURRENT_DATE BETWEEN e.EVENT_START_DATE AND e.EVENT_END_DATE " +
+	    " AND JSON_CONTAINS(e.EVENT_TARGET_CATEGORY, JSON_QUOTE(i.ITEM_CATEGORY)) " +		// 해당되는 아이템 카테고리에만
+	    " AND CURRENT_DATE BETWEEN e.EVENT_START_DATE AND e.EVENT_END_DATE " +			// 현재 날짜에 포함되는 이벤트만
 
 	    "WHERE ( ? = 'all' OR i.ITEM_CATEGORY = ? ) " +
 	    "  AND ( ? IS NULL OR ? = '' OR i.ITEM_NAME LIKE CONCAT('%', ?, '%') ) " +
@@ -56,7 +142,7 @@ public class ItemRepository {
 	    "  CASE WHEN ? = 'discount' THEN itemDiscountRate END DESC, " +	// 할인율순
 	    "  CASE WHEN ? = 'default' THEN i.ITEM_PK END DESC " +          // 기본
 	    "LIMIT ? OFFSET ?";                                             // 페이징 처리
-
+*/
 	
 
 	// 회원 위시리스트 조회

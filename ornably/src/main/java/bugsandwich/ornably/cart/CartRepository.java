@@ -2,6 +2,9 @@ package bugsandwich.ornably.cart;
 
 import java.util.List;
 
+import org.springframework.stereotype.Repository;
+
+@Repository
 public class CartRepository {
 	public CartDTO selectOne(CartDTO cartDTO) {
 		return null;

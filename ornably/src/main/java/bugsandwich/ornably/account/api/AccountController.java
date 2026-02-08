@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import bugsandwich.ornably.account.AccountDTO;
@@ -24,7 +25,9 @@ import bugsandwich.ornably.review.ReviewDTO;
 import bugsandwich.ornably.review.service.ReviewService;
 import bugsandwich.ornably.security.OrnablyUser;
 
-@RestController("/api")
+
+@RestController
+@RequestMapping("/api")
 public class AccountController {
 
 	@Autowired
@@ -55,7 +58,7 @@ public class AccountController {
 	@PreAuthorize("anonymous()")
 	@GetMapping("/guest/account/check-id")
 	public ResponseEntity<Map<String, Object>> checkIdDuplicate(
-			@RequestBody AccountDTO accountDTO
+			@ModelAttribute AccountDTO accountDTO
 			) {
 		boolean isDuplicated = accountService.checkIdDuplicate(accountDTO);
 
@@ -138,7 +141,7 @@ public class AccountController {
 	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/admin/account/search")
 	public ResponseEntity<Map<String, Object>> adminSearchAccount(
-			@RequestBody AccountDTO accountDTO
+			@ModelAttribute AccountDTO accountDTO
 			) {
 		/*
 accountPk={number}				- 기본값: 0
@@ -197,7 +200,7 @@ accountTotalAmountMax={number}	- 기본값: Integer.max
 				"accountName", accountDTO.getAccountName(),
 				"accountDate", accountDTO.getAccountDate(),
 				"accountRole", accountDTO.getAccountRole(),
-				"accountEventOptIn", accountDTO.isAccountEventOptIn(),
+				"accountEventOptIn", accountDTO.getAccountEventOptIn(),
 				"accountTotalAmount", accountDTO.getAccountTotalAmount(),
 				"reviewDatas", reviewDatas
 				));

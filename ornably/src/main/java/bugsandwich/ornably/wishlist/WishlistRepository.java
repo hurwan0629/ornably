@@ -2,8 +2,11 @@ package bugsandwich.ornably.wishlist;
 
 import java.util.List;
 
+import org.springframework.stereotype.Repository;
+
 import bugsandwich.ornably.review.ReviewDTO;
 
+@Repository
 public class WishlistRepository {
 	public WishlistDTO selectOne(WishlistDTO wishlistDTO) {
 		return null;

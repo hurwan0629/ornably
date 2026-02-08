@@ -25,7 +25,7 @@ public class ReviewDTO {
 	
 	// [ 추가 멤버 변수 ]
 	private String condition;			// 분기점
-	private boolean reviewExists;		// 리뷰 존재 여부 확인
+	private Boolean reviewExists;		// 리뷰 존재 여부 확인
 	private Integer itemPrice;			// 리뷰 할 상품 가격
 	private Integer totalCount; 		// 리뷰 할 상품의 전체 가격
 	private String itemName; 			// 리뷰 할 상품 이름

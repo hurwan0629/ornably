@@ -2,6 +2,9 @@ package bugsandwich.ornably.connectLog;
 
 import java.util.List;
 
+import org.springframework.stereotype.Repository;
+
+@Repository
 public class ConnectLogRepository {
 	public ConnectLogDTO selectOne(ConnectLogDTO connectLogDTO) {
 		return null;

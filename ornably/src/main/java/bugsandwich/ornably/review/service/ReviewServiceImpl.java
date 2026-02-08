@@ -30,7 +30,7 @@ public class ReviewServiceImpl implements ReviewService {
 	private ReviewRepository reviewRepository;
 
 	// config.properties에 있는 리소스 저장하는 파일 절대경로
-	@Value("${resource.path.review}")
+	 @Value("${resource.path.review}")
 	private String reviewResourcePath;
 
 	// 허용되는 파일 확장자 종류

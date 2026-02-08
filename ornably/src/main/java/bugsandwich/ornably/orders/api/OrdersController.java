@@ -2,6 +2,9 @@ package bugsandwich.ornably.orders.api;
 
 import java.util.List;
 import java.util.Map;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +19,9 @@ import bugsandwich.ornably.orders.OrdersDTO;
 import bugsandwich.ornably.orders.service.OrdersService;
 import bugsandwich.ornably.security.OrnablyUser;
 
+
 @RestController
+@RequestMapping("/api")
 public class OrdersController {
 	@Autowired
 	private OrdersService ordersService;
@@ -51,8 +56,4 @@ public class OrdersController {
 
 	    return ResponseEntity.ok(Map.of("result", ok));
 	}
-	
-	
-	
-	
 }

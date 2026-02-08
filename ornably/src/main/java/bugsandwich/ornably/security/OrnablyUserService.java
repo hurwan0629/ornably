@@ -33,7 +33,7 @@ public class OrnablyUserService implements UserDetailsService { // 유저디테�
 		// 회원DTO 만들어서 DB안에있는 회원이름을 가져오기
 		AccountDTO accountDTO = new AccountDTO();
 		accountDTO.setAccountId(username);
-		accountDTO.setCondition(username);
+		accountDTO.setCondition("SELECT_ORNABLY_USER_BY_ACCOUNT_ID");
 		accountDTO = accountRepository.selectOne(accountDTO);
 
 		// 회원 정보가 없을때

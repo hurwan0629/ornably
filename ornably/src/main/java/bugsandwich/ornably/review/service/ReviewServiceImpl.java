@@ -30,7 +30,7 @@ public class ReviewServiceImpl implements ReviewService {
 	private ReviewRepository reviewRepository;
 
 	// config.properties에 있는 리소스 저장하는 파일 절대경로
-	@Value("${resource.path.review}")
+	 @Value("${resource.path.review}")
 	private String reviewResourcePath;
 
 	// 허용되는 파일 확장자 종류
@@ -54,7 +54,7 @@ public class ReviewServiceImpl implements ReviewService {
 	public List<ReviewDTO> getReviewByItemPk(ReviewDTO reviewDTO) {
 
 		// LIMIT [dataCount] OFFSET ? 를 주기 위한 데이터
-		reviewDTO.setReviewStartCount((reviewDTO.getPage() - 1) * reviewDTO.getDataCount() + 1);
+		reviewDTO.setStartReviewNum((reviewDTO.getPage() - 1) * reviewDTO.getDataCount() + 1);
 		reviewDTO.setCondition("SELECT_ALL_REVIEW_PAGENATION_BY_ITEM_PK");
 
 		return this.reviewRepository.selectAll(reviewDTO);
@@ -102,13 +102,18 @@ public class ReviewServiceImpl implements ReviewService {
 	@Override
 	public boolean registReview(ReviewDTO reviewDTO) {
 		Path imageFolderPath = Paths.get(this.reviewResourcePath + "/images/review");
-
+		
 		// 2) 이미지 저장 + URL 생성
 		MultipartFile image = reviewDTO.getReviewImage();
 		// 사진이 존재하면 저장후 저장된 경로 문자열을 DTO에 너허어주기
 		if (image != null && !image.isEmpty()) {
 
-			reviewDTO.setReviewImageUrl(saveReviewImageAndGetUrl(image)); // 예: /images/review/20260206_153012_xxx.png
+			try {
+				// 예: /images/review/20260206_153012_xxx.png
+				reviewDTO.setReviewImageUrl(saveReviewImageAndGetUrl(image));
+			} catch (IOException e) {
+				e.printStackTrace();
+			} 
 		}
 		reviewDTO.setCondition("INSERT_REGIST_REVIEW");
 

@@ -8,13 +8,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import bugsandwich.ornably.security.OrnablyUser;
 
 
 
-@RestController("/api/auth")
+@RestController
+@RequestMapping("/api")
 public class AuthController {
 	
 	/*
@@ -42,7 +44,7 @@ public class AuthController {
 		- code: INTERNAL_SERVER_ERROR
 		- message: "인증 정보 조회 중 오류가 발생했습니다."
 	 */
-	@GetMapping("/auth/info")
+	@GetMapping("all/auth/info")
 	public ResponseEntity<Map<String, Object>> getUserAuthInfoData(@AuthenticationPrincipal OrnablyUser loginUser){
 		Map<String, Object> data = new HashMap<>();
 		

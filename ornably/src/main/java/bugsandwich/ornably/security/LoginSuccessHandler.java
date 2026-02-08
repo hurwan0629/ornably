@@ -22,16 +22,19 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler{
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws IOException, ServletException {
 
+		response.setStatus(200);
 		//현재 로그인한 사용자의 권한 목록을 문자열로 변환한다
 		//["USER"] ["ONBOARD"] ["ADMIN"]
 		// Set<String> authorities 권한 문자열들을 모아둠
+		/*
 		Set<String> roles = authentication.getAuthorities().stream()
 				.map(GrantedAuthority:: getAuthority) // GrantedAuthority 객체에서 문자열만 꺼냄
 				.collect(Collectors.toSet());
-
+		
 		//권한에 따라 프론트(뷰)가 이동할 다음 경로를 정한다
 		//우선순위 : ADMIN -> USER -> ONBOARD
 		//String next;
+		
 		if(roles.contains("ROLE_ADMIN")) { //관리자권한이 있으면 true 없으면 false
 			response.sendRedirect("http://localhost:5173/admin");//관리자페이지로 이동
 			return;
@@ -44,6 +47,6 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler{
 		}else { // 권한이 비어있거나 예상 밖일때 로그인 페이지로 이동
 			response.sendRedirect("http://localhost:5173/login?error=role");
 			return;
-		}
+		}*/
 	}
 }

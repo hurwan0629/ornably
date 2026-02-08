@@ -37,7 +37,7 @@ public class AccountServiceImpl implements AccountService {
 		flag = flag && this.accountRepository.insert(accountDTO);
 		
 		addressDTO.setCondition("INSERT_ACCOUNT_FIRST_ADDRESS");
-		flag = flag && this.addressRepository.insert(accountDTO);
+		flag = flag && this.addressRepository.insert(addressDTO);
 
 		return flag;
 	}
@@ -45,13 +45,13 @@ public class AccountServiceImpl implements AccountService {
 	@Override
 	public boolean checkIdDuplicate(AccountDTO accountDTO) {
 		accountDTO.setCondition("SELECT_CHECK_LOGIN_ID");
-		return accountRepository.seletOne(accountDTO)!=null;
+		return accountRepository.selectOne(accountDTO)!=null;
 	}
 	
 	@Override
 	public AccountDTO getMyPageData(AccountDTO accountDTO) {
 		accountDTO.setCondition("SELECT_MY_PAGE");
-		return accountRepository.seletOne(accountDTO);
+		return accountRepository.selectOne(accountDTO);
 	}
 
 	@Override
@@ -85,7 +85,7 @@ public class AccountServiceImpl implements AccountService {
 	@Override
 	public List<AccountDTO> getAdminSearchAccount(AccountDTO accountDTO) {
 		accountDTO.setCondition("SELECT_ALL_ROLE_USER_ACCOUNT_BY_ADMIN_SEARCH");
-		List<AccountDTO> accountDatas = accountRepository.accountDTO(accountDTO);
+		List<AccountDTO> accountDatas = accountRepository.selectAll(accountDTO);
 		
 		return accountDatas;
 	}

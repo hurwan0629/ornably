@@ -20,7 +20,7 @@ public class AccountDTO {
 	private String accountPhone;		// 회원 전화번호
 	private LocalDate accountDate;		// 회원 가입일
 	private String accountRole;			// 회원 권한 : "ADMIN"/"USER" 같은 값
-	private boolean accountEventOptIn;	// 회원 이벤트수신 동의 여부
+	private Boolean accountEventOptIn;	// 회원 이벤트수신 동의 여부
 	
 	// [ 추가 멤버 변수 ]
 	private String condition; 			// 분기점
@@ -28,10 +28,12 @@ public class AccountDTO {
 	private String accountPassword;		// 회원 비밀번호
 	
 	// [ 관리자용 멤버 변수 ]
-	private LocalDate accountJoinStartDate;   	// 가입일 시작
-	private LocalDate accountJoinEndDate;     	// 가입일 종료
-	private Integer accountTotalAmountMin;    	// 총 구매금액 최소
-	private Integer accountTotalAmountMax;    	// 총 구매금액 최대
-	private Integer accountTotalAmount;			// 총 구매 금액
-	
+	private Integer accountTotalAmountMin;
+	private Integer accountTotalAmountMax;
+	private Integer accountTotalAmount;
+	private LocalDate accountJoinEndDate;
+	private LocalDate accountJoinStartDate;
+	private String accountKey;
+	private String accountVerificationCode;
+
 }

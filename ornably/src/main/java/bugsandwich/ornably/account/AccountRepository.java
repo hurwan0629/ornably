@@ -254,11 +254,13 @@ public class AccountRepository {
         else if ("SELECT_ACCOUNT_PK_BY_ACCOUNT_ID".equals(accountDTO.getCondition())) {
     		System.out.println("[로그] selectOne의 SELECT_ACCOUNT_PK_BY_ACCOUNT_ID");
     		
-        	return jdbcTemplate.queryForObject(
+
+        	List<AccountDTO> list = jdbcTemplate.query(
         		SELECT_ACCOUNT_PK_BY_ACCOUNT_ID,
         		new BeanPropertyRowMapper<>(AccountDTO.class),
                 accountDTO.getAccountId()
             );
+        	return list.isEmpty() ? null : list.get(0);
         }
         
         // 계정 1명 조회
@@ -301,7 +303,7 @@ public class AccountRepository {
 			    accountDTO.getAccountName(),
 			    accountDTO.getAccountEmail(),
 			    accountDTO.getAccountPhone(),
-			    accountDTO.isAccountEventOptIn() ? 1 : 0,
+			    accountDTO.getAccountEventOptIn() ? 1 : 0,
 			    accountDTO.getAccountRole()
 			);
 		}
@@ -332,6 +334,6 @@ public class AccountRepository {
     }
     
     private boolean delete(AccountDTO accountDTO) {
-    	return false;
+    		return false;
     }
 }

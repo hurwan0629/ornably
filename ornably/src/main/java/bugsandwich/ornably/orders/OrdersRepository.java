@@ -1,6 +1,7 @@
 package bugsandwich.ornably.orders;
 
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -135,8 +136,7 @@ public class OrdersRepository {
 		else {
 			System.out.println("[로그][경고] OrdersRepository의 delete_condition 없음");
 		}
-		return result > 0;
-	}
+		return result > 0;	}
 }
 
 

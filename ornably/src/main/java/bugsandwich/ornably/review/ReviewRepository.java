@@ -141,7 +141,7 @@ public class ReviewRepository {
 	    "    R.REVIEW_TITLE     AS reviewTitle, " +
 	    "    R.REVIEW_CONTENT   AS reviewContent, " +
 	    "    R.REVIEW_STAR      AS reviewStar, " +
-	    "    R.ACCOUNT_PK       AS reviewAccountPk, " +
+	    "    R.ACCOUNT_PK       AS accountPk, " +
 	    "    A.ACCOUNT_NAME     AS reviewAccountName, " +
 	    "    DATE(R.REVIEW_DATE) AS reviewDate " +
 	    "FROM REVIEW R " +
@@ -239,7 +239,7 @@ public class ReviewRepository {
 			        dto.setReviewTitle(rs.getString("reviewTitle"));
 			        dto.setReviewContent(rs.getString("reviewContent"));
 			        dto.setReviewStar(rs.getInt("reviewStar"));
-			        dto.setReviewAccountPk(rs.getInt("reviewAccountPk"));
+			        dto.setAccountPk(rs.getInt("accountPk"));
 			        dto.setReviewAccountName(rs.getString("reviewAccountName"));
 			        dto.setReviewDate(rs.getDate("reviewDate").toLocalDate());
 			        return dto;
@@ -394,5 +394,3 @@ public class ReviewRepository {
 		return result > 0;
 	}
 }
-
-

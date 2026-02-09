@@ -1,6 +1,5 @@
 package bugsandwich.ornably.item;
 
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -27,6 +26,7 @@ public class ItemDTO {
 	private String condition; 				// 분기점
 	private Integer accountPk;				// 회원 PK
 	private boolean itemWishlistToggle; 	// 찜 여부
+	private int cartCount;					// 장바구니에 담긴 상품 총 수량
 	
 	// [ 관리자용 멤버 변수 ]
 	private Integer itemPriceMin;           // 최소 가격

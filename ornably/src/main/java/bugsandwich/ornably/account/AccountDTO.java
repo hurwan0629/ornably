@@ -23,9 +23,11 @@ public class AccountDTO {
 	private boolean accountEventOptIn;	// 회원 이벤트수신 동의 여부
 	
 	// [ 추가 멤버 변수 ]
-	private String condition; 			// 분기점
-	private String accountProvider; 	// "LOCAL"/"GOOGLE"...
-	private String accountPassword;		// 회원 비밀번호
+	private String condition; 				// 분기점
+	private String accountProvider; 		// "LOCAL"/"GOOGLE"...
+	private String accountPassword;			// 회원 비밀번호
+	private String accountKey;				// 전화번호 인증시 임시로 내려주는 키
+	private String accountVerificationCode;	// 전화번호 인증 키(요청 받을때 사용)
 	
 	// [ 관리자용 멤버 변수 ]
 	private LocalDate accountJoinStartDate;   	// 가입일 시작

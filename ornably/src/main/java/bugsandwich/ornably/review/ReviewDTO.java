@@ -18,12 +18,12 @@ public class ReviewDTO {
 	private String reviewTitle;		// 리뷰 제목
 	private String reviewContent;	// 리뷰 내용
 	private LocalDate reviewDate;	// 리뷰 작성일
-	private int reviewStar;			// 리뷰 평점
+	private Integer reviewStar;		// 리뷰 평점
 	private String reviewImageUrl;	// 리뷰 이미지 경로
 	
 	// [ 추가 멤버 변수 ]
 	private String condition;			// 분기점
-	private boolean reviewExists;		// 리뷰 존재 여부 확인
+	private Boolean reviewExists;		// 리뷰 존재 여부 확인
 	private Integer itemPrice;			// 리뷰 할 상품 가격
 	private Integer totalCount; 		// 리뷰 할 상품의 전체 가격
 	private String itemName; 			// 리뷰 할 상품 이름

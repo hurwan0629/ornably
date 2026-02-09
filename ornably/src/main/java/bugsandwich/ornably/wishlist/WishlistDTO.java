@@ -7,12 +7,12 @@ import lombok.NoArgsConstructor;
 @Data 				// getter/setter, toString, equals, hashCode 자동 생성
 @NoArgsConstructor	// 기본 생성자
 @AllArgsConstructor	// 모든 필드를 받는 생성자
-public class WishlistDTO {
+public class WishListDTO {
 	
 	// [ 테이블 컬럼 ]
-	private int wishlistPk;		// 위시리스트 고유 번호 (Pk)
-	private int accountPk;		// 회원 고유 번호 (Fk)
-	private int itemPk;			// 상품 고유 번호 (Fk)
+	private Integer wishlistPk;	// 위시리스트 고유 번호 (Pk)
+	private Integer accountPk;	// 회원 고유 번호 (Fk)
+	private Integer itemPk;		// 상품 고유 번호 (Fk)
 	
 	// [ 추가 멤버 변수 ]
 	private String condition;	// 분기점

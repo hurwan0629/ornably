@@ -20,7 +20,7 @@ public class AccountDTO {
 	private String accountPhone;		// 회원 전화번호
 	private LocalDate accountDate;		// 회원 가입일
 	private String accountRole;			// 회원 권한 : "ADMIN"/"USER" 같은 값
-	private boolean accountEventOptIn;	// 회원 이벤트수신 동의 여부
+	private Boolean accountEventOptIn;	// 회원 이벤트수신 동의 여부
 	
 	// [ 추가 멤버 변수 ]
 	private String condition; 				// 분기점

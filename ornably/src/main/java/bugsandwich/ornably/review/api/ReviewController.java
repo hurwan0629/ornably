@@ -28,7 +28,20 @@ public class ReviewController {
 
 	@Autowired
 	private ReviewService reviewService;
-
+	
+	// 내 리뷰 전체 보기
+	@PreAuthorize("hasRole('USER')")
+	@GetMapping("/user/review/me")
+	public ResponseEntity<?> getReviewDatasByAccountPk(
+			@AuthenticationPrincipal OrnablyUser ornablyUser
+			) {
+		List<ReviewDTO> reviewDatas = this.reviewService.getReviewByAccountPk(ornablyUser.getAccountPk());
+		
+		return ResponseEntity.ok(
+				Map.of("reviewDatas", reviewDatas));
+	}
+	
+	
 	// 상품 상세페이지 리뷰 보기
 	@GetMapping("/all/review/item-detail-page")
 	public ResponseEntity<?> getItemDetailPageReview(@ModelAttribute ReviewDTO reviewDTO) {
@@ -84,7 +97,8 @@ public class ReviewController {
 
 			// 파일 확장자 명 검사
 			if (!this.reviewService.checkFileExtention(reviewDTO.getReviewImage())) {
-				return ResponseEntity.badRequest().body(Map.of("code", "IMAGE_EXTENTION_TYPE_ERROR", "message",
+				return ResponseEntity.badRequest().body(
+						Map.of("code", "IMAGE_EXTENTION_TYPE_ERROR", "message",
 						"확장자는 " + this.reviewService.getAllowedExtentionSet() + "만 가능합니다."));
 			}
 		}

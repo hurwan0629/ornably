@@ -31,11 +31,11 @@ public class CartController {
 	
 //  ===================== 장바구니 목록 보기  =====================
 	@PreAuthorize("hasRole('USER')")
-	@GetMapping("/api/user/cart/payment")
+	@GetMapping("/user/cart/payment")
 	public ResponseEntity<Map<String, Object>> getCartList (CartDTO cartDTO, @AuthenticationPrincipal OrnablyUser ornablyUser){
 		
 		cartDTO.setAccountPk(ornablyUser.getAccountPk());
-		cartDTO.setCondition("SELECT_ALL_ORDERS");
+		cartDTO.setCondition("SELECT_ALL_CART"); // 원래 SELECT_ALL_ORDERS 였는데 일단 바꿈
 		
 		List<CartDTO> list = cartService.getCartList(cartDTO);
 		
@@ -46,7 +46,7 @@ public class CartController {
 	
 //  ===================== 장바구니 아이템 추가  =====================
 	@PreAuthorize("hasRole('USER')")
-	@PostMapping("/api/user/cart")
+	@PostMapping("/user/cart")
 	public ResponseEntity<Map<String, Object>> insertCartItem (
 			@RequestBody CartDTO cartDTO,  
 			@AuthenticationPrincipal OrnablyUser ornablyUser
@@ -80,7 +80,7 @@ public class CartController {
 	
 //  ===================== 장바구니 담긴 수량 변경 =====================
 	@PreAuthorize("hasRole('USER')")
-	@PatchMapping("/api/user/cart/{cartPk}")
+	@PatchMapping("/user/cart/{cartPk}")
 	public ResponseEntity<Map<String, Object>> updateCartItemCount (
 			@PathVariable Integer cartPk,
 			@RequestBody CartDTO cartDTO, 
@@ -88,8 +88,8 @@ public class CartController {
 			) {
 		
 		cartDTO.setAccountPk(ornablyUser.getAccountPk());
+		cartDTO.setCartPk(cartPk);
 		cartDTO.setCondition("UPDATE_CART_ITEM_COUNT");
-		
 		if(!cartService.updateCart(cartDTO)) {
     		return ResponseEntity.status(404).body(Map.of(
         			"code", "ITEM_NOT_FOUND",
@@ -106,7 +106,7 @@ public class CartController {
 	
 //  ===================== 장바구니 담긴 단일 상품 삭제 =====================
 	@PreAuthorize("hasRole('USER')")
-	@DeleteMapping("/api/user/cart/{cartPk}")
+	@DeleteMapping("/user/cart/{cartPk}")
 	public ResponseEntity<Map<String, Object>> updateDeleteOneCartItem (
 			@PathVariable Integer cartPk,
 			CartDTO cartDTO, 

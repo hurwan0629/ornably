@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -32,6 +33,12 @@ public class ItemController {
 
 	@Autowired
 	private ItemService itemService;
+	
+	@Value("resource.path")
+	private String resourcePath;
+	
+	@Value("resource.item.prefix")
+	private String itemPrefix;
 
 //  ===================== 상품 목록 보기  =====================
 	@GetMapping("/all/item")
@@ -95,7 +102,7 @@ public class ItemController {
 	public ResponseEntity<Map<String, Object>> getItemDetail(@PathVariable Integer itemPk, ItemDTO itemDTO) {
 		System.out.println("[ItemController.getItemDetail]  받은 itemPk = " + itemPk);
 		itemDTO.setItemPk(itemPk);
-		itemDTO.setCondition("SELECT_ONE_ITEM");
+		itemDTO.setCondition("SELECT_ONE_ITEM_DETAIL");
 		ItemDTO item = itemService.getItem(itemDTO);
 
 		/*
@@ -319,18 +326,20 @@ public class ItemController {
 		}
 
 		// 서버에서 파일을 저장할 폴더 경로
-		String uploadDir = "C:/HUR/workspace/Ornably/resource/images/item";
+		String uploadDir = this.resourcePath + this.itemPrefix;
 		File dir = new File(uploadDir); // File 객체 생성
-		if (!dir.exists())
-			dir.mkdirs(); // 폴더가 존재하지 않으면 자동 생성
+		if (!dir.exists()) {
+			dir.mkdirs(); // 폴더가 존재하지 않으면 자동 생성			
+		}
 
 		// getOriginalFilename() = 클라이언트가 업로드한 원본 파일 이름 가져오기
 		String original = itemImage.getOriginalFilename();
 
 		// 파일 확장자 추출 (png, jpg 등)
 		String ext = org.springframework.util.StringUtils.getFilenameExtension(original);
-		if (ext == null)
-			ext = "png"; // 확장자가 없으면 기본 png 사용
+		if (ext == null) {
+			ext = "png"; // 확장자가 없으면 기본 png 사용			
+		}
 
 		// UUID 사용 → 파일 이름 중복 방지 + 보안
 		String fileName = UUID.randomUUID() + "." + ext.toLowerCase();
@@ -340,7 +349,7 @@ public class ItemController {
 		itemImage.transferTo(dest); // MultipartFile → 실제 서버 파일로 저장
 
 		// 클라이언트가 접근할 수 있는 이미지 URL 생성
-		String imageUrl = "/item/" + fileName;
+		String imageUrl = this.itemPrefix + fileName;
 
 		// DB 업데이트
 		itemDTO.setItemPk(itemPk);

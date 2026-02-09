@@ -21,6 +21,8 @@ public class CartDTO {
 	private Integer cartTotalCount; 	// 사용자 장바구니 총 상품수량
 	private Integer cartTotalPrice; 	// 장바구니에 담긴 상품 별 총 가격
 	private Integer cartTotalAmount;	// 사용자 장바구니 총 금액
+	private Integer itemDiscountRate;   // 할인율
+	private Integer itemDiscountPrice;  // 할인 금액
 	
 	// [ 상품 정보 : JOIN 결과용 ]
 	private String itemName;        // 상품명

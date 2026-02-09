@@ -95,7 +95,7 @@ public class ItemController {
 	public ResponseEntity<Map<String, Object>> getItemDetail(@PathVariable Integer itemPk, ItemDTO itemDTO) {
 		System.out.println("[ItemController.getItemDetail]  받은 itemPk = " + itemPk);
 		itemDTO.setItemPk(itemPk);
-		itemDTO.setCondition("SELECT_ONE_ITEM");
+		itemDTO.setCondition("SELECT_ONE_ITEM_DETAIL");
 		ItemDTO item = itemService.getItem(itemDTO);
 
 		/*
@@ -321,16 +321,18 @@ public class ItemController {
 		// 서버에서 파일을 저장할 폴더 경로
 		String uploadDir = "C:/HUR/workspace/Ornably/resource/images/item";
 		File dir = new File(uploadDir); // File 객체 생성
-		if (!dir.exists())
-			dir.mkdirs(); // 폴더가 존재하지 않으면 자동 생성
+		if (!dir.exists()) {
+			dir.mkdirs(); // 폴더가 존재하지 않으면 자동 생성			
+		}
 
 		// getOriginalFilename() = 클라이언트가 업로드한 원본 파일 이름 가져오기
 		String original = itemImage.getOriginalFilename();
 
 		// 파일 확장자 추출 (png, jpg 등)
 		String ext = org.springframework.util.StringUtils.getFilenameExtension(original);
-		if (ext == null)
-			ext = "png"; // 확장자가 없으면 기본 png 사용
+		if (ext == null) {
+			ext = "png"; // 확장자가 없으면 기본 png 사용			
+		}
 
 		// UUID 사용 → 파일 이름 중복 방지 + 보안
 		String fileName = UUID.randomUUID() + "." + ext.toLowerCase();

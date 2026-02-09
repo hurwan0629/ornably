@@ -20,7 +20,7 @@ public class ReviewDTO {
 	private String reviewTitle;		// 리뷰 제목
 	private String reviewContent;	// 리뷰 내용
 	private LocalDate reviewDate;	// 리뷰 작성일
-	private int reviewStar;			// 리뷰 평점
+	private Integer reviewStar;		// 리뷰 평점
 	private String reviewImageUrl;	// 리뷰 이미지 경로
 	
 	// [ 추가 멤버 변수 ]

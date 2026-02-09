@@ -23,7 +23,7 @@ public class EventDTO {
 	private JsonNode eventTargetAccount;		// 이벤트 대상
 	private JsonNode eventTargetCategory;		// 이벤트 상품 카테고리
 	private String eventDescription;			// 이벤트 설명
-	private int eventDiscountRate;				// 할인율
+	private Integer eventDiscountRate;			// 할인율
 	private String eventImageUrl;				// 이벤트 이미지 URL
 	
 	// [ 추가 멤버 변수 ]

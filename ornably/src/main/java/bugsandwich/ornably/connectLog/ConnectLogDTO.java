@@ -15,7 +15,7 @@ public class ConnectLogDTO {
 	private Integer connectLogPk;	// 로그 고유 번호 (Pk)
 	private Integer accountPk;		// 회원 고유 번호 (Fk) : 접속한 사용자 ID
 	private String connectIP;		// 접속한 IP 주소
-	private String connectDevoce;	// 접속 환경 : 기기/브라우저
+	private String connectDevice;	// 접속 환경 : 기기/브라우저
 	private LocalDate connectDate;	// 접속 날짜·시간
 	
 	// [ 추가 멤버 변수 ]

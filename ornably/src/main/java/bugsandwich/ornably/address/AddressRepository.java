@@ -121,7 +121,7 @@ public class AddressRepository {
 		        INSERT_NEW_ADDRESS,
 		        addressDTO.getAccountPk(),
 		        addressDTO.getAddressName(),
-		        addressDTO.isAddressIsDefault() ? 1 : 0,
+		        addressDTO.getAddressIsDefault(),
 		        addressDTO.getAddressPostalCode(),
 		        addressDTO.getAddressRegion(),
 		        addressDTO.getAddressDetail()

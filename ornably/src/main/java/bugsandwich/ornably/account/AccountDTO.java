@@ -35,7 +35,4 @@ public class AccountDTO {
 	private Integer accountTotalAmount;
 	private LocalDate accountJoinEndDate;
 	private LocalDate accountJoinStartDate;
-	private String accountKey;
-	private String accountVerificationCode;
-
 }

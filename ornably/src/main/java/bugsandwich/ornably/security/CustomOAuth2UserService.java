@@ -1,10 +1,9 @@
-package bugSandwich.ornably.security;
+package bugsandwich.ornably.security;
 
-import java.util.Map;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,7 +11,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
@@ -72,7 +70,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 		//회원Pk가 널이 아니면
 		if(accountPk != null) {
 			//기존회원
-			authorities =List.of(new SimpleGrantedAuthority("ROLE_USER"));
+			authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+
 		} else {
 			//신규회원 (온보딩 필요함)
 			authorities = List.of(new SimpleGrantedAuthority("ROLE_ONBOARD"));
@@ -109,7 +108,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 				(accountPk != null) ? accountPk : 0,                              // accountPk (신규면 0)
 				 socialUser.name(),               // accountName (소셜에서 받은 이름)
 				 accountId,                       // accountId (provider_providerId)
-				 new ArrayList<>(),               // accountEventPkList (일단 빈 리스트)
 				 null,                            // accountPasswordHash (소셜은 비번 없음)
 				 registrationId.toUpperCase(),    // accountRole (원하면 "SOCIAL" 같은 값으로 통일해도 됨)
 				 authorities,                     // authorities (ROLE_USER or ROLE_ONBOARD)
@@ -173,7 +171,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 	//소셜 제공자에서 받은 정보를 공통형태로 묶기위한 클래스
 	private record SocialUserInfo(String provider,String providerId,String name, String email) {}
-
 }
 
 

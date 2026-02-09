@@ -162,8 +162,8 @@ public class CartRepository {
 		}
 		
 		// 장바구니 항목 1개만 삭제 : X 버튼 클릭 시
-		else if ("DELETE_BY_CART_PK".equals(cartDTO.getCondition())) {
-			System.out.println("[로그] delete의 DELETE_BY_CART_PK");
+		else if ("DELETE_CART_ITEM".equals(cartDTO.getCondition())) {
+			System.out.println("[로그] delete의 DELETE_CART_ITEM");
 			result = jdbcTemplate.update(
 				DELETE_CART_ITEM,
 				cartDTO.getCartPk(),

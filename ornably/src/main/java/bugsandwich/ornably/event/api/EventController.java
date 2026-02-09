@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,13 +19,14 @@ import bugsandwich.ornably.event.EventDTO;
 import bugsandwich.ornably.event.Service.EventService;
 
 @RestController
+@RequestMapping("/api")
 public class EventController {
 	
 	private EventService eventService;
 	
 //  ===================== 이벤트 정보 요청 =====================
 	@PreAuthorize("hasRole('ADMIN')")
-	@GetMapping("/api/admin/event/all")
+	@GetMapping("/admin/event/all")
 	public ResponseEntity<Map<String, Object>> getEvent(EventDTO eventDTO){
 		
 	    eventDTO.setCondition("ADMIN_SELECT_ALL_EVENT");
@@ -37,7 +39,7 @@ public class EventController {
 	
 	// ===================== 이벤트 종료 요청 =====================
 	@PreAuthorize("hasRole('ADMIN')")
-	@PatchMapping("/api/admin/event/{eventPk}/end")
+	@PatchMapping("/admin/event/{eventPk}/end")
 	public ResponseEntity<Map<String, Object>> endEvent(
 	        @PathVariable Integer eventPk,
 	        EventDTO eventDTO
@@ -63,7 +65,7 @@ public class EventController {
 	
 	
 //  ===================== 현재 진행중인 이벤트 =====================
-	@GetMapping("/api/all/event/in-progress")
+	@GetMapping("/all/event/in-progress")
 	public ResponseEntity<Map<String, Object>> mainEvent(EventDTO eventDTO){
 		
 		eventDTO.setCondition("SELECT_ALL_EVENT");
@@ -84,7 +86,7 @@ public class EventController {
 	
 //  ===================== 이벤트 등록 =====================
 	@PreAuthorize("hasRole('ADMIN')")
-	@PostMapping("/api/admin/event")
+	@PostMapping("/admin/event")
 	public ResponseEntity<Map<String, Object>> insertEvent(
 	        @RequestPart("eventImage") MultipartFile eventImage,
 	        @RequestPart("eventTargetAccount") String eventTargetAccountJson,  // JSON 문자열로 받기

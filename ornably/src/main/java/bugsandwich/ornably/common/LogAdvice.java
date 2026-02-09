@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 public class LogAdvice {
 	@Before("controllerMethod()")
 	public void logMethodBefore(JoinPoint jp) {
-		System.out.println("[메서드 시작] "+jp.getSignature());
+		System.out.println("[컨트롤러 메서드 시작] "+jp.getSignature());
 		
 		Object[] args = jp.getArgs();
 		for(Object arg:args) {

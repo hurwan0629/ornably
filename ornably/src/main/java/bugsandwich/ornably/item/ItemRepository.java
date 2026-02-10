@@ -152,9 +152,9 @@ public class ItemRepository {
 	        // CTE 사용: 로그인 사용자 ACCOUNT 정보 미리 계산
 	        "WITH acct AS ( " +
 	        "  SELECT " +
-	        "    a.ACCOUNT_PK AS accountPk, " +            // 회원 PK
-	        "    DATE(a.ACCOUNT_DATE) AS joinedDate, " +   // 가입일
-	        "    a.ACCOUNT_ROLE AS accountRole, " +        // 회원 등급
+	        "    a.ACCOUNT_PK AS accountPk, " +          // 회원 PK
+	        "    DATE(a.ACCOUNT_DATE) AS joinedDate, " + // 가입일
+	        "    a.ACCOUNT_ROLE AS accountRole, " +      // 회원 등급
 	        "    IFNULL(SUM(oi.ORDERS_ITEM_PRICE * oi.ORDERS_ITEM_COUNT), 0) AS totalAmount " + // 총 구매 금액
 	        "  FROM ACCOUNT a " +
 	        "  LEFT JOIN ORDERS o ON o.ACCOUNT_PK = a.ACCOUNT_PK " +

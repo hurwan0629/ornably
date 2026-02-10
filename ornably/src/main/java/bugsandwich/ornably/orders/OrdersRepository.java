@@ -52,7 +52,9 @@ public class OrdersRepository {
 	private final static String DELETE_ONE_ORDERS =
 	    "DELETE FROM ORDERS WHERE ACCOUNT_PK = ?";
 
-	
+	// 방금 생성된 주문 번호 조회
+	private final static String SELECT_ONE_ORDERS_PK = 
+		"SELECT LAST_INSERT_ID() AS ordersPk";
 	
 	
 	public List<OrdersDTO> selectAll(OrdersDTO orderDTO){
@@ -76,16 +78,15 @@ public class OrdersRepository {
 		System.out.println("[로그] OrdersRepository의 selectOne 시작");
 
 		// 주문내역 생성 후 해당 주문내역의 주문상세 생성을 위한 주문내역 PK 보내줌
-		if("SELECT_ONE_ORDER_PK".equals(orderDTO.getCondition())) {
-			System.out.println("[로그] OrdersRepository의 SELECT_ONE_ORDER_PK");
+		if("SELECT_ONE_ORDERS_PK".equals(orderDTO.getCondition())) {
+			System.out.println("[로그] OrdersRepository의 SELECT_ONE_ORDERS_PK");
 			return jdbcTemplate.queryForObject(
-				SELECT_ORDERS_PK,
+				SELECT_ONE_ORDERS_PK,
 				(rs, rowNum) -> {
 					OrdersDTO data = new OrdersDTO();
-					data.setOrdersPk(rs.getInt("ORDERS_PK")); 
+					data.setOrdersPk(rs.getInt("ordersPk"));
 					return data;
-				},
-				orderDTO.getAccountPk()
+				}
 			);
 		}
 		System.out.println("[로그][경고] OrdersRepository의 selectOne_condition 없음");
@@ -136,7 +137,8 @@ public class OrdersRepository {
 		else {
 			System.out.println("[로그][경고] OrdersRepository의 delete_condition 없음");
 		}
-		return result > 0;	}
+		return result > 0;	
+	}
 }
 
 

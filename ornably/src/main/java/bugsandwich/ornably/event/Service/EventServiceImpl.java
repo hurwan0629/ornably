@@ -38,5 +38,4 @@ public class EventServiceImpl implements EventService{
 	public List<EventDTO> getEventList(EventDTO eventDTO) {
 		return eventRepository.selectAll(eventDTO);
 	}
-
 }

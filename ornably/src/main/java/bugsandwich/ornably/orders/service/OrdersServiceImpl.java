@@ -88,6 +88,8 @@ public class OrdersServiceImpl implements OrdersService{
         if(!ordersRepository.insert(ordersDTO)) { // orders PK 반환받아야 함
         	throw new RuntimeException("주문내역 생성 실패..");
         }
+        
+
         	
         // 4) 주문 상새 내역 생성     
         for (CartDTO c : cartItems) {

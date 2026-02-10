@@ -1,6 +1,7 @@
 package bugsandwich.ornably.wishlist.api;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,7 @@ import bugsandwich.ornably.wishlist.WishlistDTO;
 import bugsandwich.ornably.wishlist.service.WishlistService;
 
 @RestController
-@RequestMapping("api/user/wishlist/") // 찜관련 요청 처리
+@RequestMapping("api/user/wishlist") // 찜관련 요청 처리
 public class WishlistController {
 
 	@Autowired
@@ -34,12 +35,14 @@ public class WishlistController {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
 		// 현재 로그인 한 사용자pK 가져오기
-		Integer accountPk = ornablyUser.getAccountPk();
+		WishlistDTO wishlistDTO = new WishlistDTO();
+		wishlistDTO.setAccountPk(ornablyUser.getAccountPk());
+		wishlistDTO.setCondition("SELECT_ALL_WISHLIST_BY_ACCOUNT_PK");
 
 		// 내 위시리스트 목록 가져오기
-		List<WishlistDTO> list = wishlistService.getWishlistList(accountPk);
+		List<WishlistDTO> list = wishlistService.getWishlistList(wishlistDTO);
 
-		return ResponseEntity.ok(list);
+		return ResponseEntity.ok(Map.of("wishlistDatas", list));
 	}
 
 	// ========찜목록 삭제=========
@@ -52,9 +55,17 @@ public class WishlistController {
 		if(ornablyUser==null) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
+		WishlistDTO wishlistDTO = new WishlistDTO();
+		wishlistDTO.setItemPk(itemPk);
+		wishlistDTO.setAccountPk(ornablyUser.getAccountPk());
+		wishlistDTO.setCondition("DELETE_WISHLIST_BY_ITEM_PK_AND_ACCOUNT_PK");
 		//찜삭제하기
-		wishlistSevice.delete(ornablyUser.getAccountPk(),itemPk);
-		return ResponseEntity.noContent().build();
+		if(wishlistService.deleteWishlist(wishlistDTO)) {
+			return ResponseEntity.noContent().build();
+		}
+		else {
+			return ResponseEntity.internalServerError().build();
+		}
 		
 	}
 	
@@ -68,9 +79,18 @@ public class WishlistController {
 		if(ornablyUser==null) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
-		//찜 목록 생성
-		wishlistSevice.insert(ornablyUser.getAccountPk(),itemPk);
-		return ResponseEntity.status(HttpStatus.CREATED).bild();
 		
+		WishlistDTO wishlistDTO = new WishlistDTO();
+		wishlistDTO.setAccountPk(ornablyUser.getAccountPk());
+		wishlistDTO.setItemPk(itemPk);
+		wishlistDTO.setCondition("INSERT_CREATE_WISHLIST");
+		
+		//찜 목록 생성
+		if(wishlistService.insertWishlist(wishlistDTO)) {
+			return ResponseEntity.status(HttpStatus.CREATED).build();			
+		}
+		else {
+			return ResponseEntity.internalServerError().build();
+		}
 	}
 }

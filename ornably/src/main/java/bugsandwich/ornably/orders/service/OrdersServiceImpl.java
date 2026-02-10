@@ -77,7 +77,7 @@ public class OrdersServiceImpl implements OrdersService{
             itemDTO.setCartCount(c.getCartCount()); // itemDTO =>  추가함
             itemDTO.setCondition("BUY_ITEM");
             if (!itemRepository.update(itemDTO)) {
-                throw new RuntimeException("재고 부족"); // 재고 - 막는 수정 필요 -> 쿼리 수정
+                throw new RuntimeException("재고 부족"); // 재고 - 막는 수정 필요 -> 쿼리 수정 완료
             }
         }
         
@@ -89,6 +89,12 @@ public class OrdersServiceImpl implements OrdersService{
         	throw new RuntimeException("주문내역 생성 실패..");
         }
         
+        ordersDTO.setCondition("SELECT_ONE_ORDERS_PK");
+        ordersDTO = ordersRepository.selectOne(ordersDTO);
+        
+        if(ordersDTO.getOrdersPk() == null) {
+        	throw new RuntimeException("주문내역 찾지 못함..");
+        }
 
         	
         // 4) 주문 상새 내역 생성     

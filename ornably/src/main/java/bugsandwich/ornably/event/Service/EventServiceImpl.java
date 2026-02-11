@@ -25,15 +25,20 @@ public class EventServiceImpl implements EventService{
 	}
 
 	@Override
-	public boolean deleteEvent(EventDTO eventDTO) {
+	public Boolean deleteEvent(EventDTO eventDTO) {
 		// TODO Auto-generated method stub
-		return this.eventRepository.delete(eventDTO);
+
+		// return this.eventRepository.delete(eventDTO);
+		return null;
+
 	}
 
 	@Override
 	public EventDTO getEvent(EventDTO eventDTO) {
 		// TODO Auto-generated method stub
-		return this.eventRepository.selectOne(eventDTO);
+
+		// return this.eventRepository.selectOne(eventDTO);
+		return null;
 	}
 
 	@Override

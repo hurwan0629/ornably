@@ -21,4 +21,13 @@ public class WishlistDTO {
 	
 	// [ 추가 멤버 변수 ]
 	private String condition;	// 분기점
+
+	private String itemName;
+	private String itemImageUrl;
+	private String itemCategory;
+	private Integer itemPrice;
+	private Integer itemDiscountRate;
+	private Integer itemDiscountPrice; 
+	private Double itemAvgStar;
+	private Boolean itemWishlistToggle;
 }

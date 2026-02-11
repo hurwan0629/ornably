@@ -46,19 +46,19 @@ public class AddressRepository {
 
     // 기본 배송지 해제
     private static final String UPDATE_DEFAULT_ADDRESS_REMOVE =
-            "UPDATE ADDRESS SET ADDRESS_IS_DEFAULT = 0 " +
-            "WHERE ACCOUNT_PK = ? AND ADDRESS_IS_DEFAULT = 1";
+            "UPDATE ADDRESS SET ADDRESS_IS_DEFAULT = FALSE " +
+            "WHERE ACCOUNT_PK = ? AND ADDRESS_IS_DEFAULT = TRUE";
 
     // 기본 배송지로 설정
     private static final String UPDATE_DEFAULT_ADDRESS =
-            "UPDATE ADDRESS SET ADDRESS_IS_DEFAULT = 1 " +
-            "WHERE ADDRESS_PK = ? AND ACCOUNT_PK = ?";
+            "UPDATE ADDRESS SET ADDRESS_IS_DEFAULT = TRUE " +
+            "WHERE ADDRESS_PK = ? AND ACCOUNT_PK = ? ";
 
     // 주소 등록
     private static final String INSERT_NEW_ADDRESS =
             "INSERT INTO ADDRESS " +
             "(ACCOUNT_PK, ADDRESS_NAME, ADDRESS_IS_DEFAULT, ADDRESS_POSTAL_CODE, ADDRESS_REGION, ADDRESS_DETAIL) " +
-            "VALUES (?, ?, ?, ?, ?, ?)";
+            "VALUES (?, ?, IFNULL(?, FALSE), ?, ?, ?)";
 
     
 	public List<AddressDTO> selectAll(AddressDTO addressDTO) {

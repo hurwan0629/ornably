@@ -99,7 +99,7 @@ public class ItemController {
 
 //  ===================== 상품 상세 보기 =====================
 	@GetMapping("/all/item/{itemPk}")
-	public ResponseEntity<Map<String, Object>> getItemDetail(@PathVariable Integer itemPk, ItemDTO itemDTO) {
+	public ResponseEntity<?> getItemDetail(@PathVariable Integer itemPk, ItemDTO itemDTO) {
 		System.out.println("[ItemController.getItemDetail]  받은 itemPk = " + itemPk);
 		itemDTO.setItemPk(itemPk);
 		itemDTO.setCondition("SELECT_ONE_ITEM_DETAIL");
@@ -110,6 +110,7 @@ public class ItemController {
 		 * 그냥 wishlistToggle 없고 3. 회원이 로그인 상태 즉 pk가 값이 있다면 wishlistToggle이 true인지
 		 * false인지
 		 */
+		System.out.println(itemDTO.getItemDiscountPrice());
 		return ResponseEntity.ok(Map.of("itemData", item));
 	}
 

@@ -82,7 +82,7 @@ public class ItemRepository {
 	  + "    WHEN IFNULL(em.maxDiscountRate, 0) > 0 "
 	  + "      THEN ROUND(i.ITEM_PRICE * (1 - IFNULL(em.maxDiscountRate, 0) / 100), 0) "
 	  + "    ELSE i.ITEM_PRICE "
-	  + "  END AS itemDiscountedPrice, "
+	  + "  END AS itemDiscountPrice, "
 	  + "  IFNULL(ra.itemAvgStar, 0) AS itemAvgStar "
 	  + "FROM item i "
 	  + "LEFT JOIN event_max em ON em.itemPk = i.ITEM_PK "
@@ -289,6 +289,9 @@ public class ItemRepository {
 
 	        // 리뷰 LEFT JOIN: 리뷰가 없어도 상품 출력
 	        "LEFT JOIN REVIEW r ON ib.itemPk = r.ITEM_PK " +
+	        
+	        // ACCOUNT JOIN: 이벤트 조건 계산용
+	        "LEFT JOIN acct a ON 1=1 " +  // CTE 사용: a 컬럼 안전하게 참조 가능
 
 	        // 이벤트 LEFT JOIN
 	        "LEFT JOIN EVENT e " +
@@ -310,9 +313,6 @@ public class ItemRepository {
 	        "          AND JSON_CONTAINS(JSON_EXTRACT(e.EVENT_TARGET_ACCOUNT,'$.memberType'), JSON_QUOTE(a.accountRole))) " +
 	        "    )) " +
 	        ") " +
-
-	        // ACCOUNT JOIN: 이벤트 조건 계산용
-	        "LEFT JOIN acct a ON 1=1 " +  // CTE 사용: a 컬럼 안전하게 참조 가능
 
 	        // 위시리스트 LEFT JOIN: 로그인 사용자 기준
 	        "LEFT JOIN WISHLIST w ON w.ITEM_PK = ib.itemPk AND w.ACCOUNT_PK = ? " +
@@ -559,10 +559,10 @@ public class ItemRepository {
 	    		SELECT_ONE_ITEM_DETAIL,
                 new BeanPropertyRowMapper<>(ItemDTO.class),
                 itemDTO.getAccountPk(),  // 1. CTE용 ACCOUNT_PK (acct CTE에서 사용)
+                itemDTO.getItemPk(),		 // 5️. 조회할 ITEM_PK
                 itemDTO.getAccountPk(),  // 2️. 이벤트 조건용 로그인 여부 (NULL이면 비로그인)
                 itemDTO.getAccountPk(),  // 3️. 이벤트 조건용 로그인 여부 (NOT NULL이면 로그인)
-                itemDTO.getAccountPk(),	 // 4️, WISHLIST JOIN용 로그인 사용자 PK
-                itemDTO.getItemPk()		 // 5️. 조회할 ITEM_PK
+                itemDTO.getAccountPk()	 // 4️, WISHLIST JOIN용 로그인 사용자 PK
 
             );
 	    }

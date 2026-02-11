@@ -32,17 +32,14 @@ public class SecurityConfig {
 	//SNS에서 받아온 사용자 정보들을 우리서비스 principal(loginuser)로 변환하는역할
 	private final LoginSuccessHandler loginSuccessHandler;
 	//로그인 성공후 (일반/소셜) 무엇을 응답할지 결정한다 권한에 따라 다음 경로를 내려주거나 리다이렉트 할수있다
-	private final LoginFailureHandler loginFailureHandler;
 	//로그인 실패후 상태에 따라 에러코드 띄워줌
 	
 
 	//DI 생성자 주입 사용
 	public SecurityConfig(CustomOAuth2UserService customOAuth2UserService,
-			LoginSuccessHandler loginSuccessHandler,
-			LoginFailureHandler loginFailureHandler) {
+			LoginSuccessHandler loginSuccessHandler) {
 		this.customOAuth2UserService = customOAuth2UserService;
 		this.loginSuccessHandler = loginSuccessHandler;
-		this.loginFailureHandler = loginFailureHandler;
 	}
 
 	@Bean
@@ -130,7 +127,9 @@ public class SecurityConfig {
 				//아이디 비번을 보내면 시큐리티 필터가 인증을 진행한다
 				.loginProcessingUrl("/login")
 				.successHandler(loginSuccessHandler)//로그인 성공시 권한에 따라 상태 분기
-				.failureHandler(loginFailureHandler) // 로그인 실패시 에러코드 띄움
+				.failureHandler((req, res, auth) -> {
+					res.setStatus(401);
+				}) // 로그인 실패시 에러코드 띄움
 				.permitAll() //누구나 접근 가능
 				)
 

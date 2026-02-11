@@ -47,7 +47,7 @@ public class ItemDTO {
 	
 	// [ 응답용 - join ]
 	private Integer itemDiscountRate;   // 이벤트 할인율
-    private Double itemDiscountedPrice; // 할인 적용된 가격
+    private Double itemDiscountPrice; // 할인 적용된 가격
 	private Double itemAvgStar; 		// 상품 평점
 	
 	

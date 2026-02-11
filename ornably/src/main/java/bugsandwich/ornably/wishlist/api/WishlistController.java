@@ -58,7 +58,7 @@ public class WishlistController {
 		WishlistDTO wishlistDTO = new WishlistDTO();
 		wishlistDTO.setItemPk(itemPk);
 		wishlistDTO.setAccountPk(ornablyUser.getAccountPk());
-		wishlistDTO.setCondition("DELETE_WISHLIST_BY_ITEM_PK_AND_ACCOUNT_PK");
+		wishlistDTO.setCondition("DELETE_WISHLIST_BY_ACCOUNT_PK_AND_ITEM_PK");
 		//찜삭제하기
 		if(wishlistService.deleteWishlist(wishlistDTO)) {
 			return ResponseEntity.noContent().build();
@@ -83,7 +83,7 @@ public class WishlistController {
 		WishlistDTO wishlistDTO = new WishlistDTO();
 		wishlistDTO.setAccountPk(ornablyUser.getAccountPk());
 		wishlistDTO.setItemPk(itemPk);
-		wishlistDTO.setCondition("INSERT_CREATE_WISHLIST");
+		wishlistDTO.setCondition("INSERT_WISHLIST_BY_ACCOUNT_PK_AND_ITEM_PK");
 		
 		//찜 목록 생성
 		if(wishlistService.insertWishlist(wishlistDTO)) {

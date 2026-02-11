@@ -10,32 +10,34 @@ import bugsandwich.ornably.event.EventRepository;
 
 @Service
 public class EventServiceImpl implements EventService{
-	
+
 	@Autowired
 	private EventRepository eventRepository;
 	
 	@Override
 	public boolean insertEvent(EventDTO eventDTO) {
-		return eventRepository.insert(eventDTO);
+		return this.eventRepository.insert(eventDTO);
 	}
 
 	@Override
 	public boolean updateEvent(EventDTO eventDTO) {
-		return eventRepository.update(eventDTO);
+		return this.eventRepository.update(eventDTO);
 	}
 
 	@Override
-	public boolean deleteEvent(EventDTO eventDTO) {
-		return eventRepository.delete(eventDTO);
+	public Boolean deleteEvent(EventDTO eventDTO) {
+		return null;
 	}
 
 	@Override
 	public EventDTO getEvent(EventDTO eventDTO) {
-		return eventRepository.selectOne(eventDTO);
+		// return this.eventRepository.selectOne(eventDTO);
+		return null;
+
 	}
 
 	@Override
 	public List<EventDTO> getEventList(EventDTO eventDTO) {
-		return eventRepository.selectAll(eventDTO);
+		return this.eventRepository.selectAll(eventDTO);
 	}
 }

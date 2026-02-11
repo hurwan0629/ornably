@@ -14,7 +14,6 @@ resource.path.review=C:/HUR/workspace/Ornably/resource/images/review
 resource.url-prefix=/images
 	 */
 	
-	// 리소스가 들어있는 서버 경로 (config.properties)
 	@Value("${resource.path}")
 	private String resourcePath; // C:/HUR/workspace/Ornably/resource
 
@@ -28,6 +27,6 @@ resource.url-prefix=/images
 		// 데이터를 줄 파일 경로 설정 (이후 .addResourceLocations() 를 통해 등록)
 		String location = "file:" + resourcePath + "/images/";	// C:/HUR/workspace/Ornably/resource/images/
 		registry.addResourceHandler(urlPrefix + "/**")	// /images/** 요청을 리소스 요청으로 받아줌 
-				.addResourceLocations(location);			// 스프링이 정적 리소스를 줄 때 /images/** 요청은 location으로부터 찾음 
+				.addResourceLocations(location);			// 스프링이 정적 리소스를 줄 때 http://localhost:8088/images/** 요청은 location으로부터 찾음 
 	}
 }

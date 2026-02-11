@@ -21,7 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import bugsandwich.ornably.event.EventDTO;
 import bugsandwich.ornably.event.Service.EventService;
-import tools.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/api")
@@ -79,13 +78,13 @@ public class EventController {
 	
 //  ===================== 현재 진행중인 이벤트 =====================
 	@GetMapping("/all/event/in-progress")
-	public ResponseEntity<Map<String, Object>> mainEvent(EventDTO eventDTO){
+	public ResponseEntity<?> mainEvent(EventDTO eventDTO){
 		
 		eventDTO.setCondition("SELECT_ALL_PROGRESS_EVENT");
 	    List<EventDTO> list = eventService.getEventList(eventDTO);
 
 	    // 이벤트 없을 때
-	    if (list.isEmpty()) {
+	    if (list==null || list.isEmpty()) {
 	        return ResponseEntity.status(404).body(Map.of(
 	                "code", "NO_ACTIVE_EVENT",
 	                "message", "현재 진행중인 이벤트가 없습니다."
@@ -102,18 +101,18 @@ public class EventController {
 	@PostMapping("/admin/event")
 	public ResponseEntity<Map<String, Object>> insertEvent(
 	        @RequestPart("eventImage") MultipartFile eventImage,
-	        @RequestPart("eventTargetAccount") String eventTargetAccountJson,
-	        @RequestPart("eventTargetCategory") String eventTargetCategoryJson,
+//	        @RequestPart("eventTargetAccount") String eventTargetAccountJson,
+//	        @RequestPart("eventTargetCategory") String eventTargetCategoryJson,
 	        @ModelAttribute EventDTO eventDTO
 	) {
 	    try {
 	    	// JSON 문자열을 객체로 변환할 때 사용하는 Jackson 라이브러리 도구
-	        ObjectMapper mapper = new ObjectMapper();
+//	        ObjectMapper mapper = new ObjectMapper();
 	        
             // JSON 문자열 → JsonNode 객체로 변환
 	        // DTO 필드 타입이 JsonNode라서 변환 필요
-	        eventDTO.setEventTargetAccount(mapper.readTree(eventTargetAccountJson));
-	        eventDTO.setEventTargetCategory(mapper.readTree(eventTargetCategoryJson));
+//	        eventDTO.setEventTargetAccount(mapper.readTree(eventTargetAccountJson));
+//	        eventDTO.setEventTargetCategory(mapper.readTree(eventTargetCategoryJson));
 
 
 	        // 실제 파일을 저장할 서버 경로

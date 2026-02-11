@@ -303,7 +303,7 @@ public class AccountRepository {
 			    accountDTO.getAccountName(),
 			    accountDTO.getAccountEmail(),
 			    accountDTO.getAccountPhone(),
-			    accountDTO.getAccountEventOptIn() ? 1 : 0,
+			    accountDTO.getAccountEventOptIn(),
 			    accountDTO.getAccountRole()
 			);
 		}

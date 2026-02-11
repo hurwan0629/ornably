@@ -30,14 +30,25 @@ public class AddressServiceImpl implements AddressService{
 	}
 
 	@Override
-	public AddressDTO getAddress(AddressDTO addressDTO) {
-		
+	public AddressDTO getAddress(AddressDTO addressDTO) {	
 		return addressRepository.selectOne(addressDTO);
 	}
 
 	@Override
 	public List<AddressDTO> getAddressList(AddressDTO addressDTO) {
 		return addressRepository.selectAll(addressDTO);
+	}
+
+	@Override
+	public boolean changeDefaultAddress(AddressDTO addressDTO) {
+		
+		addressDTO.setCondition("UPDATE_DEFAULT_ADDRESS_REMOVE");
+		this.addressRepository.update(addressDTO);
+		
+		addressDTO.setCondition("UPDATE_DEFAULT_ADDRESS");
+		this.addressRepository.update(addressDTO);
+		
+		return true;
 	}
 
 	

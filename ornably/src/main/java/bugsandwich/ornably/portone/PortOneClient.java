@@ -6,7 +6,6 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
-import tools.jackson.databind.JsonNode;
 
 @Component
 public class PortOneClient {
@@ -14,8 +13,8 @@ public class PortOneClient {
     private final RestClient restClient; // PortOne API 호출을 위한 RestClient (HTTP 통신 객체)
     private final String apiSecret;
 
-    public PortOneClient( //  API Secret Key를 application.properties에서 가져옴
-            @Value("${portone.api-secret}") String apiSecret 
+    public PortOneClient(
+            @Value("${portone.v2.api-secret}") String apiSecret
     ) {
         this.apiSecret = apiSecret;
         
@@ -35,6 +34,7 @@ public class PortOneClient {
                 // 형식: Authorization: PortOne {API_SECRET}
                 .header(HttpHeaders.AUTHORIZATION, "PortOne " + apiSecret) // PortOne 인증 헤더 추가
                 .retrieve() // 서버 응답 받아오기
+
                 .body(PortOnePaymentDTO.class);
     }
     

@@ -62,10 +62,12 @@ public class OrdersServiceImpl implements OrdersService{
 	@Transactional
 	public boolean paymentComplete(OrdersDTO ordersDTO) {
 		
+		Integer accountPk = ordersDTO.getAccountPk();
+		
         // 1) 장바구니 조회
 		CartDTO cartDTO = new CartDTO();
 		cartDTO.setCondition("SELECT_ALL_CART");
-		cartDTO.setAccountPk(ordersDTO.getAccountPk());
+		cartDTO.setAccountPk(accountPk);
         List<CartDTO> cartItems = cartRepository.selectAll(cartDTO);
         if (cartItems.isEmpty()) throw new RuntimeException("결제할 상품이 없습니다."); // 트랜잭션 예외 던지기
 		
@@ -87,7 +89,7 @@ public class OrdersServiceImpl implements OrdersService{
         	throw new RuntimeException("주문내역 생성 실패..");
         }
         
-        ordersDTO.setCondition("SELECT_ONE_ORDERS_PK");
+        ordersDTO.setCondition("SELECT_ONE_ORDERS_PK_BY_UID");
         // 방금 생성한 주문내역 pk 조회 
         ordersDTO = ordersRepository.selectOne(ordersDTO);
         // 조회 실패시 트랜잭션 롤백
@@ -103,6 +105,7 @@ public class OrdersServiceImpl implements OrdersService{
             ordersItemDTO.setItemPk(c.getItemPk());
             ordersItemDTO.setOrdersItemCount(c.getCartCount());
             ordersItemDTO.setOrdersItemPrice(c.getCartTotalPrice());
+            ordersItemDTO.setOrdersItemPrice(c.getItemPrice());
             ordersItemDTO.setCondition("INSERT_ORDERS_ITEM");
             if(!ordersItemRepository.insert(ordersItemDTO)) { // insert => ordersDTO로 변경 가능?
             		throw new RuntimeException("주문상새 내역 생성 실패..");
@@ -110,8 +113,9 @@ public class OrdersServiceImpl implements OrdersService{
         } 
         
         // 5) 사용자 장바구니 삭제
-        cartDTO.setAccountPk(ordersDTO.getAccountPk());
+        cartDTO.setAccountPk(accountPk);
         cartDTO.setCondition("DELETE_CART_BY_ACCOUNT_PK");
+        System.out.println(cartDTO);
         cartRepository.delete(cartDTO);
         
 		return true;

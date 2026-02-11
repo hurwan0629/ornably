@@ -28,4 +28,8 @@ public class OrdersDTO {
 	private String ordersSignatureItemName; // 주문내역 대표 아이템 이름
 	private String itemImageUrl;			// 대표 상품 이미지 경로
 	private Integer ordersItemCount;		// 총 상품 개수
+    private String addressRegion;           // 배송지 지역
+    private String addressDetail;           // 배송지 상세 주소
+	private Boolean reviewExists;			// 리뷰 존재 여부 확인
+	private Integer ordersItemPrice; 		// 단일 아이템 가격	
 }

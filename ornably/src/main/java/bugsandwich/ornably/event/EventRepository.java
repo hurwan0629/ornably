@@ -47,7 +47,7 @@ public class EventRepository {
 	        "SELECT " +
 	        "EVENT_PK       AS eventPk, " +                  // 이벤트 고유 번호
 	        "EVENT_NAME     AS eventName, " +                // 이벤트 이름
-	        "EVENT_IMAGE    AS eventImageUrl, " +            // 이벤트 이미지
+	        "EVENT_IMAGE_URL    AS eventImageUrl, " +            // 이벤트 이미지
 	        "EVENT_START_DATE    AS eventStartDate, " +      // 이벤트 시작일
 	        "EVENT_END_DATE      AS eventEndDate, " +        // 이벤트 종료일
 	        "EVENT_DESCRIPTION   AS eventDescription, " +    // 이벤트 설명

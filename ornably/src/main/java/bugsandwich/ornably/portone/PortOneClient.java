@@ -6,7 +6,6 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
-import tools.jackson.databind.JsonNode;
 
 @Component
 public class PortOneClient {
@@ -15,7 +14,7 @@ public class PortOneClient {
     private final String apiSecret;
 
     public PortOneClient(
-            @Value("${portone.api-secret}") String apiSecret
+            @Value("${portone.v2.api-secret}") String apiSecret
     ) {
         this.apiSecret = apiSecret;
         this.restClient = RestClient.builder()
@@ -26,6 +25,12 @@ public class PortOneClient {
 
     /** 결제 단건 조회: GET /payments/{paymentId} */
     public PortOnePaymentDTO getPayment(String paymentId) {
+    	System.out.println("apiSecret");
+    	System.out.println(apiSecret);
+    	System.out.println("restClient");
+    	System.out.println(restClient);
+    	System.out.println("paymentId");
+    	System.out.println(paymentId);
         return restClient.get()
                 .uri("/payments/{paymentId}", paymentId)
                 .header(HttpHeaders.AUTHORIZATION, "PortOne " + apiSecret)

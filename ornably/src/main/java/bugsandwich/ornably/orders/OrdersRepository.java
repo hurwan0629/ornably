@@ -41,13 +41,17 @@ public class OrdersRepository {
     
     
 	// 회원 최근 주문 조회 
-	private final static String SELECT_ORDERS_PK =
+	private final static String SELECT_ORDERS_PK_BY_UID =
+			"SELECT ORDERS_PK AS ordersPk " + 
+			"FROM ORDERS " +
+			"WHERE ORDERS_IMPORT_UID = ?";
+			/*
 	    "SELECT ORDERS_PK AS ordersPk " +
 	    "FROM ORDERS " +
 	    "WHERE ACCOUNT_PK = ? " +
 	    "ORDER BY ORDERS_PK DESC " +
 	    "LIMIT 1";
-
+*/
 	// 회원 주문 삭제
 	private final static String DELETE_ONE_ORDERS =
 	    "DELETE FROM ORDERS WHERE ACCOUNT_PK = ?";
@@ -76,16 +80,12 @@ public class OrdersRepository {
 		System.out.println("[로그] OrdersRepository의 selectOne 시작");
 
 		// 주문내역 생성 후 해당 주문내역의 주문상세 생성을 위한 주문내역 PK 보내줌
-		if("SELECT_ONE_ORDER_PK".equals(orderDTO.getCondition())) {
-			System.out.println("[로그] OrdersRepository의 SELECT_ONE_ORDER_PK");
+		if("SELECT_ONE_ORDERS_PK_BY_UID".equals(orderDTO.getCondition())) {
+			System.out.println("[로그] OrdersRepository의 SELECT_ONE_ORDERS_PK_BY_UID");
 			return jdbcTemplate.queryForObject(
-				SELECT_ORDERS_PK,
-				(rs, rowNum) -> {
-					OrdersDTO data = new OrdersDTO();
-					data.setOrdersPk(rs.getInt("ORDERS_PK")); 
-					return data;
-				},
-				orderDTO.getAccountPk()
+				SELECT_ORDERS_PK_BY_UID,
+				new BeanPropertyRowMapper<>(OrdersDTO.class),
+				orderDTO.getOrdersImportUid()
 			);
 		}
 		System.out.println("[로그][경고] OrdersRepository의 selectOne_condition 없음");
@@ -103,8 +103,8 @@ public class OrdersRepository {
 		int result = 0;
 
 		// 주문내역 생성
-		if("PREPARING".equals(orderDTO.getCondition())) {
-			System.out.println("[로그] OrdersRepository의 PREPARING");
+		if("INSERT_ORDERS".equals(orderDTO.getCondition())) {
+			System.out.println("[로그] OrdersRepository의 INSERT_ORDERS");
 			result = jdbcTemplate.update(
 				INSERT_ORDERS,
 				orderDTO.getAccountPk(),

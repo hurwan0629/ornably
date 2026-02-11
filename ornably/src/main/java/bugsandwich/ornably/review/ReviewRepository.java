@@ -141,7 +141,7 @@ public class ReviewRepository {
 	    "    R.REVIEW_TITLE     AS reviewTitle, " +
 	    "    R.REVIEW_CONTENT   AS reviewContent, " +
 	    "    R.REVIEW_STAR      AS reviewStar, " +
-	    "    R.ACCOUNT_PK       AS accountPk, " +
+	    "    R.ACCOUNT_PK       AS reviewAccountPk, " +
 	    "    A.ACCOUNT_NAME     AS reviewAccountName, " +
 	    "    DATE(R.REVIEW_DATE) AS reviewDate " +
 	    "FROM REVIEW R " +
@@ -239,7 +239,7 @@ public class ReviewRepository {
 			        dto.setReviewTitle(rs.getString("reviewTitle"));
 			        dto.setReviewContent(rs.getString("reviewContent"));
 			        dto.setReviewStar(rs.getInt("reviewStar"));
-			        dto.setAccountPk(rs.getInt("accountPk"));
+			        dto.setAccountPk(rs.getInt("AccountPk"));
 			        dto.setReviewAccountName(rs.getString("reviewAccountName"));
 			        dto.setReviewDate(rs.getDate("reviewDate").toLocalDate());
 			        return dto;
@@ -248,7 +248,8 @@ public class ReviewRepository {
 			);
 		}
 		System.out.println("[로그][경고] ReviewRepository의 selectAll_condition 없음");
-		return null;
+		// 조건이 없으면 빈 리스트 반환
+	    return java.util.Collections.emptyList();
 	}
 
 	
@@ -303,6 +304,7 @@ public class ReviewRepository {
         	);
 	    }
 		
+		// 사용자 리뷰 수정 전 기존 리뷰 정보 가져오기
 		else if("SELECT_REVIEW_DATA_BY_REVIEW_PK".equals(reviewDTO.getCondition())) {
 			 System.out.println("[로그] ReviewRepository의 SELECT_REVIEW_DATA_BY_REVIEW_PK");
 			 return jdbcTemplate.queryForObject(
@@ -394,3 +396,5 @@ public class ReviewRepository {
 		return result > 0;
 	}
 }
+
+

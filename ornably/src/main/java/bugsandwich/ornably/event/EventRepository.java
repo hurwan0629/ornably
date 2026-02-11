@@ -81,7 +81,8 @@ public class EventRepository {
 	    	);
 	    }
 		System.out.println("[로그][경고] EventRepository_selectAll_condition 없음");
-		return null;
+		// 조건이 없으면 빈 리스트 반환
+	    return java.util.Collections.emptyList();
 	}
 	
 	private EventDTO selectOne(EventDTO eventDTO) {

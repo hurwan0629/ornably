@@ -67,10 +67,9 @@ public class WishlistRepository {
 	            wishlistDTO.getAccountPk()
 			);
 		}
-	    else {
-		    System.out.println("[로그][경고] WishListRepository_selectAll_condition 없음");
-	    }
-	    return List.of();
+	    System.out.println("[로그][경고] WishListRepository_selectAll_condition 없음");
+	    // 조건이 없으면 빈 리스트 반환
+	    return java.util.Collections.emptyList();
 	}
 	
 	

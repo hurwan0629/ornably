@@ -115,7 +115,7 @@ public class ItemRepository {
 	    "WHERE ( ? = 'ALL' OR i.ITEM_CATEGORY = ? ) " +  // 카테고리 필터
 	    "  AND ( ? IS NULL OR ? = '' OR i.ITEM_NAME LIKE CONCAT('%', ?, '%') ) " + // 검색어 필터
 
-	    // 6️. 정렬 조건
+	    // 6️⃣ 정렬 조건
 	    "ORDER BY " +
 	    "  CASE WHEN ? = 'popular' THEN IFNULL(ra.itemAvgStar, 0) END DESC, " +
 	    "  CASE WHEN ? = 'discount' THEN IFNULL(em.maxDiscountRate, 0) END DESC, " +
@@ -152,14 +152,14 @@ public class ItemRepository {
 	        // CTE 사용: 로그인 사용자 ACCOUNT 정보 미리 계산
 	        "WITH acct AS ( " +
 	        "  SELECT " +
-	        "    a.ACCOUNT_PK AS accountPk, " +          // 회원 PK
-	        "    DATE(a.ACCOUNT_DATE) AS joinedDate, " + // 가입일
-	        "    a.ACCOUNT_ROLE AS accountRole, " +      // 회원 등급
+	        "    a.ACCOUNT_PK AS accountPk, " +                   // 회원 PK
+	        "    DATE(a.ACCOUNT_DATE) AS joinedDate, " +         // 가입일
+	        "    a.ACCOUNT_ROLE AS accountRole, " +              // 회원 등급
 	        "    IFNULL(SUM(oi.ORDERS_ITEM_PRICE * oi.ORDERS_ITEM_COUNT), 0) AS totalAmount " + // 총 구매 금액
 	        "  FROM ACCOUNT a " +
 	        "  LEFT JOIN ORDERS o ON o.ACCOUNT_PK = a.ACCOUNT_PK " +
 	        "  LEFT JOIN ORDERS_ITEM oi ON oi.ORDERS_PK = o.ORDERS_PK " +
-	        "  WHERE a.ACCOUNT_PK = ? " + // 조회 대상 회원 PK (파라미터)
+	        "  WHERE a.ACCOUNT_PK = ? " +                        // 조회 대상 회원 PK (파라미터)
 	        "  GROUP BY a.ACCOUNT_PK, DATE(a.ACCOUNT_DATE), a.ACCOUNT_ROLE " +
 	        "), " +
 
@@ -434,7 +434,8 @@ public class ItemRepository {
 		    );
 		}
 		System.out.println("[로그][경고] ItemRepository_selectAll_condition 없음");
-		return null;
+		// 조건이 없으면 빈 리스트 반환
+	    return java.util.Collections.emptyList();
 	}
 	
 	public ItemDTO selectOne(ItemDTO itemDTO) {

@@ -1,8 +1,6 @@
 package bugsandwich.ornably.item.api;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -27,6 +25,8 @@ import org.springframework.web.multipart.MultipartFile;
 import bugsandwich.ornably.item.ItemDTO;
 import bugsandwich.ornably.item.service.ItemService;
 import bugsandwich.ornably.security.OrnablyUser;
+import bugsandwich.ornably.wishlist.WishlistDTO;
+import bugsandwich.ornably.wishlist.service.WishlistService;
 
 @RestController
 @RequestMapping("/api")
@@ -35,11 +35,16 @@ public class ItemController {
 	@Autowired
 	private ItemService itemService;
 	
+	@Autowired
+	private WishlistService wishlistService;
+	
 	@Value("${resource.path}")
 	private String resourcePath;
 
 	@Value("${resource.item.prefix}")
 	private String itemPrefix;
+	
+	
 
 //  ===================== 상품 목록 보기  =====================
 	@GetMapping("/all/item")
@@ -101,18 +106,16 @@ public class ItemController {
 
 //  ===================== 상품 상세 보기 =====================
 	@GetMapping("/all/item/{itemPk}")
-	public ResponseEntity<?> getItemDetail(@PathVariable Integer itemPk, ItemDTO itemDTO) {
-		System.out.println("[ItemController.getItemDetail]  받은 itemPk = " + itemPk);
+	public ResponseEntity<?> getItemDetail(
+			@PathVariable Integer itemPk, 
+			ItemDTO itemDTO,
+			@AuthenticationPrincipal OrnablyUser ornablyUser
+			) {
 		itemDTO.setItemPk(itemPk);
 		itemDTO.setCondition("SELECT_ONE_ITEM_DETAIL");
 		ItemDTO item = itemService.getItem(itemDTO);
 
-		/*
-		 * 로그인 상태면 accountPk 세팅 1. Spring Seciurity 에 존재하는 회원 PK 가져오기 2. 회원 pk가 null 이면
-		 * 그냥 wishlistToggle 없고 3. 회원이 로그인 상태 즉 pk가 값이 있다면 wishlistToggle이 true인지
-		 * false인지
-		 */
-		System.out.println(itemDTO.getItemDiscountPrice());
+		
 		return ResponseEntity.ok(Map.of("itemData", item));
 	}
 
@@ -191,7 +194,7 @@ public class ItemController {
 	                "message", "상품 이미지는 필수입니다."
 	        ));
 	    }
-		
+	    
 		// 1) 폴더
 		String uploadDir = resourcePath + "/images/item/";
 		File dir = new File(uploadDir);
@@ -208,7 +211,7 @@ public class ItemController {
 		} catch (Exception e) {
 			throw new RuntimeException("파일 저장 실패", e);
 		}
-
+		
 		// 4) DB 저장할 URL
 		itemDTO.setItemImageUrl(itemPrefix + fileName); // itemPrefix="/images/item/"
 

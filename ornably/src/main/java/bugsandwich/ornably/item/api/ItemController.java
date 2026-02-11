@@ -257,6 +257,9 @@ public class ItemController {
 		return ResponseEntity.ok(Map.of("code", "success", "message", "수정 성공")); // 수정 필요
 	}
 
+	
+	
+
 // ===================== 관리자 상품 가격 수정 =====================
 	@PreAuthorize("hasRole('ADMIN')")
 	@PatchMapping("/api/account/item/{itemPk}/itemPrice")
@@ -270,7 +273,6 @@ public class ItemController {
 					"message", "요청 값이 올바르지 않습니다."
 				));
 			}
-
 			itemDTO.setItemPk(itemPk);
 			itemDTO.setCondition("ADMIN_UPDATE_PRICE_ITEM");
 			
@@ -281,14 +283,14 @@ public class ItemController {
 	        			"message", "해당 상품 정보를 찾을 수 없습니다."
 	    				));
 			}
-			
-
 	        return ResponseEntity.ok(Map.of(
 	        		"code", "success",
 	        		"message", "수정 성공"
 	        		)); // 수정 필요	
 		}
 
+	
+	
 // ===================== 관리자 상품 재고 수정 =====================
 	@PreAuthorize("hasRole('ADMIN')")
 	@PatchMapping("/api/account/item/{itemPk}/itemStock")
@@ -313,6 +315,8 @@ public class ItemController {
 	}
 
 
+
+	
 // ===================== 관리자 상품 설명 수정 =====================
 	@PreAuthorize("hasRole('ADMIN')")
 	@PatchMapping("/account/item/{itemPk}/itemStock")

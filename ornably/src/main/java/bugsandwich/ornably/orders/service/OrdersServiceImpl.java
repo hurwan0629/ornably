@@ -57,7 +57,7 @@ public class OrdersServiceImpl implements OrdersService{
 		return ordersRepository.selectAll(ordersDTO);
 	}
 
-	
+	// 장바구니 조회 -> 재고 차감 -> 주문내역 생성 -> 
 	@Override
 	@Transactional
 	public boolean paymentComplete(OrdersDTO ordersDTO) {
@@ -83,15 +83,14 @@ public class OrdersServiceImpl implements OrdersService{
         
         // 3) 주문내역 생성
         ordersDTO.setCondition("INSERT_ORDERS");
-        ordersDTO.setOrdersMessage("상품준비 중...");
-        ordersDTO.setOrdersPaymentType(null); // PortOne에서 받아옹기
-        if(!ordersRepository.insert(ordersDTO)) { // orders PK 반환받아야 함
+        if(!ordersRepository.insert(ordersDTO)) { 
         	throw new RuntimeException("주문내역 생성 실패..");
         }
         
         ordersDTO.setCondition("SELECT_ONE_ORDERS_PK");
+        // 방금 생성한 주문내역 pk 조회 
         ordersDTO = ordersRepository.selectOne(ordersDTO);
-        
+        // 조회 실패시 트랜잭션 롤백
         if(ordersDTO.getOrdersPk() == null) {
         	throw new RuntimeException("주문내역 찾지 못함..");
         }

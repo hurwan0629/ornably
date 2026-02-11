@@ -10,20 +10,20 @@ import bugsandwich.ornably.review.ReviewDTO;
 public interface ReviewService {
 	
 	// 조회 기능
-	List<ReviewDTO> getReviewByAccountPk(Integer accountPk);
-	List<ReviewDTO> getReviewByItemPk(ReviewDTO ReviewDTO);
-	List<ReviewDTO> getReviewDatasByReviewPkAdmin(Integer itemPk);
-	ReviewDTO getReviewDataByReviewPk(Integer reviewPk);
+	List<ReviewDTO> getReviewByAccountPk(Integer accountPk); //사용자pk로 리뷰조회
+	List<ReviewDTO> getReviewByItemPk(ReviewDTO ReviewDTO); // 상품pk로 리뷰 조회
+	List<ReviewDTO> getReviewDatasByReviewPkAdmin(Integer itemPk); //관리자가 상품pk로 리뷰 조회
+	ReviewDTO getReviewDataByReviewPk(Integer reviewPk);//리뷰pk로 리뷰 데이터 조회
 	// 작성 기능
-	boolean registReview(ReviewDTO reviewDTO);
-	boolean updateReview(ReviewDTO reviewDTO);
+	boolean registReview(ReviewDTO reviewDTO); //리뷰작성
+	boolean updateReview(ReviewDTO reviewDTO); //리뷰수정
 	
 	// 삭제 기능
 	boolean deleteReviewByReviewPk(Integer reviewPk);
 	
 	// util
-	boolean checkFileSize(MultipartFile file);
-	boolean checkFileExtention(MultipartFile file);
+	boolean checkFileSize(MultipartFile file); //리뷰에 사용할 이미지 사이즈
+	boolean checkFileExtention(MultipartFile file); // 리뷰에 사용할 파일 확장자명
 	
 	// getter
 	public Set<String> getAllowedExtentionSet();

@@ -74,11 +74,6 @@ public class WishlistController {
 	}
 	
 	//=========찜 생성 ==========
-//	@PostMapping("/{itemPk}")
-//	
-//	public ResponseEntity<void> insertWishlist(
-//			@PathVariable Integer itemPk,
-//			AuthenticationPrincipal OrnablyUser ornablyUser
 	@PostMapping("/{itemPk}") 
 	public ResponseEntity<?> insertWishlist(
 			@PathVariable Integer itemPk,
@@ -88,11 +83,6 @@ public class WishlistController {
 		if(ornablyUser==null) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
-//		//찜 목록 생성
-//		wishlistSevice.insert(ornablyUser.getAccountPk(),itemPk);
-//		return ResponseEntity.status(HttpStatus.CREATED).bild();
-//		
-//	}
 	
 		
 		WishlistDTO wishlistDTO = new WishlistDTO();

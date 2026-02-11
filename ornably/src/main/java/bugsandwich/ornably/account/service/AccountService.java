@@ -7,16 +7,16 @@ import bugsandwich.ornably.address.AddressDTO;
 
 public interface AccountService {
 
-	boolean registAccount(AccountDTO accountDTO, AddressDTO addressDTO);
+	boolean registAccount(AccountDTO accountDTO, AddressDTO addressDTO); //회원정보등록
 
-	boolean checkIdDuplicate(AccountDTO accountDTO);
+	boolean checkIdDuplicate(AccountDTO accountDTO); //아이디 중복체크
 
-	AccountDTO getMyPageData(AccountDTO accountDTO);
+	AccountDTO getMyPageData(AccountDTO accountDTO);//마이페이지 데이터 가져오기
 
-	boolean accountWithdraw(AccountDTO accountDTO);
+	boolean accountWithdraw(AccountDTO accountDTO); //회원탈퇴
 
-	List<AccountDTO> getAdminSearchAccount(AccountDTO accountDTO);
+	List<AccountDTO> getAdminSearchAccount(AccountDTO accountDTO); // 관리자용 사용자 검색
 
-	AccountDTO getAdminAccountInfo(Integer accountPk);
+	AccountDTO getAdminAccountInfo(Integer accountPk); // 관리자용 사용자정보
 	
 }

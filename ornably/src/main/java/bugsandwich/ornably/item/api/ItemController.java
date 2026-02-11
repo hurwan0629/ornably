@@ -2,6 +2,7 @@ package bugsandwich.ornably.item.api;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -34,10 +35,10 @@ public class ItemController {
 	@Autowired
 	private ItemService itemService;
 	
-	@Value("resource.path")
+	@Value("${resource.path}")
 	private String resourcePath;
-	
-	@Value("resource.item.prefix")
+
+	@Value("${resource.item.prefix}")
 	private String itemPrefix;
 
 //  ===================== 상품 목록 보기  =====================
@@ -176,9 +177,38 @@ public class ItemController {
 
 //  ===================== 관리자 상품 등록 =====================
 	@PreAuthorize("hasRole('ADMIN')")
-	@PostMapping("/api/admin/item")
-	public ResponseEntity<Map<String, Object>> adminInsertItem(@ModelAttribute ItemDTO itemDTO) {
+	@PostMapping(value = "/api/admin/item", consumes = "multipart/form-data")
+	public ResponseEntity<Map<String, Object>> adminInsertItem(@ModelAttribute ItemDTO itemDTO,
+			@RequestPart("itemImage") MultipartFile itemImage) {
 		System.out.println("[ItemController.adminInsertItem] 받은 itemDTO :" + itemDTO);
+		
+	    // 0) 필수값 검증
+	    if (itemImage == null || itemImage.isEmpty()) {
+	        return ResponseEntity.badRequest().body(Map.of(
+	                "code", "VALIDATION_ERROR",
+	                "message", "상품 이미지는 필수입니다."
+	        ));
+	    }
+		
+		// 1) 폴더
+		String uploadDir = resourcePath + "/images/item/";
+		File dir = new File(uploadDir);
+		if (!dir.exists())
+			dir.mkdirs();
+
+		// 2) 파일명
+		String fileName = UUID.randomUUID() + "_" + itemImage.getOriginalFilename();
+
+		// 3) 저장
+		File dest = new File(uploadDir, fileName);
+		try {
+			itemImage.transferTo(dest);
+		} catch (Exception e) {
+			throw new RuntimeException("파일 저장 실패", e);
+		}
+
+		// 4) DB 저장할 URL
+		itemDTO.setItemImageUrl(itemPrefix + fileName); // itemPrefix="/images/item/"
 
 		if (!itemService.insertItem(itemDTO)) {
 			return ResponseEntity.status(404).body(Map.of("code", "ITEM_NOT_FOUND", "message", "해당 상품을 찾을 수 없습니다."));
@@ -228,6 +258,9 @@ public class ItemController {
 		return ResponseEntity.ok(Map.of("code", "success", "message", "수정 성공")); // 수정 필요
 	}
 
+	
+	
+
 // ===================== 관리자 상품 가격 수정 =====================
 	@PreAuthorize("hasRole('ADMIN')")
 	@PatchMapping("/api/account/item/{itemPk}/itemPrice")
@@ -241,7 +274,6 @@ public class ItemController {
 					"message", "요청 값이 올바르지 않습니다."
 				));
 			}
-
 			itemDTO.setItemPk(itemPk);
 			itemDTO.setCondition("ADMIN_UPDATE_PRICE_ITEM");
 			
@@ -252,14 +284,14 @@ public class ItemController {
 	        			"message", "해당 상품 정보를 찾을 수 없습니다."
 	    				));
 			}
-			
-
 	        return ResponseEntity.ok(Map.of(
 	        		"code", "success",
 	        		"message", "수정 성공"
 	        		)); // 수정 필요	
 		}
 
+	
+	
 // ===================== 관리자 상품 재고 수정 =====================
 	@PreAuthorize("hasRole('ADMIN')")
 	@PatchMapping("/api/account/item/{itemPk}/itemStock")
@@ -284,6 +316,8 @@ public class ItemController {
 	}
 
 
+
+	
 // ===================== 관리자 상품 설명 수정 =====================
 	@PreAuthorize("hasRole('ADMIN')")
 	@PatchMapping("/account/item/{itemPk}/itemStock")
@@ -315,54 +349,62 @@ public class ItemController {
 		}
 
 // ===================== 관리자 상품 이미지 수정 =====================			
-	@PreAuthorize("hasRole('ADMIN')") // consumes="multipart/form-data" → 파일 업로드 요청이라는 의미
-	@PatchMapping(value = "/api/account/item/{itemPk}/itemImage", consumes = "multipart/form-data") // 파일 업로드 객체
-	public ResponseEntity<Map<String, Object>> itemImageUpdate(@PathVariable Integer itemPk,
-			@RequestPart("itemImage") MultipartFile itemImage, ItemDTO itemDTO)
-			throws IllegalStateException, IOException {
+	@PreAuthorize("hasRole('ADMIN')")
+	@PatchMapping(value = "/api/account/item/{itemPk}/itemImage", consumes = "multipart/form-data")
+	public ResponseEntity<Map<String, Object>> itemImageUpdate(
+	        @PathVariable Integer itemPk,
+	        @RequestPart("itemImage") MultipartFile itemImage,
+	        @ModelAttribute ItemDTO itemDTO
+	) {
+	    System.out.println("[ItemController.itemImageUpdate] itemPk=" + itemPk + ", itemDTO=" + itemDTO);
 
-		// 파일이 없거나 빈 파일이면 에러 반환
-		if (itemImage == null || itemImage.isEmpty()) {
-			return ResponseEntity.status(400).body(Map.of("code", "VALIDATION_ERROR", "message", "이미지 파일이 필요합니다."));
-		}
+	    // 0) 필수값 검증
+	    if (itemImage == null || itemImage.isEmpty()) {
+	        return ResponseEntity.badRequest().body(Map.of(
+	                "code", "VALIDATION_ERROR",
+	                "message", "이미지 파일이 필요합니다."
+	        ));
+	    }
+	    
+	    // 1) 폴더
+	    String uploadDir = resourcePath + "/images/item/";
+	    File dir = new File(uploadDir);
+	    if (!dir.exists()) dir.mkdirs();
+	    
+	    // 2) 파일명 (확장자 유지 or 기본값)
+	    String original = itemImage.getOriginalFilename();
+	    String ext = org.springframework.util.StringUtils.getFilenameExtension(original);
+	    if (ext == null || ext.isBlank()) ext = "png";
 
-		// 서버에서 파일을 저장할 폴더 경로
-		String uploadDir = this.resourcePath + this.itemPrefix;
-		File dir = new File(uploadDir); // File 객체 생성
-		if (!dir.exists()) {
-			dir.mkdirs(); // 폴더가 존재하지 않으면 자동 생성			
-		}
+	    String fileName = UUID.randomUUID() + "." + ext.toLowerCase();
 
-		// getOriginalFilename() = 클라이언트가 업로드한 원본 파일 이름 가져오기
-		String original = itemImage.getOriginalFilename();
+	    // 3) 저장
+	    File dest = new File(uploadDir, fileName);
+	    try {
+	        itemImage.transferTo(dest);
+	    } catch (Exception e) {
+	        throw new RuntimeException("파일 저장 실패", e);
+	    }
+	    
+	    // 4) DB 저장할 URL
+	    String imageUrl = itemPrefix + fileName; // itemPrefix="/images/item/"
+	    itemDTO.setItemPk(itemPk);
+	    itemDTO.setItemImageUrl(imageUrl);
+	    itemDTO.setCondition("ADMIN_UPDATE_IMAGE_ITEM");
 
-		// 파일 확장자 추출 (png, jpg 등)
-		String ext = org.springframework.util.StringUtils.getFilenameExtension(original);
-		if (ext == null) {
-			ext = "png"; // 확장자가 없으면 기본 png 사용			
-		}
-
-		// UUID 사용 → 파일 이름 중복 방지 + 보안
-		String fileName = UUID.randomUUID() + "." + ext.toLowerCase();
-
-		// 실제 저장될 파일 위치 생성
-		File dest = new File(dir, fileName);
-		itemImage.transferTo(dest); // MultipartFile → 실제 서버 파일로 저장
-
-		// 클라이언트가 접근할 수 있는 이미지 URL 생성
-		String imageUrl = this.itemPrefix + fileName;
-
-		// DB 업데이트
-		itemDTO.setItemPk(itemPk);
-		itemDTO.setItemImageUrl(imageUrl);
-		itemDTO.setCondition("ADMIN_UPDATE_IMAGE_ITEM");
-
-		if (!itemService.updateItem(itemDTO)) {
-			// DB 업데이트 실패하면 저장된 파일 삭제
-			dest.delete();
-			return ResponseEntity.status(404).body(Map.of("code", "ITEM_NOT_FOUND", "message", "해당 상품 정보를 찾을 수 없습니다."));
-		}
-
+	    // 5) DB 업데이트 (실패 시 파일 삭제)
+	    try {
+	        if (!itemService.updateItem(itemDTO)) {
+	            dest.delete(); // DB 실패하면 파일 롤백
+	            return ResponseEntity.status(404).body(Map.of(
+	                    "code", "ITEM_NOT_FOUND",
+	                    "message", "해당 상품 정보를 찾을 수 없습니다."
+	            ));
+	        }
+	    } catch (Exception e) {
+	        dest.delete(); // 예외 나도 파일 롤백
+	        throw e;
+	    }
 		return ResponseEntity.ok(Map.of("code", "success", "message", "수정 성공")); // 수정 필요
 	}
 }

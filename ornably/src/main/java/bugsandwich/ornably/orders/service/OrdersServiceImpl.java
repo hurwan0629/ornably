@@ -57,7 +57,7 @@ public class OrdersServiceImpl implements OrdersService{
 		return ordersRepository.selectAll(ordersDTO);
 	}
 
-	
+	// 장바구니 조회 -> 재고 차감 -> 주문내역 생성 -> 
 	@Override
 	@Transactional
 	public boolean paymentComplete(OrdersDTO ordersDTO) {
@@ -74,21 +74,28 @@ public class OrdersServiceImpl implements OrdersService{
         for (CartDTO c : cartItems) {
             ItemDTO itemDTO = new ItemDTO();
             itemDTO.setItemPk(c.getItemPk());
-            itemDTO.setCartCount(cartDTO.getCartCount()); // itemDTO =>  추가함
+            itemDTO.setCartCount(c.getCartCount()); // itemDTO =>  추가함
             itemDTO.setCondition("BUY_ITEM");
             if (!itemRepository.update(itemDTO)) {
-                throw new RuntimeException("재고 부족"); // 재고 - 막는 수정 필요 ****
+                throw new RuntimeException("재고 부족"); // 재고 - 막는 수정 필요 -> 쿼리 수정 완료
             }
         }
         
         // 3) 주문내역 생성
         ordersDTO.setCondition("INSERT_ORDERS");
-        ordersDTO.setOrdersMessage("상품준비 중...");
-        ordersDTO.setOrdersPaymentType(null); // PortOne에서 받아옹기
-        if(!ordersRepository.insert(ordersDTO)) {
+        if(!ordersRepository.insert(ordersDTO)) { 
         	throw new RuntimeException("주문내역 생성 실패..");
         }
         
+        ordersDTO.setCondition("SELECT_ONE_ORDERS_PK");
+        // 방금 생성한 주문내역 pk 조회 
+        ordersDTO = ordersRepository.selectOne(ordersDTO);
+        // 조회 실패시 트랜잭션 롤백
+        if(ordersDTO.getOrdersPk() == null) {
+        	throw new RuntimeException("주문내역 찾지 못함..");
+        }
+
+        	
         // 4) 주문 상새 내역 생성     
         for (CartDTO c : cartItems) {
             OrdersItemDTO ordersItemDTO = new OrdersItemDTO();
@@ -97,7 +104,7 @@ public class OrdersServiceImpl implements OrdersService{
             ordersItemDTO.setOrdersItemCount(c.getCartCount());
             ordersItemDTO.setOrdersItemPrice(c.getCartTotalPrice());
             ordersItemDTO.setCondition("INSERT_ORDERS_ITEM");
-            if(ordersItemRepository.insert(ordersItemDTO)) {
+            if(!ordersItemRepository.insert(ordersItemDTO)) { // insert => ordersDTO로 변경 가능?
             		throw new RuntimeException("주문상새 내역 생성 실패..");
             }
         } 

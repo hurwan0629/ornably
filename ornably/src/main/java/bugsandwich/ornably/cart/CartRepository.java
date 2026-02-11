@@ -23,7 +23,7 @@ public class CartRepository {
 		    "  IFNULL(MAX(E.EVENT_DISCOUNT_RATE), 0) AS itemDiscountRate, " +
 		    "  CASE " +
 		    "    WHEN IFNULL(MAX(E.EVENT_DISCOUNT_RATE), 0) > 0 " +
-		    "    THEN ROUND(I.ITEM_PRICE * (IFNULL(MAX(E.EVENT_DISCOUNT_RATE), 0) / 100), 0) " +
+		    "    THEN ROUND(I.ITEM_PRICE * (IFNULL((100-MAX(E.EVENT_DISCOUNT_RATE)), 0) / 100), 0) " +
 		    "    ELSE 0 " +
 		    "  END AS itemDiscountPrice, " +
 		    "  C.CART_COUNT        AS cartCount " +

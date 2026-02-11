@@ -12,6 +12,9 @@ public interface AddressService {
 		
 		AddressDTO getAddress(AddressDTO addressDTO);
 		List<AddressDTO> getAddressList(AddressDTO addressDTO);
+		
+		
+		boolean changeDefaultAddress(AddressDTO addressDTO);
 	}
 
 

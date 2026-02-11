@@ -20,10 +20,10 @@ public class EventDTO {
 	private String eventName;					// 이벤트 이름
 	private LocalDate eventStartDate;			// 이벤트 시작일
 	private LocalDate eventEndDate;				// 이벤트 종료일
-	private JsonNode eventTargetAccount;		// 이벤트 대상
-	private JsonNode eventTargetCategory;		// 이벤트 상품 카테고리
+	private String eventTargetAccount;		// 이벤트 대상
+	private String eventTargetCategory;		// 이벤트 상품 카테고리
 	private String eventDescription;			// 이벤트 설명
-	private int eventDiscountRate;				// 할인율
+	private Integer eventDiscountRate;			// 할인율
 	private String eventImageUrl;				// 이벤트 이미지 URL
 	
 	// [ 추가 멤버 변수 ]

@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -32,6 +33,12 @@ public class ItemController {
 
 	@Autowired
 	private ItemService itemService;
+	
+	@Value("resource.path")
+	private String resourcePath;
+	
+	@Value("resource.item.prefix")
+	private String itemPrefix;
 
 //  ===================== 상품 목록 보기  =====================
 	@GetMapping("/all/item")
@@ -92,7 +99,7 @@ public class ItemController {
 
 //  ===================== 상품 상세 보기 =====================
 	@GetMapping("/all/item/{itemPk}")
-	public ResponseEntity<Map<String, Object>> getItemDetail(@PathVariable Integer itemPk, ItemDTO itemDTO) {
+	public ResponseEntity<?> getItemDetail(@PathVariable Integer itemPk, ItemDTO itemDTO) {
 		System.out.println("[ItemController.getItemDetail]  받은 itemPk = " + itemPk);
 		itemDTO.setItemPk(itemPk);
 		itemDTO.setCondition("SELECT_ONE_ITEM_DETAIL");
@@ -103,6 +110,7 @@ public class ItemController {
 		 * 그냥 wishlistToggle 없고 3. 회원이 로그인 상태 즉 pk가 값이 있다면 wishlistToggle이 true인지
 		 * false인지
 		 */
+		System.out.println(itemDTO.getItemDiscountPrice());
 		return ResponseEntity.ok(Map.of("itemData", item));
 	}
 
@@ -319,7 +327,7 @@ public class ItemController {
 		}
 
 		// 서버에서 파일을 저장할 폴더 경로
-		String uploadDir = "C:/HUR/workspace/Ornably/resource/images/item";
+		String uploadDir = this.resourcePath + this.itemPrefix;
 		File dir = new File(uploadDir); // File 객체 생성
 		if (!dir.exists()) {
 			dir.mkdirs(); // 폴더가 존재하지 않으면 자동 생성			
@@ -342,7 +350,7 @@ public class ItemController {
 		itemImage.transferTo(dest); // MultipartFile → 실제 서버 파일로 저장
 
 		// 클라이언트가 접근할 수 있는 이미지 URL 생성
-		String imageUrl = "/item/" + fileName;
+		String imageUrl = this.itemPrefix + fileName;
 
 		// DB 업데이트
 		itemDTO.setItemPk(itemPk);

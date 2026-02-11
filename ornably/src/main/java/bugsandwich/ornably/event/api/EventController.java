@@ -3,6 +3,7 @@ package bugsandwich.ornably.event.api;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +23,7 @@ import bugsandwich.ornably.event.Service.EventService;
 @RequestMapping("/api")
 public class EventController {
 	
+	@Autowired
 	private EventService eventService;
 	
 //  ===================== 이벤트 정보 요청 =====================
@@ -33,7 +35,7 @@ public class EventController {
 		
 		List<EventDTO> list = eventService.getEventList(eventDTO);
 		
-		return ResponseEntity.ok(null);
+		return ResponseEntity.ok(Map.of("eventDatas", list));
 	}
 	
 	
@@ -66,13 +68,13 @@ public class EventController {
 	
 //  ===================== 현재 진행중인 이벤트 =====================
 	@GetMapping("/all/event/in-progress")
-	public ResponseEntity<Map<String, Object>> mainEvent(EventDTO eventDTO){
+	public ResponseEntity<?> mainEvent(EventDTO eventDTO){
 		
 		eventDTO.setCondition("SELECT_ALL_EVENT");
 	    List<EventDTO> list = eventService.getEventList(eventDTO);
 
 	    // 이벤트 없을 때
-	    if (list.isEmpty()) {
+	    if (list==null || list.isEmpty()) {
 	        return ResponseEntity.status(404).body(Map.of(
 	                "code", "NO_ACTIVE_EVENT",
 	                "message", "현재 진행중인 이벤트가 없습니다."

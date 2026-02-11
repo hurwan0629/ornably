@@ -30,8 +30,14 @@ public class ReviewServiceImpl implements ReviewService {
 	private ReviewRepository reviewRepository;
 
 	// config.properties에 있는 리소스 저장하는 파일 절대경로
-	 @Value("${resource.path.review}")
-	private String reviewResourcePath;
+	 @Value("${resource.path}")
+	private String resourcePath;
+	 
+	 @Value("${resource.review.prefix")
+	 private String reivewPrefix;
+	 
+	 @Value("${server.origin}")
+	 private String serverOrigin;
 
 	// 허용되는 파일 확장자 종류
 	private static final Set<String> ALLOWED_EXTENTION = Set.of("jpg", "jpeg", "png", "webp");
@@ -101,8 +107,6 @@ public class ReviewServiceImpl implements ReviewService {
 	 */
 	@Override
 	public boolean registReview(ReviewDTO reviewDTO) {
-		Path imageFolderPath = Paths.get(this.reviewResourcePath + "/images/review");
-		
 		// 2) 이미지 저장 + URL 생성
 		MultipartFile image = reviewDTO.getReviewImage();
 		// 사진이 존재하면 저장후 저장된 경로 문자열을 DTO에 너허어주기
@@ -131,7 +135,7 @@ public class ReviewServiceImpl implements ReviewService {
 	// 이미지 파일을 넣으면 저장 후 경로 문자열을 반환해주는 함수
 	// 서비스 내부에서만 사용할 메서드라서 private처리
 	private String saveReviewImageAndGetUrl(MultipartFile file) throws IOException {
-		Path reviewDir = Path.of(this.reviewResourcePath);
+		Path reviewDir = Path.of(this.resourcePath + this.reivewPrefix);
 		// 디렉토리 보장
 		Files.createDirectories(reviewDir);
 
@@ -146,7 +150,7 @@ public class ReviewServiceImpl implements ReviewService {
 		// 저장
 		Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
 
-		return target.toString();
+		return this.serverOrigin + this.reivewPrefix + reviewImageName;
 	}
 
 	private static Map<String, Object> err(String code, String message) {

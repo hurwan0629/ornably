@@ -21,5 +21,5 @@ public class OrdersItemDTO {
 	private Integer accountPk; 			// 회원 고유 번호 (FK)
 	private String itemName;			// 상품 이름
 	private String itemImageUrl; 		// 상품 이미지 경로
-	private boolean isReviewed; 		// 사용자 리뷰 작성 유무
+	private Boolean isReviewed; 		// 사용자 리뷰 작성 유무
 }

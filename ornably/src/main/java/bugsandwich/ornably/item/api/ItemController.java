@@ -43,9 +43,10 @@ public class ItemController {
 
 //  ===================== 상품 목록 보기  =====================
 	@GetMapping("/all/item")
-	public ResponseEntity<Map<String, Object>> getAllItems(@ModelAttribute ItemDTO itemDTO,
+	public ResponseEntity<Map<String, Object>> getAllItems(
+			@ModelAttribute ItemDTO itemDTO,
 			@AuthenticationPrincipal OrnablyUser ornablyUser) {
-		// ResponseBody면 항상 200OK 반환
+		// ResponseBody면 항상 200 OK 반환
 		// HTTP 응답을 컨트롤 하기 위해 ResponseEntity 사용
 
 		System.out.println("[ItemController.getAllItems] 받은 itemDTO 받은 값] = " + itemDTO);
@@ -115,7 +116,8 @@ public class ItemController {
 	}
 
 	/*
-	 * ============================================================ 관리자
+	 * ============================================================ 
+	 * 관리자
 	 * ===========================================================
 	 */
 //  ===================== 관리자 상품 목록 보기 =====================

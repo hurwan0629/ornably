@@ -94,8 +94,6 @@ public class OrdersController {
 		            .body(Map.of("code","PAYMENT_FAILED","message","결제가 완료 상태가 아닙니다."));
 		}
 		
-
-		
 		// 총 결제 금액 검증 -> 주문내역 없어서 구현 x
 				
 		// 결제 수단 조회

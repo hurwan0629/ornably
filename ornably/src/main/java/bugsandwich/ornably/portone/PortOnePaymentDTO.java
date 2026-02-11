@@ -21,3 +21,4 @@ public class PortOnePaymentDTO {
     	private String provider;
     }
 }
+	

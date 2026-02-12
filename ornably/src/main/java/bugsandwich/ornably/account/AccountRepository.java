@@ -142,8 +142,14 @@ public class AccountRepository {
 	    "    a.ACCOUNT_EVENT_OPT_IN";
 
 	
-	
-	
+	// 이벤트 수신 동의 회원 이메일 조회
+	private static final String SELECT_ACCOUNT_EMAIL_EVENT_OPTIN =
+	        "SELECT a.ACCOUNT_EMAIL AS accountEmail " +
+	        "FROM ACCOUNT a " +
+	        "WHERE a.ACCOUNT_EMAIL IS NOT NULL " +      // 이메일 존재
+	        "AND a.ACCOUNT_ID IS NOT NULL " +           // 탈퇴 회원 제외
+	        "AND a.ACCOUNT_EVENT_OPT_IN = 1";           // 이벤트 수신 동의
+
 	
 	
 	
@@ -185,6 +191,16 @@ public class AccountRepository {
 				accountDTO.getAccountTotalAmountMax(),
 				accountDTO.getAccountTotalAmountMax()
 			);
+		}
+		
+		// 이벤트 수신 동의 회원 이메일 조회
+		else if("SELECT_ACCOUNT_EMAIL_EVENT_OPTIN".equals(accountDTO.getCondition())) {
+			System.out.println("[로그] selectAll의 SELECT_ACCOUNT_EMAIL_EVENT_OPTIN");
+			
+		    return jdbcTemplate.query(
+	            SELECT_ACCOUNT_EMAIL_EVENT_OPTIN,
+	            new BeanPropertyRowMapper<>(AccountDTO.class)
+	        );
 		}
 		System.out.println("[로그][경고] AccountDAO의 selectAll_condition 없음");
 		// 조건이 없으면 빈 리스트 반환

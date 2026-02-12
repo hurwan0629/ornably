@@ -114,7 +114,6 @@ public class ItemController {
 		itemDTO.setItemPk(itemPk);
 		itemDTO.setCondition("SELECT_ONE_ITEM_DETAIL");
 		ItemDTO item = itemService.getItem(itemDTO);
-
 		
 		return ResponseEntity.ok(Map.of("itemData", item));
 	}

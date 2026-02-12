@@ -19,4 +19,6 @@ public interface AccountService {
 
 	AccountDTO getAdminAccountInfo(Integer accountPk);
 	
+	List<AccountDTO> getEmailDatas();
+	
 }

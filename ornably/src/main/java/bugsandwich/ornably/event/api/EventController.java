@@ -1,9 +1,7 @@
 package bugsandwich.ornably.event.api;
 
-import java.io.File;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,8 +17,14 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import bugsandwich.ornably.account.AccountDTO;
+import bugsandwich.ornably.account.AccountRepository;
+import bugsandwich.ornably.account.service.AccountService;
+import bugsandwich.ornably.brevo.BrevoClient;
+import bugsandwich.ornably.brevo.BrevoService;
 import bugsandwich.ornably.event.EventDTO;
 import bugsandwich.ornably.event.Service.EventService;
+import bugsandwich.ornably.review.service.ReviewService;
 
 @RestController
 @RequestMapping("/api")
@@ -28,6 +32,18 @@ public class EventController {
 	
 	@Autowired
 	private EventService eventService;
+	
+	@Autowired
+	private BrevoService brevoService;
+	
+	@Autowired
+	private AccountService accountService;
+	
+	@Autowired
+	private ReviewService reviewService;
+	
+	@Autowired
+	private BrevoClient brevoClient;
 	
 	@Value("${resource.path}")
 	private String resourcePath;
@@ -96,6 +112,7 @@ public class EventController {
 	    ));
 	}
 	
+
 //  ===================== 이벤트 등록 =====================
 	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping("/admin/event")
@@ -105,50 +122,53 @@ public class EventController {
 //	        @RequestPart("eventTargetCategory") String eventTargetCategoryJson,
 	        @ModelAttribute EventDTO eventDTO
 	) {
-	    try {
-	    	// JSON 문자열을 객체로 변환할 때 사용하는 Jackson 라이브러리 도구
-//	        ObjectMapper mapper = new ObjectMapper();
+	       try {
+	           if(eventImage == null || eventImage.isEmpty()) {
+	              return ResponseEntity.status(400).body(Map.of(
+	                       "code", "MISSING_IMAGE",
+	                       "message", "이미지를 불러오지 못하였습니다."
+	               ));
+	           }
+	           else if(!this.reviewService.checkFileSize(eventImage)) {
+	              return ResponseEntity.status(400).body(Map.of(
+	                       "code", "TOO_BIG_IMAGE_SIZE",
+	                       "message", "이미지 크기는 "+ this.reviewService.getAllowedImageMaxBytes() +"kb까지 가능합니다."
+	               ));
+	           }
+	           else if(!this.reviewService.checkFileExtention(eventImage)) {
+	              return ResponseEntity.status(400).body(Map.of(
+	                       "code", "IMAGE_TYPE_ERROR",
+	                       "message", "이미지 확장자는"+ this.reviewService.getAllowedExtentionSet() +"만 가능합니다."
+	               ));   
+	           }
+	           
+	           String eventImageUrl = this.reviewService.saveImageAndGetUrl(resourcePath, eventPrefix, eventImage);
+	           
+	            //  DB에 저장할 URL
+	            eventDTO.setEventImageUrl(eventImageUrl); // eventPrefix="/images/event/"
+	            
+	            eventDTO.setCondition("INSERT_EVENT");
+	            if (!eventService.insertEvent(eventDTO)) {
+	                return ResponseEntity.status(400).body(Map.of(
+	                        "code", "EVENT_INSERT_FAIL",
+	                        "message", "이벤트 등록에 실패했습니다."
+	                ));
+	            }
 	        
-            // JSON 문자열 → JsonNode 객체로 변환
-	        // DTO 필드 타입이 JsonNode라서 변환 필요
-//	        eventDTO.setEventTargetAccount(mapper.readTree(eventTargetAccountJson));
-//	        eventDTO.setEventTargetCategory(mapper.readTree(eventTargetCategoryJson));
-
-
-	        // 실제 파일을 저장할 서버 경로
-	        // resourcePath = application.properties에서 가져온 값
-	        // 예: C:/HUR/workspace/Ornably/resource
-	        String uploadDir = resourcePath + "/images/event/";
+	            //  테스트 메일 발송 (실패해도 이벤트 등록은 성공 처리)
+	            try {
+	            	List<AccountDTO> emails = accountService.getEmailDatas();
+	            	brevoService.sendEventMailToAllAgreeAsync(emails, eventDTO);
+	            } catch (Exception e) {
+	            	e.printStackTrace();
+	            }      
+	            
+	           
+	            // eventPk 호출
+	            eventDTO.setCondition("SELECT_ONE_EVENT_PK_RECENT");           
+	            eventDTO = eventService.getEvent(eventDTO);
 	        
-	        // 해당 폴더가 없으면 생성
-	        File dir = new File(uploadDir);
-	        if (!dir.exists()) dir.mkdirs();
-	        
-	        // 파일 이름 중복 방지를 위해 UUID 사용
-	        // UUID = 랜덤 고유 문자열
-	        String fileName = UUID.randomUUID() + "_" + eventImage.getOriginalFilename();
-	        
-
-	        // 저장될 실제 파일 경로 생성	        
-	        File dest = new File(uploadDir, fileName);
-
-	        // 업로드된 파일을 서버 디스크에 저장
-	        // MultipartFile → 실제 파일로 변환
-	        eventImage.transferTo(dest);
-
-	        //  DB에 저장할 URL
-	        eventDTO.setEventImageUrl(eventPrefix + fileName); // eventPrefix="/images/event/"
-
-	        eventDTO.setCondition("INSERT_EVENT");
-
-	        if (!eventService.insertEvent(eventDTO)) {
-	            return ResponseEntity.status(400).body(Map.of(
-	                    "code", "EVENT_INSERT_FAIL",
-	                    "message", "이벤트 등록에 실패했습니다."
-	            ));
-	        }
-	        
-	        // INSERT 성공
+	        // INSERT 성공 및 이메일 발송 성공
 	        return ResponseEntity.ok(Map.of(
 	                "code", "success",
 	                "message", "이벤트 등록 성공",
@@ -161,5 +181,5 @@ public class EventController {
 	        ));
 	    }
 	}
-	
+
 }

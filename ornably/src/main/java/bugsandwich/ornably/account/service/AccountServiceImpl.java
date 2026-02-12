@@ -13,6 +13,7 @@ import bugsandwich.ornably.address.AddressDTO;
 import bugsandwich.ornably.address.AddressRepository;
 import bugsandwich.ornably.cart.CartDTO;
 import bugsandwich.ornably.cart.CartRepository;
+import bugsandwich.ornably.event.EventDTO;
 import bugsandwich.ornably.wishlist.WishlistDTO;
 import bugsandwich.ornably.wishlist.WishlistRepository;
 
@@ -110,5 +111,13 @@ public class AccountServiceImpl implements AccountService {
 		accountDTO.setCondition("SELECT_ADMIN_ACCOUNT_INFO_BY_ACCOUNT_PK");
 		
 		return accountRepository.selectOne(accountDTO);
+	}
+
+	@Override
+	public List<AccountDTO> getEmailDatas() {
+		AccountDTO accountDTO = new AccountDTO();
+		accountDTO.setCondition("SELECT_ACCOUNT_EMAIL_EVENT_OPTIN");
+		
+		return accountRepository.selectAll(accountDTO);
 	}
 }

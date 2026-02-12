@@ -23,4 +23,5 @@ public class OrdersItemDTO {
 	private String itemImageUrl; 		// 상품 이미지 경로
 	private Boolean isReviewed; 		// 사용자 리뷰 작성 유무
 	
+	
 }

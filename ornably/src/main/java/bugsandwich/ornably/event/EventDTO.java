@@ -30,4 +30,5 @@ public class EventDTO {
 	private String condition;					// 분기점
 	private Integer eventAccountPk;  			// 조회용 계정 PK
 	private List<EventDTO> accountEventPkList;  // 쿼리 결과 이벤트 리스트
+	private String accountEmail;				// 이벤트 내용 보낼 이메일 (추가)
 }

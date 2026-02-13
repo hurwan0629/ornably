@@ -3,14 +3,21 @@ package bugsandwich.ornably.connectLog.service;
 import java.util.List;
 
 import bugsandwich.ornably.connectLog.ConnectLogDTO;
+import jakarta.servlet.http.HttpServletRequest;
 
 
 public interface ConnectLogService {
-	boolean insertConnectLog(ConnectLogDTO connectLogDTO);
-	boolean updateConnectLog(ConnectLogDTO connectLog);
-	boolean deleteConnectLog(ConnectLogDTO connectLogDTO);
 	
-	ConnectLogDTO getWishlist(ConnectLogDTO connectLogDTO);
-	List<ConnectLogDTO> getWishlistList(ConnectLogDTO connectLogDTO);
+	//접속기록 생성
+	boolean insertConnectLog(Integer accountPk, HttpServletRequest request);
 	
+	//특정 사용자 로그 전체 조회
+	List<ConnectLogDTO> getAllMyLogs(Integer accountPk);
+	
+	//특정사용자 최신 로그 1건
+	ConnectLogDTO getMyLog(Integer accountPk);
+	
+	//사용자 로그 전체 삭제
+	Integer deleteMyLogs(Integer accountPk);
+
 }

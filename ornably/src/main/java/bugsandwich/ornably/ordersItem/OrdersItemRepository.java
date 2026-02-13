@@ -47,11 +47,11 @@ public class OrdersItemRepository {
     
 	
 	public List<OrdersItemDTO> selectAll(OrdersItemDTO ordersItemDTO){
-		System.out.println("[로그] OrdersItemRepository의 selectAll 시작");
+		
 		
 		// 주문내역에 해당 주문상세들 전체 출력
 		if("SELECT_ALL_ORDERS_ITEM".equals(ordersItemDTO.getCondition())) {
-			System.out.println("[로그] OrdersItemRepository의 SELECT_ALL_ORDERS_ITEM");
+			
 			
 			return jdbcTemplate.query(
 				SELECT_ALL_ORDERS_ITEM,
@@ -60,7 +60,7 @@ public class OrdersItemRepository {
 				ordersItemDTO.getOrdersPk()
 			);
 		}
-		System.out.println("[로그][경고] OrdersItemRepository의 selectAll_condition 없음");
+		
 		return null;
 	}
 	
@@ -71,13 +71,13 @@ public class OrdersItemRepository {
 	
 	
 	public boolean insert(OrdersItemDTO orderItemDTO) {
-		System.out.println("[로그] OrdersItemRepository의 insert 시작");
+		
 		int result = 0;
 
 		// 주문이 들어오면 해당 주문의 상품 상세 정보를 DB에 기록
 		if("INSERT_ORDERS_ITEM".equals(orderItemDTO.getCondition())) {
-			System.out.println("[로그] OrdersItemRepository의 INSERT_ORDERS_ITEM");
-			
+			System.out.println("adf");
+			System.out.println(orderItemDTO);
 			result = jdbcTemplate.update(
 				INSERT_ORDERS_ITEM,
 				orderItemDTO.getOrdersPk(),
@@ -87,7 +87,7 @@ public class OrdersItemRepository {
 			);
 		}
 		else {
-			System.out.println("[로그][경고] OrdersItemRepository의 insert_condition 없음");
+			
 		}
 		return result > 0;
 	}
@@ -99,7 +99,7 @@ public class OrdersItemRepository {
 	
 	
 	public boolean delete(OrdersItemDTO ordersItemDTO) {
-		System.out.println("[로그] OrderItemDAO의 delete 시작");
+		
 		int result = 0;
 		
 		// 주문 상세 삭제
@@ -110,7 +110,7 @@ public class OrdersItemRepository {
 			);
 		}
 		else {
-			System.out.println("[로그][경고] OrdersItemDAO의 delete_condition 없음");
+			
 		}
 		return result > 0;
 	}

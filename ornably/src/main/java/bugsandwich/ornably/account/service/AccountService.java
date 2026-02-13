@@ -16,7 +16,8 @@ public interface AccountService {
 	boolean accountWithdraw(AccountDTO accountDTO);
 
 	List<AccountDTO> getAdminSearchAccount(AccountDTO accountDTO);
-
+	List<AccountDTO> getEmailDatas();
+	
 	AccountDTO getAdminAccountInfo(Integer accountPk);
 	
 }

@@ -51,8 +51,13 @@ public class ReviewController {
 
 		reviewDTO.setCondition("SELECT_ITEM_REVIEW_COUNT");
 		List<ReviewDTO> reviewDatas = this.reviewService.getReviewByItemPk(reviewDTO); // itemPk, dataCount, page
-
-		return ResponseEntity.status(200).body(Map.of("reviewDatas", reviewDatas, "itemPk", reviewDTO.getItemPk()));
+		Integer itemPk = reviewDTO.getItemPk();
+		
+		reviewDTO = this.reviewService.getReviewMaxPageByItemPkAndDataCount(reviewDTO);
+		return ResponseEntity.status(200).body(
+				Map.of("reviewDatas", reviewDatas, 
+					 "itemPk", itemPk,
+					 "maxPages", reviewDTO.getMaxPages()));
 
 	}
 
@@ -118,7 +123,8 @@ public class ReviewController {
 	// reviewTitle, reviewContent를 받아서 수정해주기
 	@PreAuthorize("hasRole('USER')")
 	@PatchMapping(value = "/user/review/{reviewPk}")
-	public ResponseEntity<?> updateReviewByUser(@PathVariable("reviewPk") Integer reviewPk,
+	public ResponseEntity<?> updateReviewByUser(
+			@PathVariable("reviewPk") Integer reviewPk,
 			@RequestBody ReviewDTO reviewDTO) {
 		reviewDTO.setReviewPk(reviewPk);
 		if (this.reviewService.updateReview(reviewDTO)) {

@@ -6,7 +6,6 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,6 +29,7 @@ public class AddressController {
 	
 	
 	// =========로그인한 사용자 배송지 목록 조회=========
+
 	@GetMapping({"/", "/me"}) // ("/api/user/address")
 	public ResponseEntity<?> getMyAddresses(
 			// ResponseEntity HTTP 응답(상태코드,응답 바디,헤더)을 내가 원하는대로 조립할수 잇음
@@ -46,7 +46,7 @@ public class AddressController {
 		}
 		// 로그인한 사용자 pk 가져오기
 		Integer accountPk = ornablyUser.getAccountPk();
-		System.out.println("[로그] 로그인한 사용자 PK :" + ornablyUser.getAccountPk());
+		
 
 		// DAO 분기용 condition + 조회 대상 accountPk 세팅
 		addressDTO.setAccountPk(accountPk);// 누구의 주소 목록인지
@@ -54,7 +54,7 @@ public class AddressController {
 
 		// 서비스 호출해서 내 주소목록 가져오기
 		List<AddressDTO> addresses = addressService.getAddressList(addressDTO);
-		System.out.println("[로그] 가져온 주소 목록 : " + addresses);
+		
 
 		// 프론트 요청에 맞게 필요한 값만 골라서 보내주기
 		// DTO를 전부 보내지 않고 회원pk와 컨디션을 빼고 보내주기
@@ -85,7 +85,7 @@ public class AddressController {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
 		Integer accountPk = ornablyUser.getAccountPk();
-		System.out.println("[로그] 로그인한 사용자 PK :" + ornablyUser.getAccountPk());
+		
 
 		AddressDTO addressDTO = new AddressDTO();
 		// @
@@ -111,8 +111,8 @@ public class AddressController {
 
 	// =========기본배송지로 변경===============
 	@PatchMapping("/{addressPk}")
-	public ResponseEntity<?> patchMyAddress(@
-			PathVariable Integer addressPk, // url에 있는 주소PK
+	public ResponseEntity<?> patchMyAddress(
+			@PathVariable Integer addressPk, // url에 있는 주소PK
 			@AuthenticationPrincipal OrnablyUser ornablyUser // 로그인 사용자
 	) {
 		// 예외방지용 로그인 체크
@@ -155,6 +155,7 @@ public class AddressController {
 		}
 		// 로그인사용자PK
 		addressDTO.setAccountPk(ornablyUser.getAccountPk());
+
 		addressDTO.setCondition("INSERT_NEW_ADDRESS");
 		
 		// 서비스 호출(DB insert)

@@ -1,6 +1,7 @@
 package bugsandwich.ornably.account.api;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -78,8 +79,8 @@ public class AccountController {
 
 		Map<String, Object> map = new java.util.HashMap<>();
 		map.put("accountId", ornablyUser.getAccountId());
-		map.put("accountName", String.valueOf(ornablyUser.getAttributes().get("name")));
-		map.put("accountEmail", String.valueOf(ornablyUser.getAttributes().get("email")));
+		map.put("accountName", ornablyUser.getAttributes().get("name")==null ? null : String.valueOf(ornablyUser.getAttributes().get("name")));
+		map.put("accountEmail", ornablyUser.getAttributes().get("email")==null ? null : String.valueOf(ornablyUser.getAttributes().get("email")));
 		return ResponseEntity.ok(map);
 	}
 
@@ -155,10 +156,10 @@ public class AccountController {
 		 * accountTotalAmountMin={number} - 기본값: 0 accountTotalAmountMax={number} - 기본값:
 		 * Integer.max
 		 */
-		if (accountDTO.getAccountPk() == 0) {
+		if (accountDTO.getAccountPk()==null || accountDTO.getAccountPk() == 0) {
 			accountDTO.setAccountPk(null);
 		}
-		if (accountDTO.getAccountName() == "") {
+		if (accountDTO.getAccountName()==null || accountDTO.getAccountName() == "") {
 			accountDTO.setAccountName(null);
 		}
 
@@ -171,7 +172,7 @@ public class AccountController {
 		}
 
 		if (accountDTO.getAccountRole() == null || accountDTO.getAccountRole().isBlank()) {
-			accountDTO.setAccountRole("ALL");
+			accountDTO.setAccountRole(null);
 		}
 
 		if (accountDTO.getAccountTotalAmountMin() == null) {
@@ -180,9 +181,9 @@ public class AccountController {
 		if (accountDTO.getAccountTotalAmountMax() == null) {
 			accountDTO.setAccountTotalAmountMax(Integer.MAX_VALUE);
 		}
-
+		
 		List<AccountDTO> accountDatas = accountService.getAdminSearchAccount(accountDTO);
-
+		
 		return ResponseEntity.ok(Map.of("accountDatas", accountDatas));
 	}
 
@@ -194,10 +195,17 @@ public class AccountController {
 
 		// 회원이 쓴 리뷰 받아오기
 		List<ReviewDTO> reviewDatas = reviewService.getReviewByAccountPk(accountPk);
+		
+		Map<String, Object> body = new HashMap<>();
+		body.put("accountPk", accountDTO.getAccountPk());
+		body.put("accountId", accountDTO.getAccountId());
+		body.put("accountName", accountDTO.getAccountName());
+		body.put("accountDate", accountDTO.getAccountDate());
+		body.put("accountRole", accountDTO.getAccountRole());
+		body.put("accountEventOptIn", accountDTO.getAccountEventOptIn());
+		body.put("accountTotalAmount", accountDTO.getAccountTotalAmount());
+		body.put("reviewDatas", reviewDatas);
 
-		return ResponseEntity.ok(Map.of("accountPk", accountDTO.getAccountPk(), "acconutId", accountDTO.getAccountId(),
-				"accountName", accountDTO.getAccountName(), "accountDate", accountDTO.getAccountDate(), "accountRole",
-				accountDTO.getAccountRole(), "accountEventOptIn", accountDTO.getAccountEventOptIn(),
-				"accountTotalAmount", accountDTO.getAccountTotalAmount(), "reviewDatas", reviewDatas));
+		return ResponseEntity.ok(body);
 	}
 }

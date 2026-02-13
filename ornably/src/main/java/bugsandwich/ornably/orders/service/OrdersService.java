@@ -16,4 +16,5 @@ public interface OrdersService {
 	List<OrdersDTO> getOrdersList(OrdersDTO ordersDTO);
 	
 	boolean paymentComplete(OrdersDTO ordersDTO);
+	public boolean buyNowPaymentComplete(OrdersDTO ordersDTO);
 }

@@ -79,8 +79,16 @@ public class WishlistController {
 		if(ornablyUser==null) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
-		
+
 		WishlistDTO wishlistDTO = new WishlistDTO();
+		wishlistDTO.setAccountPk(ornablyUser.getAccountPk());
+		wishlistDTO.setItemPk(itemPk);
+		wishlistDTO.setCondition("SELECT_WISHLIST_BY_ACCOUNT_PK_AND_ITEM_PK");
+		
+		if(wishlistService.getWishlist(wishlistDTO) != null) {
+			return ResponseEntity.status(HttpStatus.OK).build();
+		}
+		
 		wishlistDTO.setAccountPk(ornablyUser.getAccountPk());
 		wishlistDTO.setItemPk(itemPk);
 		wishlistDTO.setCondition("INSERT_WISHLIST_BY_ACCOUNT_PK_AND_ITEM_PK");

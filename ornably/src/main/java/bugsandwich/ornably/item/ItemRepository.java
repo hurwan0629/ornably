@@ -255,7 +255,8 @@ public class ItemRepository {
 	        "    i.ITEM_PRICE AS itemPrice, " +                 // 상품 원가
 	        "    DATE_FORMAT(i.ITEM_REGIST_DATE, '%Y-%m-%d') AS itemRegistDate, " + // 등록일
 	        "    i.ITEM_IMAGE_URL AS itemImageUrl, " +          // 상품 이미지 URL
-	        "    i.ITEM_CATEGORY AS itemCategory " +            // 상품 카테고리
+	        "    i.ITEM_CATEGORY AS itemCategory, " +            // 상품 카테고리
+	        "    i.ITEM_DESCRIPTION AS itemDescription " +         // 상품 설명
 	        "  FROM ITEM i " +
 	        "  WHERE i.ITEM_PK = ? " +                          // 특정 상품 조회 (파라미터)
 	        ") " +
@@ -268,6 +269,7 @@ public class ItemRepository {
 	        "  ib.itemRegistDate, " +
 	        "  ib.itemImageUrl, " +
 	        "  ib.itemCategory, " +
+	        "  ib.itemDescription, " +
 
 	        // 이벤트 할인율 (현재 적용 가능한 이벤트 중 최대 할인율)
 	        "  IFNULL(MAX(e.EVENT_DISCOUNT_RATE), 0) AS itemDiscountRate, " +
@@ -364,6 +366,45 @@ public class ItemRepository {
  	//   관리자 쿼리문
  	// ==============
  	
+    // 대시보드 카테고리별 판매량 집계
+    private static final String SELECT_ALL_DASHBOARD_CATEGORY_SALES = 
+    	    "SELECT " +
+    	   "  I.ITEM_CATEGORY AS category, " +
+    	   "  SUM(OI.ORDERS_ITEM_PRICE * OI.ORDERS_ITEM_COUNT) AS salesAmount, " +
+    	   "  SUM(OI.ORDERS_ITEM_COUNT) AS salesCount " +
+    	   "FROM ORDERS_ITEM OI " +
+    	   "LEFT JOIN ITEM I ON I.ITEM_PK = OI.ITEM_PK " +
+    	   "GROUP BY I.ITEM_CATEGORY";
+    
+    // 대시보드 n일간 판매량 집계
+    private static final String SELECT_ALL_DASHBOARD_DAILY_SALES =
+    	    "WITH RECURSIVE date_dim AS ( " +
+    	    "    SELECT DATE_SUB(CURDATE(), INTERVAL ? DAY) AS d " +
+    	    "    UNION ALL " +
+    	    "    SELECT DATE_ADD(d, INTERVAL 1 DAY) " +
+    	    "    FROM date_dim " +
+    	    "    WHERE d < DATE_SUB(CURDATE(), INTERVAL 1 DAY) " +
+    	    "), " +
+    	    "sales AS ( " +
+    	    "    SELECT " +
+    	    "        DATE(o.ORDERS_DATE) AS d, " +
+    	    "        SUM(oi.ORDERS_ITEM_COUNT * oi.ORDERS_ITEM_PRICE) AS salesAmount, " +
+    	    "        SUM(oi.ORDERS_ITEM_COUNT) AS salesCount " +
+    	    "    FROM ORDERS o " +
+    	    "    JOIN ORDERS_ITEM oi ON oi.ORDERS_PK = o.ORDERS_PK " +
+    	    "    WHERE o.ORDERS_DATE >= DATE_SUB(CURDATE(), INTERVAL ? DAY) " +
+    	    "      AND o.ORDERS_DATE < CURDATE() " +
+    	    "    GROUP BY DATE(o.ORDERS_DATE) " +
+    	    ") " +
+    	    "SELECT " +
+    	    "    DATE_FORMAT(dd.d, '%Y-%m-%d') AS date, " +
+    	    "    COALESCE(s.salesAmount, 0) AS salesAmount, " +
+    	    "    COALESCE(s.salesCount, 0) AS salesCount " +
+    	    "FROM date_dim dd " +
+    	    "LEFT JOIN sales s ON s.d = dd.d " +
+    	    "ORDER BY dd.d";
+
+    
  	// 상품 검색 페이지
  	private static final String ADMIN_SEARCH_ITEM =
 		"SELECT " +
@@ -376,7 +417,7 @@ public class ItemRepository {
 		"WHERE " +
 		"    ( ? IS NULL OR i.ITEM_PK = ? ) " +                 			// itemPk 검색
 		"    AND ( ? IS NULL OR i.ITEM_NAME LIKE CONCAT('%', ?, '%')) " +	// itemName 검색
-		"    AND ( ? = 'ALL' OR i.ITEM_CATEGORY = ? ) " +       // itemCategory 검색
+		"    AND ( ? IS NULL OR ? = 'ALL' OR i.ITEM_CATEGORY = ? ) " +       // itemCategory 검색
 		"    AND ( ? IS NULL OR i.ITEM_PRICE >= ? ) " +         // itemPriceMin
 		"    AND ( ? IS NULL OR i.ITEM_PRICE <= ? ) " +         // itemPriceMax
 		"    AND ( ? IS NULL OR i.ITEM_REGIST_DATE >= ? ) " +   // itemRegistDateStart
@@ -400,6 +441,7 @@ public class ItemRepository {
  	        "i.ITEM_PK AS itemPk, " +
  	        "i.ITEM_NAME AS itemName, " +
  	        "i.ITEM_PRICE AS itemPrice, " +
+ 	        "i.ITEM_DESCRIPTION AS itemDescription, " +
  	        "i.ITEM_CATEGORY AS itemCategory, " +
  	        "i.ITEM_IMAGE_URL AS itemImageUrl, " +
  	        "i.ITEM_STOCK AS itemStock, " +
@@ -451,11 +493,11 @@ public class ItemRepository {
  	
  	
 	public List<ItemDTO> selectAll(ItemDTO itemDTO) {
-		System.out.println("[로그] ItemRepository의 selectAll 시작");
+		
 		
 		// 상품 전체 보기 (pk 순으로)
 		if ("SELECT_ALL_ITEM".equals(itemDTO.getCondition())) {
-			System.out.println("[로그] ItemRepository의 SELECT_ALL_ITEM");
+			
 			return jdbcTemplate.query(
 			        SELECT_ALL_ITEM,
 			        new BeanPropertyRowMapper<>(ItemDTO.class),
@@ -485,7 +527,7 @@ public class ItemRepository {
 		
 		// 위시리스트 상품 조회
 		else if ("SELECT_ALL_WISHLIST_ITEM".equals(itemDTO.getCondition())) {
-			System.out.println("[로그] ItemRepository의 SELECT_ALL_WISHLIST_ITEM");
+			
 			return jdbcTemplate.query(
 				SELECT_ALL_WISHLIST_ITEM,
 				new BeanPropertyRowMapper<>(ItemDTO.class),
@@ -495,29 +537,47 @@ public class ItemRepository {
 		
 		// 관리자 상품 검색
 		else if("ADMIN_SEARCH_ITEM".equals(itemDTO.getCondition())) {
-			System.out.println("[로그] ItemRepository의 ADMIN_SEARCH_ITEM");
+			
+			
 			return jdbcTemplate.query(
 		        ADMIN_SEARCH_ITEM,
 		        new BeanPropertyRowMapper<>(ItemDTO.class),
 		        
 		        itemDTO.getItemPk(), itemDTO.getItemPk(),
 		        itemDTO.getItemName(), itemDTO.getItemName(),
-		        itemDTO.getCategory(), itemDTO.getCategory(),
+		        itemDTO.getItemCategory(), itemDTO.getItemCategory(), itemDTO.getItemCategory(),
 		        itemDTO.getItemPriceMin(), itemDTO.getItemPriceMin(),
 		        itemDTO.getItemPriceMax(), itemDTO.getItemPriceMax(),
 		        itemDTO.getItemRegistDateStart(), itemDTO.getItemRegistDateStart(),
 		        itemDTO.getItemRegistDateEnd(), itemDTO.getItemRegistDateEnd()
 		    );
 		}
-		System.out.println("[로그][경고] ItemRepository_selectAll_condition 없음");
+		
+		// 대시보드 카테고리별 판매량
+		else if("SELECT_ALL_DASHBOARD_CATEGORY_SALES".equals(itemDTO.getCondition())) {
+			return jdbcTemplate.query(
+					SELECT_ALL_DASHBOARD_CATEGORY_SALES,
+			        new BeanPropertyRowMapper<>(ItemDTO.class)
+			    );
+		}
+		
+		else if("SELECT_ALL_DASHBOARD_DAILY_SALES".equals(itemDTO.getCondition())) {
+			return jdbcTemplate.query(
+					SELECT_ALL_DASHBOARD_DAILY_SALES,
+			        new BeanPropertyRowMapper<>(ItemDTO.class),
+			        itemDTO.getDays(), itemDTO.getDays()
+			    );
+		}
+		
+		
 		return null;
 	}
 	
 	public ItemDTO selectOne(ItemDTO itemDTO) {
-	    System.out.println("[로그] ItemRepository의 selectOne 시작");
+	    
 	    // 재고 체크
 	    if ("ITEM_STOCK_ENOUGH".equals(itemDTO.getCondition())) {
-			System.out.println("[로그] selectOne의 ITEM_STOCK_ENOUGH");			
+						
 	    	return jdbcTemplate.queryForObject(
                 ITEM_STOCK_ENOUGH,
                 (rs, rowNum) -> {
@@ -533,7 +593,7 @@ public class ItemRepository {
 	    
 	    // 전체 상품 개수
 	    else if ("TOTAL_ITEM_COUNT".equals(itemDTO.getCondition())) {
-			System.out.println("[로그] selectOne의 TOTAL_ITEM_COUNT");			
+						
 	        return jdbcTemplate.queryForObject(
 	            TOTAL_ITEM_COUNT,
 	            (rs, rowNum) -> {
@@ -554,7 +614,7 @@ public class ItemRepository {
 	    
         // 상품 상세 보기
 	    else if ("SELECT_ONE_ITEM_DETAIL".equals(itemDTO.getCondition())) {
-	    	System.out.println("[로그] selectOne의 SELECT_ONE_ITEM");	    	
+	    		    	
 	    	return jdbcTemplate.queryForObject(
 	    		SELECT_ONE_ITEM_DETAIL,
                 new BeanPropertyRowMapper<>(ItemDTO.class),
@@ -569,7 +629,7 @@ public class ItemRepository {
 	    
 	    // 찜 여부 
 	    else if("SELECT_WISHLIST_TOGGLE".equals(itemDTO.getCondition())) {
-			System.out.println("[로그] selectOne의 SELECT_WISHLIST_TOGGLE");			
+						
 			return jdbcTemplate.queryForObject(
 			    SELECT_WISHLIST_TOGGLE,
 			    (rs, rowNum) -> {
@@ -584,7 +644,7 @@ public class ItemRepository {
 	    
 	    // 상품 상세 보기
 	    else if("ADMIN_SELECT_ONE_ITEM".equals(itemDTO.getCondition())) {
-	    	System.out.println("[로그] selectOne의 ADMIN_SELECT_ONE_ITEM");	    	
+	    		    	
 	    	return jdbcTemplate.queryForObject(
 	    		ADMIN_SELECT_ONE_ITEM,
 	    		new BeanPropertyRowMapper<>(ItemDTO.class),
@@ -592,18 +652,18 @@ public class ItemRepository {
 	    	);
 	    }
 	    
-	    System.out.println("[로그][경고] ItemRepository_selectOne_condition 없음");
+	    
 	    return null;
 	}
 	
 	
 	public boolean insert(ItemDTO itemDTO) {
-	    System.out.println("[로그] ItemRepository의 insert 시작");
+	    
 	    int result = 0;
 	    
 	    // 관리자용 : 상품 등록
 		if("ADMIN_INSERT_ITEM".equals(itemDTO.getCondition())) {
-			System.out.println("[로그] insert의 ADMIN_INSERT_ITEM");
+			
 			result = jdbcTemplate.update(
 				ADMIN_INSERT_ITEM,
 				itemDTO.getItemName(),
@@ -615,85 +675,88 @@ public class ItemRepository {
 			);
 		}		
 		else {
-			System.out.println("[로그][경고] ItemRepository_insert_condition 없음");
+			
 		}
 		return result > 0;
 	}
 	
 
 	public boolean update(ItemDTO itemDTO) {
-	    System.out.println("[로그] ItemRepository의 update 시작");
+	    
 	    int result = 0;
 	    
 	    // 상품 구매
 	    if ("BUY_ITEM".equals(itemDTO.getCondition())) {
-	    	System.out.println("[로그] update의 BUY_ITEM");
-	        result = jdbcTemplate.update(BUY_ITEM, itemDTO.getItemStock(), itemDTO.getItemPk());
+	    	
+	        result = jdbcTemplate.update
+	        		(BUY_ITEM, 
+	        				itemDTO.getItemStock(), 
+	        				itemDTO.getItemPk());
 	    } 
 	    
 	    // 장바구니에 담긴 수량만큼 재고 차감
 	    else if ("DECREASE_ITEM_STOCK_BY_CART".equals(itemDTO.getCondition())) {
-	    	System.out.println("[로그] update의 DECREASE_ITEM_STOCK_BY_CART");
+	    	
 	        result = jdbcTemplate.update(DECREASE_ITEM_STOCK_BY_CART, itemDTO.getAccountPk(), itemDTO.getAccountPk());
 	    }
 	    
 	    // 상품 재고 복구
 	    else if ("ROLLBACK_ITEM_STOCK".equals(itemDTO.getCondition())) {
-	    	System.out.println("[로그] update의 ROLLBACK_ITEM_STOCK");
+	    	
 	        result = jdbcTemplate.update(ROLLBACK_ITEM_STOCK, itemDTO.getItemStock(), itemDTO.getItemPk());
 	    }
 	    
 	    // 관리자용 : 상품 이름 수정
 	    else if("ADMIN_UPDATE_NAME_ITEM".equals(itemDTO.getCondition())) {
-	    	System.out.println("[로그] update의 ADMIN_UPDATE_NAME_ITEM");
+	    	
 	    	result = jdbcTemplate.update(ADMIN_UPDATE_NAME_ITEM, itemDTO.getItemName(), itemDTO.getItemPk());
 	    }
 	    
 	    // 관리자용 : 상품 가격 수정
 	    else if("ADMIN_UPDATE_PRICE_ITEM".equals(itemDTO.getCondition())) {
-	    	System.out.println("[로그] update의 ADMIN_UPDATE_PRICE_ITEM");
+	    	
 	    	result = jdbcTemplate.update(ADMIN_UPDATE_PRICE_ITEM, itemDTO.getItemPrice(), itemDTO.getItemPk());
 	    }
 	    
 	    // 관리자용 : 상품 재고 수정
 	    else if("ADMIN_UPDATE_STOCK_ITEM".equals(itemDTO.getCondition())) {
-	    	System.out.println("[로그] update의 ADMIN_UPDATE_STOCK_ITEM");
+	    	
 	    	result = jdbcTemplate.update(ADMIN_UPDATE_STOCK_ITEM, itemDTO.getItemStock(), itemDTO.getItemPk());
 	    }
 	    
 	    // 관리자용 : 상품 설명 수정
 	    else if("ADMIN_UPDATE_DESCRIPTION_ITEM".equals(itemDTO.getCondition())) {
-	    	System.out.println("[로그] update의 ADMIN_UPDATE_DESCRIPTION_ITEM");
+	    	
 	    	result = jdbcTemplate.update(ADMIN_UPDATE_DESCRIPTION_ITEM, itemDTO.getItemDescription(), itemDTO.getItemPk());
 	    }
 	    
 	    // 관리자용 : 상품 이미지 수정 
 	    else if("ADMIN_UPDATE_IMAGE_ITEM".equals(itemDTO.getCondition())) {
-	    	System.out.println("[로그] update의 ADMIN_UPDATE_IMAGE_ITEM");
+	    	
 	    	result = jdbcTemplate.update(ADMIN_UPDATE_IMAGE_ITEM, itemDTO.getItemImageUrl(), itemDTO.getItemPk());
 	    }
 	    
 	    else {
-		    System.out.println("[로그][경고] ItemRepository_update_condition 없음");
+		    
 	    }
 	    return result > 0;
 	}
 	
 
 	public boolean delete(ItemDTO itemDTO) {
-		System.out.println("[로그] ItemRepository의 delete 시작");
+		
 	    int result = 0;
 	    
 		// 관리자용 상품 삭제
 		if("ADMIN_DELETE_ITEM".equals(itemDTO.getCondition())) {
-	    	System.out.println("[로그] delete의 ADMIN_DELETE_ITEM");
+	    	
 			result = jdbcTemplate.update(
 				ADMIN_DELETE_ITEM,
 				itemDTO.getItemPk()
 			);
 		}
 		else {
-			System.out.println("[로그][경고] ItemRepository_delete_condition 없음");
+			
 		}
 		return result > 0;
 	}

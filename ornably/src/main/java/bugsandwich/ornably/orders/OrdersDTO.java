@@ -32,4 +32,6 @@ public class OrdersDTO {
     private String addressDetail;           // 배송지 상세 주소
 	private Boolean reviewExists;			// 리뷰 존재 여부 확인
 	private Integer ordersItemPrice; 		// 단일 아이템 가격	
+	private Integer itemPk;					// 상품 고유 번호 (FK)
+	private Integer itemPrice;				// 상품 개수
 }

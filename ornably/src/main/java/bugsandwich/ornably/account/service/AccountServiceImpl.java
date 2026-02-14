@@ -31,9 +31,8 @@ public class AccountServiceImpl implements AccountService {
 	private PasswordEncoder bcryptEncoder;
 
 	@Override
-	@Transactional
+	@Transactional //트랜잭션 사용해서 회원가입 처리
 	public boolean registAccount(AccountDTO accountDTO, AddressDTO addressDTO) {
-
 		boolean flag = true;
 		if (accountDTO.getAccountPassword() != null) {
 			accountDTO.setAccountPasswordHash(this.bcryptEncoder.encode(accountDTO.getAccountPassword()));
@@ -49,9 +48,9 @@ public class AccountServiceImpl implements AccountService {
 		addressDTO.setAddressIsDefault(true);
 		flag = flag && this.addressRepository.insert(addressDTO);
 
-		return flag;
+		return flag; //플래그를 반환
 	}
-
+	//아이디 중복체크
 	@Override
 	public boolean checkIdDuplicate(AccountDTO accountDTO) {
 		accountDTO.setCondition("SELECT_CHECK_LOGIN_ID");
@@ -65,7 +64,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	@Transactional
+	@Transactional // 트랜잭션 사용해서 회원 탈퇴 진행
 	public boolean accountWithdraw(AccountDTO accountDTO) {
 		// 1. 회원 주소 싹다 지우고
 
@@ -96,7 +95,7 @@ public class AccountServiceImpl implements AccountService {
 
 		return true;
 	}
-
+	//관리자용 사용자 검색
 	@Override
 	public List<AccountDTO> getAdminSearchAccount(AccountDTO accountDTO) {
 		accountDTO.setCondition("SELECT_ALL_ROLE_USER_ACCOUNT_BY_ADMIN_SEARCH");
@@ -104,7 +103,7 @@ public class AccountServiceImpl implements AccountService {
 
 		return accountDatas;
 	}
-
+	//관리자용 사용자 정보
 	@Override
 	public AccountDTO getAdminAccountInfo(Integer accountPk) {
 		AccountDTO accountDTO = new AccountDTO();

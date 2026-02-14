@@ -104,7 +104,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 		// 소셜은 이벤트목록/비번/role 같은 게 아직 없으니 기본값 넣기
 
 		return new OrnablyUser(
-				(accountPk != null) ? accountPk : 0,                              // accountPk (신규면 0)
+				(accountPk != null) ? accountPk : 0, // accountPk (신규면 0)
 				 socialUser.name(),               // accountName (소셜에서 받은 이름)
 				 accountId,                       // accountId (provider_providerId)
 				 null,                            // accountPasswordHash (소셜은 비번 없음)

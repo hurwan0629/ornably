@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Data 				// getter/setter, toString, equals, hashCode 자동 생성
 @NoArgsConstructor	// 기본 생성자
 @AllArgsConstructor	// 모든 필드를 받는 생성자
-@Alias("eventDTO")
+// @Alias("eventDTO")
 public class EventDTO {
 
 	// [ 테이블 컬럼 ] 

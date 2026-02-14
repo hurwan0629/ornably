@@ -6,8 +6,8 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.0.2</version>
-		<relativePath /> <!-- lookup parent from repository -->
+		<version>3.2.2</version>
+		<relativePath />
 	</parent>
 	<groupId>com.example</groupId>
 	<artifactId>Ornably</artifactId>
@@ -34,7 +34,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-webmvc</artifactId>
+			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
 		<dependency>
@@ -97,10 +97,10 @@
 
 
 		<dependency>
-	        <groupId>org.mybatis.spring.boot</groupId>
-	        <artifactId>mybatis-spring-boot-starter</artifactId>
-	        <version>3.0.3</version>
-      	</dependency>
+			<groupId>org.mybatis.spring.boot</groupId>
+			<artifactId>mybatis-spring-boot-starter</artifactId>
+			<version>3.0.3</version>
+		</dependency>
 
 	</dependencies>
 

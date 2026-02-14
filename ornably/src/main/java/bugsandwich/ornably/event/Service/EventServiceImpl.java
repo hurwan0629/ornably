@@ -33,11 +33,18 @@ public class EventServiceImpl implements EventService{
 	public EventDTO getEvent(EventDTO eventDTO) {
 //		 return this.eventRepository.selectOne(eventDTO);
 		return null;
-
 	}
 
 	@Override
 	public List<EventDTO> getEventList(EventDTO eventDTO) {
-		return this.eventRepository.selectAll(eventDTO);
+		if("SELECT_ALL_EVENT".equals(eventDTO.getCondition())) {			
+			return this.eventRepository.selectAll(eventDTO);
+		}
+		else if("SELECT_ALL_PROGRESS_EVENT".equals(eventDTO.getCondition())) {
+			return this.eventRepository.selectAllProgress(eventDTO);
+		}
+		else {
+			return null;
+		}
 	}
 }

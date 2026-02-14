@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 public interface ConnectLogService {
 	
 	//접속기록 생성
-	boolean insertConnectLog(Integer accountPk, HttpServletRequest request);
+	Boolean insertConnectLog(Integer accountPk, HttpServletRequest request);
 	
 	//특정 사용자 로그 전체 조회
 	List<ConnectLogDTO> getAllMyLogs(Integer accountPk);
@@ -18,6 +18,6 @@ public interface ConnectLogService {
 	ConnectLogDTO getMyLog(Integer accountPk);
 	
 	//사용자 로그 전체 삭제
-	Integer deleteMyLogs(Integer accountPk);
+	Boolean deleteMyLogs(Integer accountPk);
 
 }

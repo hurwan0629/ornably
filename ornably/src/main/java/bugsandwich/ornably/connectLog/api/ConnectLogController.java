@@ -16,7 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestController
 @RequestMapping("/api")
 public class ConnectLogController {
-	
+	/*
 	@Autowired
 	private ConnectLogService connectLogService;
 	
@@ -63,9 +63,13 @@ public class ConnectLogController {
 		//로그인 사용자 pk가져오기
 		Integer accountPk = ornablyUser.getAccountPk();
 		//접속기록 삭제
-		connectLogService.deleteMyLogs(accountPk);
-		//응답반환
-		return ResponseEntity.ok().build();
-	}
+		if(connectLogService.deleteMyLogs(accountPk)) {			
+			//응답반환
+			return ResponseEntity.ok().build();
+		}
+		else {
+			return ResponseEntity.internalServerError().build();
+		}
+	}*/
 }
 

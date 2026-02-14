@@ -18,7 +18,7 @@ public class ConnectLogServiceImpl implements ConnectLogService {
 	
 	//접속기록 생성
 	@Override
-	public boolean insertConnectLog(Integer accountPk, HttpServletRequest request) {
+	public Boolean insertConnectLog(Integer accountPk, HttpServletRequest request) {
 		//소셜 신규유저면 온보딩완료후 롤 변경 되기때문에 회원pk가 0일수 있음
 		if(accountPk <=0) {
 			return false; // 접속기록 저장안함
@@ -32,24 +32,34 @@ public class ConnectLogServiceImpl implements ConnectLogService {
 		if(ip == null || ip.isBlank())ip="unknown"; // ip가 널일때
 		if(device == null || ip.isBlank())device="unknown"; // 클라이언트 접속환경이 널일때
 		
+		ConnectLogDTO connectLogDTO = new ConnectLogDTO();
+		connectLogDTO.setAccountPk(accountPk);
+		connectLogDTO.setConnectIp(ip);
+		connectLogDTO.setConnectDevice(device);
+		
 		//DB저장
-		Integer result = connectLogRepository.insertConnectLog(accountPk, ip, device);
-		return result == 1;
+		return connectLogRepository.insert(connectLogDTO);
 	}
 	//접속기록 전체조회
 	@Override
 	public List<ConnectLogDTO> getAllMyLogs(Integer accountPk) {
-		return connectLogRepository.selectAllAccountConnentLog;
+		ConnectLogDTO connectLogDTO = new ConnectLogDTO();
+		connectLogDTO.setAccountPk(accountPk);
+		return connectLogRepository.selectAll(connectLogDTO);
 	}
 	//최근 접속기록 1개 조회
 	@Override
 	public ConnectLogDTO getMyLog(Integer accountPk) {
-		return connectLogRepository.selectLatestAccountConnectLog;
+		ConnectLogDTO connectLogDTO = new ConnectLogDTO();
+		connectLogDTO.setAccountPk(accountPk);
+		return connectLogRepository.selectOne(connectLogDTO);
 	}
 	//접속기록 삭제
 	@Override
-	public Integer deleteMyLogs(Integer accountPk) {
-		return connectLogRepository.deleteAccounConnectLog;
+	public Boolean deleteMyLogs(Integer accountPk) {
+		ConnectLogDTO connectLogDTO = new ConnectLogDTO();
+		connectLogDTO.setAccountPk(accountPk);
+		return connectLogRepository.delete(connectLogDTO);
 	}
 
 	//공통 유틸 : 클라이언트 ip추출 메서드

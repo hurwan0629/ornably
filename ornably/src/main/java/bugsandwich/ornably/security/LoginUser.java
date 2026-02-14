@@ -1,4 +1,4 @@
-package bugsandwich.ornably.security;
+	package bugsandwich.ornably.security;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -89,5 +89,29 @@ public class LoginUser implements UserDetails, OAuth2User {
 	@Override
 	public String getName() {
 		return accountName;
+	}
+
+	@Override
+	public boolean isAccountNonExpired() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isAccountNonLocked() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	@Override
+	public boolean isCredentialsNonExpired() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		// TODO Auto-generated method stub
+		return true;
 	}
 }

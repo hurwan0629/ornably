@@ -93,7 +93,7 @@ public class ReviewServiceImpl implements ReviewService {
 		// 리뷰 데이터 설정
 		ReviewDTO reviewDTO = new ReviewDTO();
 		reviewDTO.setReviewPk(reviewPk);
-		reviewDTO.setCondition("DELETE_REVIEW_BY_REVIEW_PK");
+		reviewDTO.setCondition("DELETE_BY_REVIEW_PK");
 		
 		// 실행 후 반환
 		return this.reviewRepository.delete(reviewDTO);
@@ -150,7 +150,7 @@ public class ReviewServiceImpl implements ReviewService {
 		// 저장
 		Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
 
-		return this.serverOrigin + prefix + imageName;
+		return this.serverOrigin + prefix + imageName; // "http://loaclhost:8088/images/item/" + imageName
 	}
 
 	private static Map<String, Object> err(String code, String message) {

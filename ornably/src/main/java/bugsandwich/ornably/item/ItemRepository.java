@@ -727,7 +727,8 @@ public class ItemRepository {
 	    // 관리자용 : 상품 설명 수정
 	    else if("ADMIN_UPDATE_DESCRIPTION_ITEM".equals(itemDTO.getCondition())) {
 	    	
-	    	result = jdbcTemplate.update(ADMIN_UPDATE_DESCRIPTION_ITEM, itemDTO.getItemDescription(), itemDTO.getItemPk());
+	    	result = jdbcTemplate.update(ADMIN_UPDATE_DESCRIPTION_ITEM, 
+	    			itemDTO.getItemDescription(), itemDTO.getItemPk());
 	    }
 	    
 	    // 관리자용 : 상품 이미지 수정 

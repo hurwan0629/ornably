@@ -356,7 +356,7 @@ public class ItemController {
 			}
 			
 			itemDTO.setItemPk(itemPk);
-			itemDTO.setCondition("ADMIN_UPDATE_DESCIPTION_ITEM");
+			itemDTO.setCondition("ADMIN_UPDATE_DESCRIPTION_ITEM");
 			
 			// 수정 실패 시
 			if(!itemService.updateItem(itemDTO)) {
@@ -388,7 +388,7 @@ public class ItemController {
 	                "message", "이미지 파일이 필요합니다."
 	        ));
 	    }
-	    
+	    /*
 	    // 1) 폴더
 	    String uploadDir = resourcePath + "/images/item/";
 	    File dir = new File(uploadDir);
@@ -410,7 +410,15 @@ public class ItemController {
 	    }
 	    
 	    // 4) DB 저장할 URL
-	    String imageUrl = itemPrefix + fileName; // itemPrefix="/images/item/"
+	    ///
+	     */
+	    String imageUrl= null;
+		try {
+			imageUrl = reviewService.saveImageAndGetUrl(resourcePath, itemPrefix, itemImage);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+//	     = serverOrigin + itemPrefix + fileName; // itemPrefix="/images/item/"
 	    itemDTO.setItemPk(itemPk);
 	    itemDTO.setItemImageUrl(imageUrl);
 	    itemDTO.setCondition("ADMIN_UPDATE_IMAGE_ITEM");
@@ -418,14 +426,14 @@ public class ItemController {
 	    // 5) DB 업데이트 (실패 시 파일 삭제)
 	    try {
 	        if (!itemService.updateItem(itemDTO)) {
-	            dest.delete(); // DB 실패하면 파일 롤백
+//	            dest.delete(); // DB 실패하면 파일 롤백
 	            return ResponseEntity.status(404).body(Map.of(
 	                    "code", "ITEM_NOT_FOUND",
 	                    "message", "해당 상품 정보를 찾을 수 없습니다."
 	            ));
 	        }
 	    } catch (Exception e) {
-	        dest.delete(); // 예외 나도 파일 롤백
+//	        dest.delete(); // 예외 나도 파일 롤백
 	        throw e;
 	    }
 		return ResponseEntity.ok(Map.of("code", "success", "message", "수정 성공")); // 수정 필요

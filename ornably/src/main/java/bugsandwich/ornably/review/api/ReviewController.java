@@ -79,8 +79,8 @@ public class ReviewController {
 	
 	// 관리자 상품 관리시 상품 리뷰 조회
 	@PreAuthorize("hasRole('ADMIN')")
-	@GetMapping(value = "/api/admin/item/{itemPk}/review")
-	public ResponseEntity<?> getUserReviewDatasByItemPkAdmin(@PathVariable("reviewPk") Integer itemPk){
+	@GetMapping(value = "/admin/item/{itemPk}/review")
+	public ResponseEntity<?> getUserReviewDatasByItemPkAdmin(@PathVariable("itemPk") Integer itemPk){
 		List<ReviewDTO> reviewDatas = reviewService.getReviewDatasByReviewPkAdmin(itemPk);
 
 		return ResponseEntity.ok(Map.of("reviewDatas", reviewDatas));

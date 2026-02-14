@@ -19,7 +19,7 @@ public class ReviewDTO {
 	private Integer itemPk;			// 상품 고유 번호 (Fk)
 	private String reviewTitle;		// 리뷰 제목
 	private String reviewContent;	// 리뷰 내용
-	private LocalDate reviewDate;	// 리뷰 작성일
+	private String reviewDate;	// 리뷰 작성일
 	private Integer reviewStar;		// 리뷰 평점
 	private String reviewImageUrl;	// 리뷰 이미지 경로
 	
@@ -39,4 +39,5 @@ public class ReviewDTO {
 	private String reviewAccountName;	//리뷰 페이지네이션시 사용할 사용자이름
 	private Integer page;
 	private Integer dataCount;
+	private Integer maxPages;
 }

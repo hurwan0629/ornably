@@ -7,7 +7,6 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import tools.jackson.databind.JsonNode;
 
 
 @Data 				// getter/setter, toString, equals, hashCode 자동 생성
@@ -30,4 +29,5 @@ public class EventDTO {
 	private String condition;					// 분기점
 	private Integer eventAccountPk;  			// 조회용 계정 PK
 	private List<EventDTO> accountEventPkList;  // 쿼리 결과 이벤트 리스트
+	private String accountEmail;            // 이벤트 내용 보낼 이메일 (추가)
 }

@@ -74,18 +74,18 @@ public class CartRepository {
 	
 	
 	public List<CartDTO> selectAll(CartDTO cartDTO){
-		System.out.println("[로그] CartRepository의 selectAll 시작");
+		
 		
 		// 사용자의 장바구니 목록 조회
 	    if ("SELECT_ALL_CART".equals(cartDTO.getCondition())) {
-			System.out.println("[로그] selectAll의 SELECT_ALL_ACCOUNT_CART");
+			
 			return jdbcTemplate.query(
 				SELECT_ALL_CART,
 				new BeanPropertyRowMapper<>(CartDTO.class),
 				cartDTO.getAccountPk()
 			);
 		}
-		System.out.println("[로그][경고] CartRepository의 selectAll_condition 없음");
+		
 		return null;
 	}
 	
@@ -96,12 +96,12 @@ public class CartRepository {
 	
 	
 	public boolean insert(CartDTO cartDTO) {
-		System.out.println("[로그] CartRepository의 insert 시작");
+		
 		int result = 0;
 		
 		// 장바구니 추가 (이미 같은 상품 존재 시 개수만 증가)
 		if ("INSERT_CART_OR_UPDATE".equals(cartDTO.getCondition())) {
-			System.out.println("[로그] insert의 ADD_CART_ITEM");
+			
 			result = jdbcTemplate.update(
 				INSERT_CART_OR_UPDATE, 
 				cartDTO.getAccountPk(),
@@ -110,19 +110,19 @@ public class CartRepository {
 		    );
 		}
 		else {
-        	System.out.println("[로그][경고] CartRepository_insert_condition 없음");
+        	
         }
 		return result > 0;
 	}
 	
 	
 	public boolean update(CartDTO cartDTO) {
-	    System.out.println("[로그] CartRepository의 update 시작");
+	    
 	    int result = 0;
 
 	    // 장바구니 상품 개수 직접 변경
 	    if ("UPDATE_CART_ITEM_COUNT".equals(cartDTO.getCondition())) {
-			System.out.println("[로그] update의 UPDATE_CART_ITEM_COUNT");
+			
 	        result = jdbcTemplate.update(
 	            UPDATE_CART_ITEM_COUNT,
 	            cartDTO.getCartNewCount(),
@@ -133,7 +133,7 @@ public class CartRepository {
 	    
 	    // 장바구니 상품 개수 증가
 	    else if ("ADD_CART_ITEM_COUNT".equals(cartDTO.getCondition())) {
-			System.out.println("[로그] update의 ADD_CART_ITEM_COUNT");
+			
 	        result = jdbcTemplate.update(
 	            ADD_CART_ITEM_COUNT,
 	            cartDTO.getCartCount(),
@@ -142,19 +142,19 @@ public class CartRepository {
 	        );
 	    }
 		else {
-        	System.out.println("[로그][경고] CartRepository_update_condition 없음");
+        	
         }
 	    return result > 0;
 	}
 	
 	public boolean delete(CartDTO cartDTO) {
-		System.out.println("[로그] CartRepository의 delete 시작");
-		System.out.println("[로그] cartPk=" + cartDTO.getCartPk() + ", accountPk=" + cartDTO.getAccountPk());
+		
+		
 		int result = 0;
 
 		// 회원 장바구니 전체 삭제
 		if ("DELETE_CART_BY_ACCOUNT_PK".equals(cartDTO.getCondition())) {
-			System.out.println("[로그] delete의 DELETE_CART_BY_ACCOUNT_PK");
+			
 			result = jdbcTemplate.update(
 				DELETE_CART_BY_ACCOUNT_PK,
 				cartDTO.getAccountPk()
@@ -163,7 +163,7 @@ public class CartRepository {
 		
 		// 장바구니 항목 1개만 삭제 : X 버튼 클릭 시
 		else if ("DELETE_CART_ITEM".equals(cartDTO.getCondition())) {
-			System.out.println("[로그] delete의 DELETE_CART_ITEM");
+			
 			result = jdbcTemplate.update(
 				DELETE_CART_ITEM,
 				cartDTO.getCartPk(),
@@ -171,7 +171,7 @@ public class CartRepository {
 			);
 		}
 		else {
-        	System.out.println("[로그][경고] CartRepository_delete_condition 없음");
+        	
         }
 		return result > 0;
 	}

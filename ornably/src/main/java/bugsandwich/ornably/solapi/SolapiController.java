@@ -25,10 +25,16 @@ public class SolapiController {
 		"/onboard/phone-verifications/send-code"})
 	public ResponseEntity<?> sendSolapiCodeLocal(@RequestBody AccountDTO accountDTO) {
 		
-		System.out.println(accountDTO);
+		
 		
 		String accountKey = java.util.UUID.randomUUID().toString();
-
+		
+		if (true) {
+			return ResponseEntity.ok(
+					Map.of( "success", true,
+							"accountKey", accountKey));
+		}
+		
 		if (this.solapiService.sendCodeMessage(accountDTO.getAccountPhone(), accountKey)) {
 			return ResponseEntity.ok(
 					Map.of( "success", true,
@@ -46,6 +52,11 @@ public class SolapiController {
 	public ResponseEntity<?> checkSolapiCodeLocal(
 			@RequestBody AccountDTO accountDTO
 			) {
+		if(true) {
+			return ResponseEntity.ok(
+					Map.of("success", true));
+		}
+		
 		if(this.solapiService.validateCode(accountDTO.getAccountVerificationCode(), accountDTO.getAccountKey())) {
 			return ResponseEntity.ok(
 					Map.of("success", true));

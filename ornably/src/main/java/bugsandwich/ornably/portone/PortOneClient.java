@@ -25,12 +25,6 @@ public class PortOneClient {
 
     /** 결제 단건 조회: GET /payments/{paymentId} */
     public PortOnePaymentDTO getPayment(String paymentId) {
-    	System.out.println("apiSecret");
-    	System.out.println(apiSecret);
-    	System.out.println("restClient");
-    	System.out.println(restClient);
-    	System.out.println("paymentId");
-    	System.out.println(paymentId);
         return restClient.get()
                 .uri("/payments/{paymentId}", paymentId)
                 .header(HttpHeaders.AUTHORIZATION, "PortOne " + apiSecret)

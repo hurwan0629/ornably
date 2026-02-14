@@ -71,9 +71,10 @@ public class ReviewRepository {
 
 	// 리뷰 페이지네이션
 	private static final String SELECT_ALL_REVIEW_PAGENATION_BY_ITEM_PK =
-	    "SELECT reviewPk, itemPk, reviewTitle, reviewContent, reviewStar, accountName " +
+	    "SELECT reviewPk, itemPk, reviewTitle, reviewContent, reviewStar, accountName, reviewDate " +
 	    "FROM ( " +
 	    "   SELECT " +
+	    "       DATE_FORMAT(R.REVIEW_DATE, '%Y-%m-%d')        AS reviewDate, " +
 	    "       R.REVIEW_PK        AS reviewPk, " +
 	    "       R.ITEM_PK          AS itemPk, " +
 	    "       R.REVIEW_TITLE     AS reviewTitle, " +
@@ -115,6 +116,12 @@ public class ReviewRepository {
 	    "FROM REVIEW " +
 	    "WHERE REVIEW_PK = ?";
 	
+	// 리뷰 페이지네이션 최대 페이지 개수 가져오기
+	private static final String SELECT_ONE_REVIEW_PAGINATION_MAX_PAGES_BY_ITEM_PK_AND_DATA_COUNT =
+		"SELECT CEIL(COUNT(*) / CAST(? AS DECIMAL)) AS maxPages " +
+		"FROM REVIEW " +
+		"WHERE ITEM_PK = ?";
+	
     // ==============
  	//   관리자 쿼리문
  	// ==============
@@ -127,8 +134,12 @@ public class ReviewRepository {
 	    "    r.REVIEW_DATE      AS reviewDate, " +
 	    "    r.REVIEW_TITLE     AS reviewTitle, " +
 	    "    r.REVIEW_CONTENT   AS reviewContent, " +
-	    "    r.REVIEW_STAR      AS reviewStar " +
+	    "    r.REVIEW_STAR      AS reviewStar, " +
+	    "    i.ITEM_PK          AS itemPk, " +
+	    "    i.ITEM_NAME        AS itemName " +
 	    "FROM REVIEW r " +
+	    "JOIN ITEM i " +
+	    "ON i.ITEM_PK = r.ITEM_PK " +
 	    "WHERE r.ACCOUNT_PK = ? " +
 	    "ORDER BY r.REVIEW_DATE DESC";
 
@@ -154,11 +165,11 @@ public class ReviewRepository {
 	
 	
 	public List<ReviewDTO> selectAll(ReviewDTO reviewDTO) {
-		System.out.println("[로그] ReviewRepository의 selectAll 시작");
+		
 		
 		// 아이템 고유번호 가져와서 상품별 별점 보여주기
 		if ("SELECT_ALL_REVIEW_STAR_BY_ITEM_PK".equals(reviewDTO.getCondition())) {
-			System.out.println("[로그] selectAll의 SELECT_ALL_REVIEW_STAR_BY_ITEM_PK");
+			
 			return jdbcTemplate.query(
 				SELECT_ALL_REVIEW_STAR_BY_ITEM_PK,
 				new BeanPropertyRowMapper<>(ReviewDTO.class),
@@ -168,13 +179,14 @@ public class ReviewRepository {
 		
 		// 리뷰 페이지 페이지 넘기기 (페이지 네이션)
 		else if ("SELECT_ALL_REVIEW_PAGENATION_BY_ITEM_PK".equals(reviewDTO.getCondition())) {
-			System.out.println("[로그] selectAll의 SELECT_ALL_REVIEW_PAGENATION_BY_ITEM_PK");
+			
 		    return jdbcTemplate.query(
 		    		SELECT_ALL_REVIEW_PAGENATION_BY_ITEM_PK,
 		            (rs, rowNum) -> {
 		                ReviewDTO data = new ReviewDTO();
 		                data.setReviewPk(rs.getInt("reviewPk"));
 		                data.setItemPk(rs.getInt("itemPk"));
+		                data.setReviewDate(rs.getString("reviewDate"));
 		                data.setReviewTitle(rs.getString("reviewTitle"));
 		                data.setReviewContent(rs.getString("reviewContent"));
 		                data.setReviewStar(rs.getInt("reviewStar"));
@@ -189,7 +201,7 @@ public class ReviewRepository {
 		
 		// 내가 작성한 리뷰 목록보기
 		else if ("SELECT_MY_REVIEW_LIST".equals(reviewDTO.getCondition())) {
-			System.out.println("[로그] selectAll의 SELECT_MY_REVIEW_LIST");
+			
 			return jdbcTemplate.query(
 				SELECT_MY_REVIEW_LIST,
 				(rs, rowNum) -> {
@@ -210,17 +222,19 @@ public class ReviewRepository {
 		
 		// 관리자용 : 특정 회원이 작성한 리뷰 전체 조회
 		else if("SELECT_ALL_REVIEW_BY_ACCOUNT_PK".equals(reviewDTO.getCondition())) {
-			System.out.println("[로그] selectAll의 SELECT_ALL_REVIEW_BY_ACCOUNT_PK");
+			
 			return jdbcTemplate.query(
 				SELECT_ALL_REVIEW_BY_ACCOUNT_PK,
 				(rs, rowNum) -> {
 					ReviewDTO data = new ReviewDTO();
 		            data.setReviewPk(rs.getInt("reviewPk"));
 		            data.setReviewImageUrl(rs.getString("reviewImageUrl"));
-		            data.setReviewDate(rs.getDate("reviewDate").toLocalDate());
+		            data.setReviewDate(rs.getString("reviewDate"));
 		            data.setReviewTitle(rs.getString("reviewTitle"));
 		            data.setReviewContent(rs.getString("reviewContent"));
 		            data.setReviewStar(rs.getInt("reviewStar"));
+		            data.setItemPk(rs.getInt("itemPk"));
+		            data.setItemName(rs.getString("itemName"));
 					return data;
 				},
 				reviewDTO.getAccountPk()
@@ -229,7 +243,7 @@ public class ReviewRepository {
 		
 		// 관리자용 : 특정 상품에 달린 리뷰 전부 조회
 		else if("SELECT_ALL_REVIEW_DATAS_BY_ITEM_PK_ADMIN_VIEW".equals(reviewDTO.getCondition())) {
-			System.out.println("[로그] selectAll의 SELECT_ALL_REVIEW_DATAS_BY_ITEM_PK_ADMIN_VIEW");
+			
 			return jdbcTemplate.query(
 				SELECT_ALL_REVIEW_DATAS_BY_ITEM_PK_ADMIN_VIEW,
 				(rs, rowNum) -> {
@@ -241,24 +255,24 @@ public class ReviewRepository {
 			        dto.setReviewStar(rs.getInt("reviewStar"));
 			        dto.setAccountPk(rs.getInt("accountPk"));
 			        dto.setReviewAccountName(rs.getString("reviewAccountName"));
-			        dto.setReviewDate(rs.getDate("reviewDate").toLocalDate());
+			        dto.setReviewDate(rs.getString("reviewDate"));
 			        return dto;
 			    },
 			    reviewDTO.getItemPk()
 			);
 		}
-		System.out.println("[로그][경고] ReviewRepository의 selectAll_condition 없음");
+		
 		return null;
 	}
 
 	
 	
 	public ReviewDTO selectOne(ReviewDTO reviewDTO) {
-		System.out.println("[로그] ReviewRepository의 selectOne 시작");
+		
 		
 		// 상품별 리뷰 목록 가져오기
 		if ("SELECT_ITEM_REVIEW_COUNT".equals(reviewDTO.getCondition())) {
-			System.out.println("[로그] selectOne의 SELECT_ITEM_REVIEW_COUNT");
+			
 			return jdbcTemplate.queryForObject(
 				SELECT_ITEM_REVIEW_COUNT,
 				(rs, rowNum) -> {
@@ -272,7 +286,7 @@ public class ReviewRepository {
 	
 		// 리뷰수정전 기존 리뷰 정보 가져오기
 		else if ("SELECT_UPDATE_REVIEW_DATA".equals(reviewDTO.getCondition())) {
-			System.out.println("[로그] selectOne의 SELECT_UPDATE_REVIEW_DATA");
+			
 			return jdbcTemplate.queryForObject(
 				SELECT_UPDATE_REVIEW_DATA,
 				(rs, rowNum) -> {
@@ -290,7 +304,7 @@ public class ReviewRepository {
 
 		// 상품 리뷰 존재 확인
 		else if ("SELECT_EXIST_REVIEW_BY_ACCOUNT_ITEM".equals(reviewDTO.getCondition())) {
-	        System.out.println("[로그] ReviewRepository의 SELECT_EXIST_REVIEW_BY_ACCOUNT_ITEM");
+	        
 	        return jdbcTemplate.queryForObject(
         	    SELECT_EXIST_REVIEW_BY_ACCOUNT_ITEM,
         	    (rs, rowNum) -> {
@@ -304,7 +318,7 @@ public class ReviewRepository {
 	    }
 		
 		else if("SELECT_REVIEW_DATA_BY_REVIEW_PK".equals(reviewDTO.getCondition())) {
-			 System.out.println("[로그] ReviewRepository의 SELECT_REVIEW_DATA_BY_REVIEW_PK");
+			 
 			 return jdbcTemplate.queryForObject(
 		        SELECT_REVIEW_DATA_BY_REVIEW_PK,
 		        (rs, rowNum) -> {
@@ -319,13 +333,22 @@ public class ReviewRepository {
 		        reviewDTO.getReviewPk()
 		    );
 		}
-		System.out.println("[로그][경고] ReviewRepository의 selectOne_condition 없음");
+		else if("SELECT_ONE_REVIEW_PAGINATION_MAX_PAGES_BY_ITEM_PK_AND_DATA_COUNT".equals(reviewDTO.getCondition())) {
+			
+			 return jdbcTemplate.queryForObject(
+				SELECT_ONE_REVIEW_PAGINATION_MAX_PAGES_BY_ITEM_PK_AND_DATA_COUNT,
+		        new BeanPropertyRowMapper<>(ReviewDTO.class),
+		        reviewDTO.getDataCount(),
+		        reviewDTO.getItemPk()
+		        );
+		}
+		
 		return null;
 	}
 	
 
 	public boolean insert(ReviewDTO reviewDTO) {
-		System.out.println("[로그] ReviewRepository의 insert 시작");
+		
 		int result = 0;
 		
 		// 리뷰 작성하기 (등록)
@@ -341,14 +364,14 @@ public class ReviewRepository {
 			);
 		}
 		else {
-			System.out.println("[로그][경고] ReviewRepository_insert_condition 없음");
+			
 		}
 		return result > 0;
 	}
 
 	
 	public boolean update(ReviewDTO reviewDTO) {
-		System.out.println("[로그] ReviewRepository의 update 시작");
+		
 		int result = 0;
 		
 		// 리뷰 수정하기
@@ -361,19 +384,19 @@ public class ReviewRepository {
 			);
 		}		
 		else {
-			System.out.println("[로그][경고] ReviewRepository_update_condition 없음");
+			
 		}
 		return result > 0;
 	}
 
 	
 	public boolean delete(ReviewDTO reviewDTO) {
-		System.out.println("[로그] ReviewRepository의 delete 시작");
+		
 		int result = 0;
 		
 		// 회원고유번호에 대한 리뷰 모두삭제
 		if ("DELETE_ALL_REVIEW_BY_ACCOUNT_PK".equals(reviewDTO.getCondition())) {
-			System.out.println("[로그] delete의 DELETE_ALL_REVIEW_BY_ACCOUNT_PK");
+			
 			result = jdbcTemplate.update(
 				DELETE_ALL_REVIEW_BY_ACCOUNT_PK,
 				reviewDTO.getAccountPk()
@@ -382,14 +405,14 @@ public class ReviewRepository {
 		
 		// 회원고유번호에 대한 리뷰 개별삭제
 		else if ("DELETE_BY_REVIEW_PK".equals(reviewDTO.getCondition())) {
-			System.out.println("[로그] delete의 DELETE_BY_REVIEW_PK");
+			
 			result = jdbcTemplate.update(
 				DELETE_BY_REVIEW_PK,
 				reviewDTO.getReviewPk()
 			);
 		}
 		else {
-			System.out.println("[로그][경고] ReviewRepository_delete_condition 없음");
+			
 		}
 		return result > 0;
 	}

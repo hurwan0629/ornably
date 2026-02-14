@@ -36,6 +36,10 @@ public class ItemDTO {
 	private Integer itemSoldCount;      	// 판매량
 	private Integer itemReviewCount;    	// 리뷰 수
 	private Integer itemWishlistCount;  	// 찜 수
+	private Integer salesAmount;			// 총 판매 금액
+	private Integer salesCount;				// 총 판매 개수
+	private Integer days;					// n일간 판매 수량
+	private LocalDate date;					// 특정 날짜의 판매금액 총합
 	
 	// [ 요청용 - API 엔트포인트 ]
 	private String search;				// 검색어

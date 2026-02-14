@@ -129,14 +129,20 @@ public class WishlistRepository {
 	    "INSERT INTO WISHLIST (ACCOUNT_PK, ITEM_PK) " +
 	    "VALUES (?, ?)";
 	
+	// 찜 목록 존재 여부 체크
+	private static final String SELECT_ONE_WISHLIST_BY_ACCOUNT_PK_AND_ITEM_PK =
+		"SELECT WISHLIST_PK AS wishlistPk" +
+		"FROM WISHLIST " +
+		"WHERE ACCOUNT_PK = ? " + 
+		"AND ITEM_PK = ?";
 	
 	
 	
 	public List<WishlistDTO> selectAll(WishlistDTO wishlistDTO) {
-		System.out.println("[로그] WishListRepository의 selectAll 시작");
+		
 		
 	    if ("SELECT_ALL_WISHLIST_BY_ACCOUNT_PK".equals(wishlistDTO.getCondition())) {
-	        System.out.println("[로그] selectAll의 SELECT_ALL_WISHLIST_BY_ACCOUNT_PK");
+	        
 
 	        return jdbcTemplate.query(
 	            SELECT_ALL_WISHLIST_BY_ACCOUNT_PK,
@@ -148,18 +154,18 @@ public class WishlistRepository {
 			);
 		}
 	    else {
-		    System.out.println("[로그][경고] WishListRepository_selectAll_condition 없음");
+		    
 	    }
 	    return List.of();
 	}
 	
 	
 	public WishlistDTO selectOne(WishlistDTO wishlistDTO) {
-		System.out.println("[로그] WishListRepository의 selectOne 시작");
+		
 		
 		//회원고유번호가져와서 해당 회원이 좋아요 누른 상품고유번호가 존재하는지 확인
 		if ("SELECT_WISHLIST_BY_ACCOUNT_PK_AND_ITEM_PK".equals(wishlistDTO.getCondition())) {
-	        System.out.println("[로그] selectOne의 SELECT_WISHLIST_BY_ACCOUNT_PK_AND_ITEM_PK");
+	        
 	        List<WishlistDTO> list = jdbcTemplate.query(
 	            SELECT_WISHLIST_BY_ACCOUNT_PK_AND_ITEM_PK,
 	            new BeanPropertyRowMapper<>(WishlistDTO.class),
@@ -168,27 +174,35 @@ public class WishlistRepository {
 	        );
 	        return list.isEmpty() ? null : list.get(0);
 	    }
+		else if ("SELECT_ONE_WISHLIST_BY_ACCOUNT_PK_AND_ITEM_PK".equals(wishlistDTO.getCondition())) {
+	        
+	        return jdbcTemplate.queryForObject(
+	            SELECT_WISHLIST_BY_ACCOUNT_PK_AND_ITEM_PK,
+	            new BeanPropertyRowMapper<>(WishlistDTO.class),
+	            wishlistDTO.getAccountPk(),
+	            wishlistDTO.getItemPk()
+	        );
+	        
+	    }
 	    else {
-		    System.out.println("[로그][경고] WishListRepository_selectOne_condition 없음");
+		    
 	    }
 	    return null;
 	}
 	
 
 	public boolean insert(WishlistDTO wishlistDTO) {
-		System.out.println("[로그] WishListRepository의 insert 시작");
+		
 		int result = 0;
 		
 		//회원이 좋아요 누른 아이템 생성하기
 		if ("INSERT_WISHLIST_BY_ACCOUNT_PK_AND_ITEM_PK".equals(wishlistDTO.getCondition())) {
-			System.out.println("[로그] insert의 INSERT_WISHLIST_BY_ACCOUNT_PK_AND_ITEM_PK");			
 			result = jdbcTemplate.update(
 				INSERT_WISHLIST_BY_ACCOUNT_PK_AND_ITEM_PK,
 				wishlistDTO.getAccountPk(),
 				wishlistDTO.getItemPk());
 		}
 	    else {
-		    System.out.println("[로그][경고] WishListRepository_insert_condition 없음");
 	    }
 		return result > 0;
 		
@@ -201,12 +215,11 @@ public class WishlistRepository {
 	
 	
 	public boolean delete(WishlistDTO wishlistDTO) {
-		System.out.println("[로그] WishListRepository의 delete 시작");
 		int result = 0;
 		
 		//해당아이템에 회원의 좋아요가 있을시 삭제하기
 		if("DELETE_WISHLIST_BY_ACCOUNT_PK_AND_ITEM_PK".equals(wishlistDTO.getCondition())) {
-			System.out.println("[로그] delete의 DELETE_WISHLIST_BY_ACCOUNT_PK_AND_ITEM_PK");
+			
 			result = jdbcTemplate.update(
 				DELETE_WISHLIST_BY_ACCOUNT_PK_AND_ITEM_PK,
 				wishlistDTO.getAccountPk(),
@@ -216,14 +229,14 @@ public class WishlistRepository {
 		
 		//회원고유번호에 대한 모든 좋아요 삭제하기
 		else if("DELETE_ALL_WISHLIST_BY_ACCOUNT_PK".equals(wishlistDTO.getCondition())) {
-			System.out.println("[로그] delete의 DELETE_ALL_WISHLIST_BY_ACCOUNT_PK");
+			
 			result = jdbcTemplate.update(
 				DELETE_ALL_WISHLIST_BY_ACCOUNT_PK,
 				wishlistDTO.getAccountPk()
 			);
 		}
 		else {
-		    System.out.println("[로그][경고] WishListRepository_delete_condition 없음");
+		    
 	    }
 		return result > 0;
 	}

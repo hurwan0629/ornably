@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import bugsandwich.ornably.item.ItemDTO;
 import bugsandwich.ornably.item.service.ItemService;
+import bugsandwich.ornably.review.service.ReviewService;
 import bugsandwich.ornably.security.OrnablyUser;
 
 @RestController
@@ -34,6 +35,8 @@ public class ItemController {
 
 	@Autowired
 	private ItemService itemService;
+	@Autowired
+	private ReviewService reviewService;
 	
 	@Value("${resource.path}")
 	private String resourcePath;
@@ -48,7 +51,7 @@ public class ItemController {
 		// ResponseBody면 항상 200OK 반환
 		// HTTP 응답을 컨트롤 하기 위해 ResponseEntity 사용
 
-		System.out.println("[ItemController.getAllItems] 받은 itemDTO 받은 값] = " + itemDTO);
+		
 
 		// 기본값 보정 ( 1페이지 기본값 )
 		if (itemDTO.getPage() == null || itemDTO.getPage() < 1) {
@@ -86,7 +89,7 @@ public class ItemController {
 
 		// 서비스 호출
 		List<ItemDTO> list = itemService.getItemList(itemDTO);
-		System.out.println("[itemService.getItemList] 받은 list 값 = " + list);
+		
 
 		// maxPages 계산
 		int safeLimit = Math.max(limit, 1); // limit가 0이면 1로 바꿈
@@ -101,7 +104,7 @@ public class ItemController {
 //  ===================== 상품 상세 보기 =====================
 	@GetMapping("/all/item/{itemPk}")
 	public ResponseEntity<?> getItemDetail(@PathVariable Integer itemPk, ItemDTO itemDTO) {
-		System.out.println("[ItemController.getItemDetail]  받은 itemPk = " + itemPk);
+		
 		itemDTO.setItemPk(itemPk);
 		itemDTO.setCondition("SELECT_ONE_ITEM_DETAIL");
 		ItemDTO item = itemService.getItem(itemDTO);
@@ -111,7 +114,7 @@ public class ItemController {
 		 * 그냥 wishlistToggle 없고 3. 회원이 로그인 상태 즉 pk가 값이 있다면 wishlistToggle이 true인지
 		 * false인지
 		 */
-		System.out.println(itemDTO.getItemDiscountPrice());
+		
 		return ResponseEntity.ok(Map.of("itemData", item));
 	}
 
@@ -122,32 +125,32 @@ public class ItemController {
 //  ===================== 관리자 상품 목록 보기 =====================
 	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/admin/item/search")
-	public ResponseEntity<Map<String, Object>> adminSearchItem(@RequestBody ItemDTO itemDTO) {
-		System.out.println("[ItemController.adminSearchItem]  받은 itemDTO = " + itemDTO);
+	public ResponseEntity<Map<String, Object>> adminSearchItem(@ModelAttribute ItemDTO itemDTO) {
+		
 		try {
 			// 기본값 (필요한 것만)
 			if (itemDTO.getItemCategory() == null)
-				itemDTO.setItemCategory("all");
+				itemDTO.setItemCategory("ALL");
 			if (itemDTO.getItemPriceMin() == null)
 				itemDTO.setItemPriceMin(0);
 			if (itemDTO.getItemPriceMax() == null)
 				itemDTO.setItemPriceMax(Integer.MAX_VALUE);
 
 			if (itemDTO.getItemPriceMin() < 0 || itemDTO.getItemPriceMax() < 0) {
-				return ResponseEntity.status(404)
+				return ResponseEntity.status(400)
 						.body(Map.of("code", "VALIDATION_ERROR", "message", "요청 값이 올바르지 않습니다."));
 			}
 
 			// INVALID_PRICE_RANGE
 			if (itemDTO.getItemPriceMin() > itemDTO.getItemPriceMax()) {
-				return ResponseEntity.status(404)
+				return ResponseEntity.status(400)
 						.body(Map.of("code", "INVALID_PRICE_RANGE", "message", "가격 범위가 올바르지 않습니다."));
 			}
 
 			// 검색 실행
 			itemDTO.setCondition("ADMIN_SEARCH_ITEM");
 			List<ItemDTO> list = itemService.getItemList(itemDTO);
-
+			
 			// 200 OK
 			return ResponseEntity.ok(Map.of("itemDatas", list));
 
@@ -162,7 +165,7 @@ public class ItemController {
 	@PreAuthorize("hasRole('ADMIN')")
 	@DeleteMapping("/admin/item/{itemPk}")
 	public ResponseEntity<Map<String, Object>> adminDeleteItem(@PathVariable Integer itemPk, ItemDTO itemDTO) {
-		System.out.println("[ItemController.adminDeleteItem]  받은 itemPk = :" + itemPk);
+		
 
 		itemDTO.setItemPk(itemPk);
 		itemDTO.setCondition("ADMIN_DELETE_ITEM");
@@ -177,10 +180,10 @@ public class ItemController {
 
 //  ===================== 관리자 상품 등록 =====================
 	@PreAuthorize("hasRole('ADMIN')")
-	@PostMapping(value = "/api/admin/item", consumes = "multipart/form-data")
+
+	@PostMapping(value = "/admin/item", consumes = "multipart/form-data")
 	public ResponseEntity<Map<String, Object>> adminInsertItem(@ModelAttribute ItemDTO itemDTO,
 			@RequestPart("itemImage") MultipartFile itemImage) {
-		System.out.println("[ItemController.adminInsertItem] 받은 itemDTO :" + itemDTO);
 		
 	    // 0) 필수값 검증
 	    if (itemImage == null || itemImage.isEmpty()) {
@@ -189,7 +192,27 @@ public class ItemController {
 	                "message", "상품 이미지는 필수입니다."
 	        ));
 	    }
-		
+        else if(!this.reviewService.checkFileSize(itemImage)) {
+            return ResponseEntity.status(400).body(Map.of(
+                     "code", "TOO_BIG_IMAGE_SIZE",
+                     "message", "이미지 크기는 "+ this.reviewService.getAllowedImageMaxBytes() +"kb까지 가능합니다."
+             ));
+         }
+         else if(!this.reviewService.checkFileExtention(itemImage)) {
+            return ResponseEntity.status(400).body(Map.of(
+                     "code", "IMAGE_TYPE_ERROR",
+                     "message", "이미지 확장자는"+ this.reviewService.getAllowedExtentionSet() +"만 가능합니다."
+             ));   
+         }
+         
+         String eventImageUrl;
+		try {
+			eventImageUrl = this.reviewService.saveImageAndGetUrl(this.resourcePath, this.itemPrefix, itemImage);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return ResponseEntity.internalServerError().body(Map.of("code", "IMAGE_PROCESSING_ERROR", "message", "이미지를 처리하는 도중 에러가 발생했습니다."));
+		}
+         /*
 		// 1) 폴더
 		String uploadDir = resourcePath + "/images/item/";
 		File dir = new File(uploadDir);
@@ -206,12 +229,12 @@ public class ItemController {
 		} catch (Exception e) {
 			throw new RuntimeException("파일 저장 실패", e);
 		}
-
+		*/
 		// 4) DB 저장할 URL
-		itemDTO.setItemImageUrl(itemPrefix + fileName); // itemPrefix="/images/item/"
-
+		itemDTO.setItemImageUrl(eventImageUrl); // itemPrefix="/images/item/"
+		itemDTO.setCondition("ADMIN_INSERT_ITEM");
 		if (!itemService.insertItem(itemDTO)) {
-			return ResponseEntity.status(404).body(Map.of("code", "ITEM_NOT_FOUND", "message", "해당 상품을 찾을 수 없습니다."));
+			return ResponseEntity.status(500).body(Map.of("code", "ITEM_INSERT_ERROR", "message", "상품 등록중 오류가 발생했습니다."));
 		}
 
 		return ResponseEntity.ok(Map.of("code", "success", "message", "등록 성공")); // 수정 필요
@@ -221,7 +244,7 @@ public class ItemController {
 	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/admin/item/manage/{itemPk}")
 	public ResponseEntity<Map<String, Object>> adminItemDetail(@PathVariable Integer itemPk, ItemDTO itemDTO) {
-		System.out.println("[ItemController.adminItemDetail] 받은 itemDTO : " + itemDTO);
+		
 
 		itemDTO.setItemPk(itemPk);
 		itemDTO.setCondition("ADMIN_SELECT_ONE_ITEM");
@@ -240,7 +263,7 @@ public class ItemController {
 	@PatchMapping("/account/item/{itemPk}/itemName")
 	public ResponseEntity<Map<String, Object>> itemNameUpdate(@PathVariable Integer itemPk,
 			@RequestBody ItemDTO itemDTO) {
-		System.out.println("[ItemController.itemNameUpdate] 받은 itemDTO : " + itemDTO);
+		
 
 		// itemName이 없을 때
 		if (itemDTO.getItemName() == null || itemDTO.getItemName().isBlank()) {
@@ -263,9 +286,9 @@ public class ItemController {
 
 // ===================== 관리자 상품 가격 수정 =====================
 	@PreAuthorize("hasRole('ADMIN')")
-	@PatchMapping("/api/account/item/{itemPk}/itemPrice")
+	@PatchMapping("/account/item/{itemPk}/itemPrice")
 	public ResponseEntity<Map<String, Object>> itemPriceUpdate(@PathVariable Integer itemPk, @RequestBody ItemDTO itemDTO) {
-			System.out.println("[ItemController.itemPriceUpdate] 받은 itemDTO : " + itemDTO);
+			
 
 			// itemPrice 값이 0 이하
 			if (itemDTO.getItemPrice() <= 0) {
@@ -294,13 +317,13 @@ public class ItemController {
 	
 // ===================== 관리자 상품 재고 수정 =====================
 	@PreAuthorize("hasRole('ADMIN')")
-	@PatchMapping("/api/account/item/{itemPk}/itemStock")
+	@PatchMapping("/account/item/{itemPk}/itemStock")
 	public ResponseEntity<Map<String, Object>> itemStockUpdate(@PathVariable Integer itemPk,
 			@RequestBody ItemDTO itemDTO) {
-		System.out.println("[ItemController.itemStockUpdate] 받은 itemDTO : " + itemDTO);
+		
 
 		// itemStock 값이 0 이하
-		if (itemDTO.getItemPrice() <= 0) {
+		if (itemDTO.getItemStock() <= 0) {
 			return ResponseEntity.status(400).body(Map.of("code", "VALIDATION_ERROR", "message", "요청 값이 올바르지 않습니다."));
 		}
 
@@ -320,9 +343,9 @@ public class ItemController {
 	
 // ===================== 관리자 상품 설명 수정 =====================
 	@PreAuthorize("hasRole('ADMIN')")
-	@PatchMapping("/account/item/{itemPk}/itemStock")
+	@PatchMapping("/account/item/{itemPk}/itemDescription")
 	public ResponseEntity<Map<String, Object>> itemDesciptionUpdate(@PathVariable Integer itemPk, @RequestBody ItemDTO itemDTO){
-			System.out.println("[ItemController.itemDesciptionUpdate] 받은 itemDTO : " + itemDTO);
+			
 			
 			// itemDesciptionUpdate가 값이 0이하
 			if (itemDTO.getItemDescription() == null || itemDTO.getItemDescription().isBlank()){
@@ -333,7 +356,7 @@ public class ItemController {
 			}
 			
 			itemDTO.setItemPk(itemPk);
-			itemDTO.setCondition("ADMIN_UPDATE_DESCIPTION_ITEM");
+			itemDTO.setCondition("ADMIN_UPDATE_DESCRIPTION_ITEM");
 			
 			// 수정 실패 시
 			if(!itemService.updateItem(itemDTO)) {
@@ -350,14 +373,12 @@ public class ItemController {
 
 // ===================== 관리자 상품 이미지 수정 =====================			
 	@PreAuthorize("hasRole('ADMIN')")
-	@PatchMapping(value = "/api/account/item/{itemPk}/itemImage", consumes = "multipart/form-data")
+	@PatchMapping(value = "/account/item/{itemPk}/itemImage", consumes = "multipart/form-data")
 	public ResponseEntity<Map<String, Object>> itemImageUpdate(
 	        @PathVariable Integer itemPk,
 	        @RequestPart("itemImage") MultipartFile itemImage,
 	        @ModelAttribute ItemDTO itemDTO
 	) {
-	    System.out.println("[ItemController.itemImageUpdate] itemPk=" + itemPk + ", itemDTO=" + itemDTO);
-
 	    // 0) 필수값 검증
 	    if (itemImage == null || itemImage.isEmpty()) {
 	        return ResponseEntity.badRequest().body(Map.of(
@@ -365,7 +386,7 @@ public class ItemController {
 	                "message", "이미지 파일이 필요합니다."
 	        ));
 	    }
-	    
+	    /*
 	    // 1) 폴더
 	    String uploadDir = resourcePath + "/images/item/";
 	    File dir = new File(uploadDir);
@@ -387,7 +408,15 @@ public class ItemController {
 	    }
 	    
 	    // 4) DB 저장할 URL
-	    String imageUrl = itemPrefix + fileName; // itemPrefix="/images/item/"
+	    ///
+	     */
+	    String imageUrl= null;
+		try {
+			imageUrl = reviewService.saveImageAndGetUrl(resourcePath, itemPrefix, itemImage);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+//	     = serverOrigin + itemPrefix + fileName; // itemPrefix="/images/item/"
 	    itemDTO.setItemPk(itemPk);
 	    itemDTO.setItemImageUrl(imageUrl);
 	    itemDTO.setCondition("ADMIN_UPDATE_IMAGE_ITEM");
@@ -395,14 +424,14 @@ public class ItemController {
 	    // 5) DB 업데이트 (실패 시 파일 삭제)
 	    try {
 	        if (!itemService.updateItem(itemDTO)) {
-	            dest.delete(); // DB 실패하면 파일 롤백
+//	            dest.delete(); // DB 실패하면 파일 롤백
 	            return ResponseEntity.status(404).body(Map.of(
 	                    "code", "ITEM_NOT_FOUND",
 	                    "message", "해당 상품 정보를 찾을 수 없습니다."
 	            ));
 	        }
 	    } catch (Exception e) {
-	        dest.delete(); // 예외 나도 파일 롤백
+//	        dest.delete(); // 예외 나도 파일 롤백
 	        throw e;
 	    }
 		return ResponseEntity.ok(Map.of("code", "success", "message", "수정 성공")); // 수정 필요

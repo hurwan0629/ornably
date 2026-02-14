@@ -51,8 +51,13 @@ public class ReviewController {
 
 		reviewDTO.setCondition("SELECT_ITEM_REVIEW_COUNT");
 		List<ReviewDTO> reviewDatas = this.reviewService.getReviewByItemPk(reviewDTO); // itemPk, dataCount, page
-
-		return ResponseEntity.status(200).body(Map.of("reviewDatas", reviewDatas, "itemPk", reviewDTO.getItemPk()));
+		Integer itemPk = reviewDTO.getItemPk();
+		
+		reviewDTO = this.reviewService.getReviewMaxPageByItemPkAndDataCount(reviewDTO);
+		return ResponseEntity.status(200).body(
+				Map.of("reviewDatas", reviewDatas, 
+					 "itemPk", itemPk,
+					 "maxPages", reviewDTO.getMaxPages()));
 
 	}
 
@@ -74,8 +79,8 @@ public class ReviewController {
 	
 	// 관리자 상품 관리시 상품 리뷰 조회
 	@PreAuthorize("hasRole('ADMIN')")
-	@GetMapping(value = "/api/admin/item/{itemPk}/review")
-	public ResponseEntity<?> getUserReviewDatasByItemPkAdmin(@PathVariable("reviewPk") Integer itemPk){
+	@GetMapping(value = "/admin/item/{itemPk}/review")
+	public ResponseEntity<?> getUserReviewDatasByItemPkAdmin(@PathVariable("itemPk") Integer itemPk){
 		List<ReviewDTO> reviewDatas = reviewService.getReviewDatasByReviewPkAdmin(itemPk);
 
 		return ResponseEntity.ok(Map.of("reviewDatas", reviewDatas));
@@ -118,7 +123,8 @@ public class ReviewController {
 	// reviewTitle, reviewContent를 받아서 수정해주기
 	@PreAuthorize("hasRole('USER')")
 	@PatchMapping(value = "/user/review/{reviewPk}")
-	public ResponseEntity<?> updateReviewByUser(@PathVariable("reviewPk") Integer reviewPk,
+	public ResponseEntity<?> updateReviewByUser(
+			@PathVariable("reviewPk") Integer reviewPk,
 			@RequestBody ReviewDTO reviewDTO) {
 		reviewDTO.setReviewPk(reviewPk);
 		if (this.reviewService.updateReview(reviewDTO)) {

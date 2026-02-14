@@ -44,12 +44,12 @@ public class OrdersServiceImpl implements OrdersService{
 
 	@Override
 	public boolean deleteOrders(OrdersDTO ordersDTO) {
-		return false;
+		return ordersRepository.delete(ordersDTO);
 	}
 
 	@Override
 	public OrdersDTO getOrdersData(OrdersDTO ordersDTO) {
-		return null;
+		return ordersRepository.selectOne(ordersDTO);
 	}
 
 	@Override
@@ -88,38 +88,75 @@ public class OrdersServiceImpl implements OrdersService{
         if(!ordersRepository.insert(ordersDTO)) { 
         	throw new RuntimeException("주문내역 생성 실패..");
         }
-        System.out.println(ordersDTO);
+        
         ordersDTO.setCondition("SELECT_ONE_ORDERS_PK_BY_UID");
-        System.out.println(ordersDTO);
         // 방금 생성한 주문내역 pk 조회 
         ordersDTO = ordersRepository.selectOne(ordersDTO);
         // 조회 실패시 트랜잭션 롤백
         if(ordersDTO.getOrdersPk() == null) {
         	throw new RuntimeException("주문내역 찾지 못함..");
         }
-
-        	
         // 4) 주문 상새 내역 생성     
         for (CartDTO c : cartItems) {
             OrdersItemDTO ordersItemDTO = new OrdersItemDTO();
             ordersItemDTO.setOrdersPk(ordersDTO.getOrdersPk());
             ordersItemDTO.setItemPk(c.getItemPk());
             ordersItemDTO.setOrdersItemCount(c.getCartCount());
-            ordersItemDTO.setOrdersItemPrice(c.getCartTotalPrice());
-            ordersItemDTO.setOrdersItemPrice(c.getItemPrice());
+            ordersItemDTO.setOrdersItemPrice(c.getItemDiscountPrice() > 0 ? c.getItemDiscountPrice() : c.getItemPrice());
             ordersItemDTO.setCondition("INSERT_ORDERS_ITEM");
             if(!ordersItemRepository.insert(ordersItemDTO)) { // insert => ordersDTO로 변경 가능?
-            		throw new RuntimeException("주문상새 내역 생성 실패..");
+            	throw new RuntimeException("주문상새 내역 생성 실패..");
             }
         } 
         
         // 5) 사용자 장바구니 삭제
         cartDTO.setAccountPk(accountPk);
         cartDTO.setCondition("DELETE_CART_BY_ACCOUNT_PK");
-        System.out.println(cartDTO);
         cartRepository.delete(cartDTO);
         
 		return true;
 	}
-
+	
+	@Override
+	   @Transactional
+	   public boolean buyNowPaymentComplete(OrdersDTO ordersDTO) {
+	      	
+			System.out.println(ordersDTO);
+	        // 1) 재고차감 
+	        ItemDTO itemDTO = new ItemDTO();
+	        itemDTO.setItemPk(ordersDTO.getItemPk());
+	        itemDTO.setItemStock(ordersDTO.getItemCount()); // itemDTO =>  추가함
+	        itemDTO.setCondition("BUY_ITEM");
+	        if (!itemRepository.update(itemDTO)) {
+	           throw new RuntimeException("재고 부족"); // 재고 - 막는 수정 필요 -> 쿼리 수정 완료
+	        }
+	        
+	        // 2) 주문내역 생성
+	        ordersDTO.setCondition("INSERT_ORDERS");
+	        if(!ordersRepository.insert(ordersDTO)) { 
+	           throw new RuntimeException("주문내역 생성 실패..");
+	        }
+	        
+	        ordersDTO.setCondition("SELECT_ONE_ORDERS_PK_BY_UID");
+	        // 방금 생성한 주문내역 pk 조회 
+	        Integer ordersPk = ordersRepository.selectOne(ordersDTO).getOrdersPk();
+	        // 조회 실패시 트랜잭션 롤백
+	        if(ordersPk == null) {
+	           throw new RuntimeException("주문내역 찾지 못함..");
+	        }
+	                
+	        // 3) 주문 상새 내역 생성     
+	        OrdersItemDTO ordersItemDTO = new OrdersItemDTO();
+	        ordersItemDTO.setOrdersPk(ordersPk);
+	        ordersItemDTO.setItemPk(ordersDTO.getItemPk());
+	        ordersItemDTO.setOrdersItemCount(ordersDTO.getItemCount());
+	        ordersItemDTO.setOrdersItemPrice(ordersDTO.getItemPrice());
+	        ordersItemDTO.setCondition("INSERT_ORDERS_ITEM");
+	        if(!ordersItemRepository.insert(ordersItemDTO)) { // insert => ordersDTO로 변경 가능?
+	           throw new RuntimeException("주문상새 내역 생성 실패..");
+	        }
+	        
+	      return true;
+	   }
+	
 }

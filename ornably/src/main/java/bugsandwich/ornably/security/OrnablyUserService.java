@@ -28,7 +28,7 @@ public class OrnablyUserService implements UserDetailsService { // 유저디테�
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
 		// 가져온 유저이름 체크
-		System.out.println("[로그][로컬] OrnablyUserService.loadUserByUsername | id: [" + username + "]");
+		
 
 		// 회원DTO 만들어서 DB안에있는 회원이름을 가져오기
 		AccountDTO accountDTO = new AccountDTO();
@@ -38,7 +38,6 @@ public class OrnablyUserService implements UserDetailsService { // 유저디테�
 
 		// 회원 정보가 없을때
 		if (accountDTO == null) {
-			System.out.println("회원 찾지 못함");
 			throw new UsernameNotFoundException("not found: " + username);
 		}
 

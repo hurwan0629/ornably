@@ -1,11 +1,8 @@
 package bugsandwich.ornably.review.service;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -33,7 +30,7 @@ public class ReviewServiceImpl implements ReviewService {
 	 @Value("${resource.path}")
 	private String resourcePath;
 	 
-	 @Value("${resource.review.prefix")
+	 @Value("${resource.review.prefix}")
 	 private String reivewPrefix;
 	 
 	 @Value("${server.origin}")
@@ -61,6 +58,7 @@ public class ReviewServiceImpl implements ReviewService {
 
 		// LIMIT [dataCount] OFFSET ? 를 주기 위한 데이터
 		reviewDTO.setStartReviewNum((reviewDTO.getPage() - 1) * reviewDTO.getDataCount() + 1);
+		reviewDTO.setEndReviewNum((reviewDTO.getPage()) * reviewDTO.getDataCount());
 		reviewDTO.setCondition("SELECT_ALL_REVIEW_PAGENATION_BY_ITEM_PK");
 
 		return this.reviewRepository.selectAll(reviewDTO);
@@ -95,7 +93,7 @@ public class ReviewServiceImpl implements ReviewService {
 		// 리뷰 데이터 설정
 		ReviewDTO reviewDTO = new ReviewDTO();
 		reviewDTO.setReviewPk(reviewPk);
-		reviewDTO.setCondition("DELETE_REVIEW_BY_REVIEW_PK");
+		reviewDTO.setCondition("DELETE_BY_REVIEW_PK");
 		
 		// 실행 후 반환
 		return this.reviewRepository.delete(reviewDTO);
@@ -111,15 +109,15 @@ public class ReviewServiceImpl implements ReviewService {
 		MultipartFile image = reviewDTO.getReviewImage();
 		// 사진이 존재하면 저장후 저장된 경로 문자열을 DTO에 너허어주기
 		if (image != null && !image.isEmpty()) {
-
+			
 			try {
 				// 예: /images/review/20260206_153012_xxx.png
-				reviewDTO.setReviewImageUrl(saveReviewImageAndGetUrl(image));
+				reviewDTO.setReviewImageUrl(saveImageAndGetUrl(this.resourcePath, this.reivewPrefix, image));
 			} catch (IOException e) {
 				e.printStackTrace();
 			} 
 		}
-		reviewDTO.setCondition("INSERT_REGIST_REVIEW");
+		reviewDTO.setCondition("INSERT_REVIEW_WRITE");
 
 		// 리뷰 추가 후 반환 
 		return this.reviewRepository.insert(reviewDTO);
@@ -128,29 +126,31 @@ public class ReviewServiceImpl implements ReviewService {
 	@Override
 	public boolean updateReview(ReviewDTO reviewDTO) {
 		// 리뷰 수정 실행 후 결과 반환
-		reviewDTO.setCondition("UPDATE_REVIEW_BY_USER");
+		reviewDTO.setCondition("REVIEW_WRITE_EDIT");
 		return this.reviewRepository.update(reviewDTO);
 	}
 
 	// 이미지 파일을 넣으면 저장 후 경로 문자열을 반환해주는 함수
 	// 서비스 내부에서만 사용할 메서드라서 private처리
-	private String saveReviewImageAndGetUrl(MultipartFile file) throws IOException {
-		Path reviewDir = Path.of(this.resourcePath + this.reivewPrefix);
+	@Override
+	public String saveImageAndGetUrl(String resourcePath, String prefix, MultipartFile file) throws IOException {
+		Path saveDir = Path.of(resourcePath + prefix);
 		// 디렉토리 보장
-		Files.createDirectories(reviewDir);
-
+		
+		Files.createDirectories(saveDir);
 		// 파일명 충돌 방지: 시간 + UUID + 확장자
+		
 		String extention = getExtentionFromFile(file);
 		String timeStamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-		String reviewImageName = timeStamp + "_" + UUID.randomUUID().toString().replace("-", "") + "." + extention;
+		String imageName = timeStamp + "_" + UUID.randomUUID().toString().replace("-", "") + "." + extention;
 
 		// 최종 저장 경로
-		Path target = reviewDir.resolve(reviewImageName).normalize();
+		Path target = saveDir.resolve(imageName).normalize();
 
 		// 저장
 		Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
 
-		return this.serverOrigin + this.reivewPrefix + reviewImageName;
+		return this.serverOrigin + prefix + imageName; // "http://loaclhost:8088/images/item/" + imageName
 	}
 
 	private static Map<String, Object> err(String code, String message) {
@@ -171,11 +171,13 @@ public class ReviewServiceImpl implements ReviewService {
 	public boolean checkFileExtention(MultipartFile file) {
 		// 확장자 문자열 뽑아내기
 		String extention = this.getExtentionFromFile(file);
-
+		
+		
+		
 		if (!this.ALLOWED_EXTENTION.contains(extention)) {
 			return false;
 		}
-		return false;
+		return true;
 	}
 
 	// 서비스 내부에서 사용하는 확장자 뽑아주는 함수. 없으면 "" 을 반환
@@ -203,5 +205,11 @@ public class ReviewServiceImpl implements ReviewService {
 	@Override
 	public Long getAllowedImageMaxBytes() {
 		return this.MAX_BYTES;
+	}
+
+	@Override
+	public ReviewDTO getReviewMaxPageByItemPkAndDataCount(ReviewDTO reviewDTO) {
+		reviewDTO.setCondition("SELECT_ONE_REVIEW_PAGINATION_MAX_PAGES_BY_ITEM_PK_AND_DATA_COUNT");
+		return this.reviewRepository.selectOne(reviewDTO);
 	}
 }

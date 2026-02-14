@@ -46,7 +46,7 @@ public class AddressController {
 		}
 		// 로그인한 사용자 pk 가져오기
 		Integer accountPk = ornablyUser.getAccountPk();
-		System.out.println("[로그] 로그인한 사용자 PK :" + ornablyUser.getAccountPk());
+		
 
 		// DAO 분기용 condition + 조회 대상 accountPk 세팅
 		addressDTO.setAccountPk(accountPk);// 누구의 주소 목록인지
@@ -54,7 +54,7 @@ public class AddressController {
 
 		// 서비스 호출해서 내 주소목록 가져오기
 		List<AddressDTO> addresses = addressService.getAddressList(addressDTO);
-		System.out.println("[로그] 가져온 주소 목록 : " + addresses);
+		
 
 		// 프론트 요청에 맞게 필요한 값만 골라서 보내주기
 		// DTO를 전부 보내지 않고 회원pk와 컨디션을 빼고 보내주기
@@ -85,7 +85,7 @@ public class AddressController {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
 		Integer accountPk = ornablyUser.getAccountPk();
-		System.out.println("[로그] 로그인한 사용자 PK :" + ornablyUser.getAccountPk());
+		
 
 		AddressDTO addressDTO = new AddressDTO();
 		// @

@@ -16,17 +16,21 @@ public class EventRepository {
 	// 이벤트 등록
 	private static final String INSERT_EVENT =
 			"INSERT INTO EVENT " +
-            "(EVENT_NAME, EVENT_IMAGE, EVENT_START_DATE, EVENT_END_DATE, " +
+            "(EVENT_NAME, EVENT_IMAGE_URL, EVENT_START_DATE, EVENT_END_DATE, " +
             "EVENT_TARGET_ACCOUNT, EVENT_TARGET_CATEGORY, EVENT_DISCOUNT_RATE, EVENT_DESCRIPTION) " +
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 	
 	// 이벤트 종료 요청 (종료 날짜 > 종료 요청한 날짜)
 	private static final String UPDATE_END_EVENT =
 			"UPDATE EVENT " +			
-			"SET EVENT_END_DATE = NOW() " + // 종료 요청 시 현재 시각으로 종료
+			"SET EVENT_END_DATE = DATE_SUB(NOW(), INTERVAL 1 DAY) " + // 종료 요청 시 현재 시각으로 종료
 			"WHERE EVENT_PK = ?";
 	
-
+	
+	private static final String SELECT_ONE_EVENT_PK_RECENT =
+			"SELECT MAX(EVENT_PK) AS eventPk " +
+			"FROM EVENT";
+	
 	// 전체 이벤트 요청
 	private static final String SELECT_ALL_EVENT =
 	        "SELECT " +
@@ -58,14 +62,15 @@ public class EventRepository {
 	        "ORDER BY EVENT_START_DATE ASC";                 // 시작일 기준 오름차순 (오래된 이벤트 먼저)
 	
 	
+	
 
 	
 	public List<EventDTO> selectAll(EventDTO eventDTO){
-	    System.out.println("[로그] EventRepository의 selectAll 시작");
+	    
 	    
 	    // 전체 이벤트 요청
 	    if("SELECT_ALL_EVENT".equals(eventDTO.getCondition())) {
-		    System.out.println("[로그] selectAll의 SELECT_ALL_EVENT");
+		    
 		    return jdbcTemplate.query(
 		    	SELECT_ALL_EVENT, 
 	    		new BeanPropertyRowMapper<>(EventDTO.class)
@@ -74,27 +79,38 @@ public class EventRepository {
 	    
 	    // 현재 진행중인 이벤트 요청
 	    else if("SELECT_ALL_PROGRESS_EVENT".equals(eventDTO.getCondition())) {
-	    	System.out.println("[로그] selectAll의 SELECT_ALL_EVENT");
+	    	
 		    return jdbcTemplate.query(
 		    	SELECT_ALL_PROGRESS_EVENT, 
 	    		new BeanPropertyRowMapper<>(EventDTO.class)
 	    	);
 	    }
-		System.out.println("[로그][경고] EventRepository_selectAll_condition 없음");
+		
 		return null;
 	}
 	
-	private EventDTO selectOne(EventDTO eventDTO) {
+	public EventDTO selectOne(EventDTO eventDTO) {
+		
+	    
+	    // 전체 이벤트 요청
+	    if("SELECT_ONE_EVENT_PK_RECENT".equals(eventDTO.getCondition())) {
+		    
+		    return jdbcTemplate.queryForObject(
+		    	SELECT_ONE_EVENT_PK_RECENT, 
+	    		new BeanPropertyRowMapper<>(EventDTO.class)
+	    	);
+	    }
+		
 		return null;
 	}
 	
 	public boolean insert(EventDTO eventDTO) {
-	    System.out.println("[로그] EventRepository의 insert 시작");
+	    
 	    int result = 0;
 	    
 	    // 이벤트 등록
 	    if("INSERT_EVENT".equals(eventDTO.getCondition())) {
-	    	System.out.println("[로그] insert의 INSERT_EVENT");
+	    	
 	    	result = jdbcTemplate.update(
 	    		INSERT_EVENT,
 	    		eventDTO.getEventName(),
@@ -108,24 +124,24 @@ public class EventRepository {
 	    	);
 	    }
 	    else {
-			System.out.println("[로그][경고] EventRepository_insert_condition 없음");
+			
 		}
 	    return result > 0;
 	}
 	
 	public boolean update(EventDTO eventDTO) {
-	    System.out.println("[로그] EventRepository의 update 시작");
+	    
 	    int result = 0;
 	    
 	    if("UPDATE_END_EVENT".equals(eventDTO.getCondition())) {
-	    	System.out.println("[로그] update의 UPDATE_END_EVENT");
+	    	
 	    	result = jdbcTemplate.update(
     			UPDATE_END_EVENT,
     			eventDTO.getEventPk()
 	    	);
 	    } 
 	    else {
-	    	System.out.println("[로그][경고] EventRepository_update_condition 없음");
+	    	
 	    }
 		return result > 0;
 	}

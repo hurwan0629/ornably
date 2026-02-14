@@ -56,7 +56,9 @@ public class SolapiService {
 
         MultipleDetailMessageSentResponse response;
 		try {
+			System.out.println("1");
 			response = messageService.send(message, null);
+			System.out.println("2");
 		} catch (SolapiMessageNotReceivedException e) {
 			e.printStackTrace();
 		} catch (SolapiEmptyResponseException e) {

@@ -35,7 +35,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 		OAuth 제공자(카카오,구글) 서버에 사용자 정보 요청을 보내고 응답을 받아옴
 		userRequest = 로그인 요청 정보*/
 		OAuth2User oAuth2User = super.loadUser(userRequest);
-		System.out.println("[로그][OAUTH2] loadUser 시작 " + userRequest);
+		
 
 		// 2) 어떤 OAuth2제공자인지 확인 (카카오,구글)
 		//application.properties의 registrationId랑 동일
@@ -51,7 +51,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 		provider prefix + providerId
 		예: kakao_123456789 / google_10987654321*/
 		String accountId = socialUser.provider()+ "_" +socialUser.providerId();
-		System.out.println("[로그][OAUTH2] 생성된 아이디 : " + socialUser.provider()+ "_" +socialUser.providerId());
+		
 
 		// 6) DB에서 기존회원 여부 확인
 		//결과 있으면 기존회원 없으면 신규회원(온보딩 필요함)
@@ -61,7 +61,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 		AccountDTO result = accountRepository.selectOne(accountDTO);
 		Integer accountPk = (result!= null) ? result.getAccountPk() : null ;
-        System.out.println("[로그][OAUTH2] DB 존재여부 | accountPk=" + accountPk);
+        
 
 
 
@@ -76,7 +76,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 			//신규회원 (온보딩 필요함)
 			authorities = List.of(new SimpleGrantedAuthority("ROLE_ONBOARD"));
 		}
-        System.out.println("[로그][OAUTH2] 최종 권한 확인" + authorities);
+        
 
 		/* 8) 스프링 시큐리티 세션(SecurityContext)에 저장될 Principal(OAuth2User) 만들기
 		DefaultOAuth2User는 "권한(authorities) + attributes + nameKey" 조합으로 Principal 생성
@@ -98,9 +98,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 		mergedAttributes.put("providerId", socialUser.providerId()); //카카오 id/구글 sub
 
 		//소셜에서 받는 기본값(온보딩 페이지 인풋용으로 사용)
-		mergedAttributes.put("accountName", socialUser.name()); //소셜에서 기본적용되는 이름
-		mergedAttributes.put("accountEmail", socialUser.email()); //이메일있으면 가져오고 없으면 null
-
+		mergedAttributes.put("name", socialUser.name()); //소셜에서 기본적용되는 이름
+		mergedAttributes.put("email", socialUser.email()); //이메일있으면 가져오고 없으면 null
 		// 이걸 반환해야 (principal 반환) authorities(권한)가 실제로 적용됨
 		// 소셜은 이벤트목록/비번/role 같은 게 아직 없으니 기본값 넣기
 

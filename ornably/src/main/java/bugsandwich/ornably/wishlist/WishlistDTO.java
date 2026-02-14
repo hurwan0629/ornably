@@ -1,10 +1,5 @@
 package bugsandwich.ornably.wishlist;
 
-import java.time.LocalDate;
-
-import org.springframework.web.multipart.MultipartFile;
-
-import bugsandwich.ornably.review.ReviewDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,13 +16,13 @@ public class WishlistDTO {
 	
 	// [ 추가 멤버 변수 ]
 	private String condition;	// 분기점
-
-	private String itemName;
-	private String itemImageUrl;
 	private String itemCategory;
-	private Integer itemPrice;
-	private Integer itemDiscountRate;
-	private Integer itemDiscountPrice; 
 	private Double itemAvgStar;
 	private Boolean itemWishlistToggle;
+	// [ 상품 정보 조회용 ]
+	private String itemImageUrl;		// 상품 이미지 경로
+	private String itemName;			// 상품명
+	private Integer itemPrice;			// 상품 가격
+	private Integer itemDiscountRate;	// 할인율
+	private Integer itemDiscountPrice;	// 할인 적용 가격
 }

@@ -85,8 +85,9 @@ public class CartRepository {
 				cartDTO.getAccountPk()
 			);
 		}
-		
-		return null;
+		System.out.println("[로그][경고] CartRepository의 selectAll_condition 없음");
+		// 조건이 없으면 빈 리스트 반환
+	    return java.util.Collections.emptyList();
 	}
 	
 	
@@ -162,8 +163,7 @@ public class CartRepository {
 		}
 		
 		// 장바구니 항목 1개만 삭제 : X 버튼 클릭 시
-		else if ("DELETE_CART_ITEM".equals(cartDTO.getCondition())) {
-			
+		else if ("DELETE_BY_CART_PK".equals(cartDTO.getCondition())) {
 			result = jdbcTemplate.update(
 				DELETE_CART_ITEM,
 				cartDTO.getCartPk(),

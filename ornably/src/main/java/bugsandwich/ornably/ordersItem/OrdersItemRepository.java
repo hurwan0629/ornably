@@ -60,8 +60,8 @@ public class OrdersItemRepository {
 				ordersItemDTO.getOrdersPk()
 			);
 		}
-		
-		return null;
+		// 조건이 없으면 빈 리스트 반환
+	    return java.util.Collections.emptyList();
 	}
 	
 
@@ -115,3 +115,6 @@ public class OrdersItemRepository {
 		return result > 0;
 	}
 }
+
+
+

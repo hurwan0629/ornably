@@ -1,149 +1,68 @@
 package bugsandwich.ornably.event;
 
-import java.sql.Date;
 import java.util.List;
 
+import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class EventRepository {
 	@Autowired // 의존 주입
-	private JdbcTemplate jdbcTemplate;
-	
-	// 이벤트 등록
-	private static final String INSERT_EVENT =
-			"INSERT INTO EVENT " +
-            "(EVENT_NAME, EVENT_IMAGE_URL, EVENT_START_DATE, EVENT_END_DATE, " +
-            "EVENT_TARGET_ACCOUNT, EVENT_TARGET_CATEGORY, EVENT_DISCOUNT_RATE, EVENT_DESCRIPTION) " +
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-	
-	// 이벤트 종료 요청 (종료 날짜 > 종료 요청한 날짜)
-	private static final String UPDATE_END_EVENT =
-			"UPDATE EVENT " +			
-			"SET EVENT_END_DATE = DATE_SUB(NOW(), INTERVAL 1 DAY) " + // 종료 요청 시 현재 시각으로 종료
-			"WHERE EVENT_PK = ?";
-	
-	
-	private static final String SELECT_ONE_EVENT_PK_RECENT =
-			"SELECT MAX(EVENT_PK) AS eventPk " +
-			"FROM EVENT";
-	
-	// 전체 이벤트 요청
-	private static final String SELECT_ALL_EVENT =
-	        "SELECT " +
-	        "EVENT_PK         AS eventPk, " +                 	// 이벤트 고유 번호
-	        "EVENT_NAME       AS eventName, " +               	// 이벤트 이름
-	        "EVENT_START_DATE AS eventStartDate, " +          	// 이벤트 시작일
-	        "EVENT_END_DATE   AS eventEndDate, " +            	// 이벤트 종료일
-	        "EVENT_TARGET_ACCOUNT  AS eventTargetAccount, " + 	// 이벤트 대상 계정
-	        "EVENT_TARGET_CATEGORY AS eventTargetCategory, " +	// 이벤트 적용 카테고리
-	        "EVENT_DISCOUNT_RATE   AS eventDiscountRate, " +   	// 할인율
-	        "EVENT_DESCRIPTION     AS eventDescription " +     	// 이벤트 설명
-	        "FROM EVENT " +
-	        "ORDER BY EVENT_START_DATE DESC"; // 시작일 기준 내림차순 (최근 이벤트 먼저)
-
-	
-	// 현재 진행중인 이벤트 요청
-	private static final String SELECT_ALL_PROGRESS_EVENT =
-	        "SELECT " +
-	        "EVENT_PK       AS eventPk, " +                  // 이벤트 고유 번호
-	        "EVENT_NAME     AS eventName, " +                // 이벤트 이름
-	        "EVENT_IMAGE_URL    AS eventImageUrl, " +            // 이벤트 이미지
-	        "EVENT_START_DATE    AS eventStartDate, " +      // 이벤트 시작일
-	        "EVENT_END_DATE      AS eventEndDate, " +        // 이벤트 종료일
-	        "EVENT_DESCRIPTION   AS eventDescription, " +    // 이벤트 설명
-	        "EVENT_DISCOUNT_RATE AS eventDiscountRate " +    // 할인율
-	        "FROM EVENT " +
-	        "WHERE EVENT_START_DATE <= NOW() " +             // 현재 진행중인 이벤트 필터 (시작일 <= 현재 시각)
-	        "  AND EVENT_END_DATE >= NOW() " +               // 현재 진행중인 이벤트 필터 (종료일 >= 현재 시각)
-	        "ORDER BY EVENT_START_DATE ASC";                 // 시작일 기준 오름차순 (오래된 이벤트 먼저)
-	
-	
-	
+	private SqlSession sqlSession;
+	private static final String NAMESPACE = "EventLog.";
 
 	
 	public List<EventDTO> selectAll(EventDTO eventDTO){
-	    
+	    System.out.println("[로그] EventRepository의 selectAll 시작");
 	    
 	    // 전체 이벤트 요청
-	    if("SELECT_ALL_EVENT".equals(eventDTO.getCondition())) {
-		    
-		    return jdbcTemplate.query(
-		    	SELECT_ALL_EVENT, 
-	    		new BeanPropertyRowMapper<>(EventDTO.class)
-	    	);
-	    }
-	    
-	    // 현재 진행중인 이벤트 요청
-	    else if("SELECT_ALL_PROGRESS_EVENT".equals(eventDTO.getCondition())) {
-	    	
-		    return jdbcTemplate.query(
-		    	SELECT_ALL_PROGRESS_EVENT, 
-	    		new BeanPropertyRowMapper<>(EventDTO.class)
-	    	);
-	    }
-		
-		return null;
+	    List<EventDTO> list = sqlSession.selectList(NAMESPACE + "selectAll");
+		System.out.println("[로그] selectAll count = " + list.size());
+	        
+		// selectList() : 결과 없으면 빈 리스트 반환
+		return list;
 	}
 	
-	public EventDTO selectOne(EventDTO eventDTO) {
-		
-	    
-	    // 전체 이벤트 요청
-	    if("SELECT_ONE_EVENT_PK_RECENT".equals(eventDTO.getCondition())) {
-		    
-		    return jdbcTemplate.queryForObject(
-		    	SELECT_ONE_EVENT_PK_RECENT, 
-	    		new BeanPropertyRowMapper<>(EventDTO.class)
-	    	);
-	    }
-		
+	
+	public List<EventDTO> selectAllProgress(EventDTO eventDTO) {
+		System.out.println("[로그] EventRepository selectAllProgress 시작");
+
+		// 현재 진행중인 이벤트 요청
+		List<EventDTO> list = sqlSession.selectList(NAMESPACE + "selectAllProgressEvent");
+		System.out.println("[로그] selectAllProgress count = " + list.size());
+
+		return list;
+	}
+	
+	private EventDTO selectOne(EventDTO eventDTO) {
 		return null;
 	}
 	
 	public boolean insert(EventDTO eventDTO) {
-	    
-	    int result = 0;
+	    System.out.println("[로그] EventRepository의 insert 시작");
 	    
 	    // 이벤트 등록
-	    if("INSERT_EVENT".equals(eventDTO.getCondition())) {
-	    	
-	    	result = jdbcTemplate.update(
-	    		INSERT_EVENT,
-	    		eventDTO.getEventName(),
-	    		eventDTO.getEventImageUrl(),
-	    		Date.valueOf(eventDTO.getEventStartDate()), // DATE로 타입 변환
-	            Date.valueOf(eventDTO.getEventEndDate()),	// DATE로 타입 변환
-	            eventDTO.getEventTargetAccount(),
-	            eventDTO.getEventTargetCategory(),
-	            eventDTO.getEventDiscountRate(),
-	            eventDTO.getEventDescription()
-	    	);
-	    }
-	    else {
-			
+	    if (sqlSession.insert(NAMESPACE + "insert", eventDTO) > 0) {
+			System.out.println("[로그] insert 성공");
+			return true;
+		} else {
+			System.out.println("[로그] insert 실패");
+			return false;
 		}
-	    return result > 0;
 	}
 	
 	public boolean update(EventDTO eventDTO) {
+	    System.out.println("[로그] EventRepository의 update 시작");
 	    
-	    int result = 0;
-	    
-	    if("UPDATE_END_EVENT".equals(eventDTO.getCondition())) {
-	    	
-	    	result = jdbcTemplate.update(
-    			UPDATE_END_EVENT,
-    			eventDTO.getEventPk()
-	    	);
-	    } 
-	    else {
-	    	
-	    }
-		return result > 0;
+	    // 이벤트 종료 요청
+	    if (sqlSession.update(NAMESPACE + "update", eventDTO) > 0) {
+			System.out.println("[로그] update 성공");
+			return true;
+		} else {
+			System.out.println("[로그] update 실패");
+			return false;
+		}
 	}
 	
 	private boolean delete(EventDTO eventDTO) {

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import bugsandwich.ornably.security.api.AuthController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,11 +21,11 @@ import bugsandwich.ornably.orders.service.OrdersService;
 import bugsandwich.ornably.portone.PortOneClient;
 import bugsandwich.ornably.portone.PortOnePaymentDTO;
 import bugsandwich.ornably.security.OrnablyUser;
-import bugsandwich.ornably.security.api.AuthController;
 
 @RestController
 @RequestMapping("/api")
 public class OrdersController {
+
 	private final AuthController authController;
 	@Autowired
 	private OrdersService ordersService;

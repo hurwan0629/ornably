@@ -13,38 +13,58 @@ import org.springframework.web.bind.annotation.RestController;
 
 import bugsandwich.ornably.security.OrnablyUser;
 
+
+
 @RestController
 @RequestMapping("/api")
 public class AuthController {
-	//회원 권한 정보 가져오기
-	@GetMapping("all/auth/info") 
-	public ResponseEntity<Map<String, Object>> getUserAuthInfoData(@AuthenticationPrincipal OrnablyUser loginUser){ //현재 로그인한 사용자 정보
-		//응답 줄 데이터 담을 맵 생성
+	
+	/*
+	# 회원 권한 정보 가져오기
+	GET /api/all/auth/info
+	
+	auth: (없음)
+	body: (없음)
+	response:
+	200 OK
+	- authenticated: boolean             # securityContext의 Authentication.principal.authenticated
+	- role: "LOCAL" | "ADMIN" | "GOOGLE" | "KAKAO" | ...
+	- authorities: [] | ["ONBOARD"] | ["USER"] | ["ADMIN"]    # 원래 리스트이지만 1개만 사용할 예정
+	errors:
+	- 400 BAD_REQUEST
+		- code: VALIDATION_ERROR
+		- message: "요청 값이 올바르지 않습니다."
+	- 401 UNAUTHORIZED
+		- code: UNAUTHORIZED
+		- message: "인증 정보를 확인할 수 없습니다."
+	- 403 FORBIDDEN
+		- code: ACCESS_DENIED
+		- message: "해당 요청에 대한 접근 권한이 없습니다."
+	- 500 INTERNAL_SERVER_ERROR
+		- code: INTERNAL_SERVER_ERROR
+		- message: "인증 정보 조회 중 오류가 발생했습니다."
+	 */
+	@GetMapping("all/auth/info")
+	public ResponseEntity<Map<String, Object>> getUserAuthInfoData(@AuthenticationPrincipal OrnablyUser loginUser){
 		Map<String, Object> data = new HashMap<>();
 		
-		//로그인 여부체크
-		//로그인 안했으면 null
 		boolean authenticated = loginUser != null;
 		
-		//로그인 상태라면 사용자 롤담기 로그인 안했으면 null
 		String role = 
 				authenticated 
 				? loginUser.getAccountRole()
 				: null;
 		
-		//로그인 상태라면 권한목록을 문자열 리스트로 담고 아니면 빈리스트
-		 //GrantedAuthority 객체 목록 -> 문자열로 변환(getAuthority)
-		 // - "ROLE_USER" 같은 형태면 "ROLE_" 접두사 제거 -> "USER"
-		List<String> authorities = //권한,인가
-				authenticated // 인증
+		List<String> authorities =
+				authenticated
 				? loginUser.getAuthorities().stream().map(GrantedAuthority::getAuthority)
 						.map(auth -> auth.replace("ROLE_", "")).toList()
 				: List.of();
-		//최종응답 json 형태
-		data.put("authenticated", authenticated);//인증여부 true,false
-		data.put("role", role); //로그인시 롤 아니면 null
-		data.put("authorities", authorities); //로그인시 권한리스트 아니면 빈리스트
 		
-		return ResponseEntity.ok(data);//상태코드 200 반환
+		data.put("authenticated", authenticated);
+		data.put("role", role);
+		data.put("authorities", authorities);
+		
+		return ResponseEntity.ok(data);
 	}
 }

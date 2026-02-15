@@ -90,12 +90,14 @@ public class OrdersServiceImpl implements OrdersService{
         }
         
         ordersDTO.setCondition("SELECT_ONE_ORDERS_PK_BY_UID");
+        
         // 방금 생성한 주문내역 pk 조회 
         ordersDTO = ordersRepository.selectOne(ordersDTO);
         // 조회 실패시 트랜잭션 롤백
         if(ordersDTO.getOrdersPk() == null) {
         	throw new RuntimeException("주문내역 찾지 못함..");
         }
+
         // 4) 주문 상새 내역 생성     
         for (CartDTO c : cartItems) {
             OrdersItemDTO ordersItemDTO = new OrdersItemDTO();
@@ -112,6 +114,7 @@ public class OrdersServiceImpl implements OrdersService{
         // 5) 사용자 장바구니 삭제
         cartDTO.setAccountPk(accountPk);
         cartDTO.setCondition("DELETE_CART_BY_ACCOUNT_PK");
+        
         cartRepository.delete(cartDTO);
         
 		return true;

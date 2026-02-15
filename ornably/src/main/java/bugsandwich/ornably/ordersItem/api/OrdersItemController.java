@@ -64,9 +64,7 @@ public class OrdersItemController {
       
       OrdersDTO data = ordersService.getOrdersData(ordersDTO);
       
-      
-      
-      
+      System.out.println(data);
       
       return ResponseEntity.ok(Map.of(
             "ordersItemDatas", list,

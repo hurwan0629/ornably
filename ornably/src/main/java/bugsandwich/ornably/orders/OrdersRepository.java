@@ -85,6 +85,7 @@ public class OrdersRepository {
     		"SELECT \r\n"
     		+ "ORDERS_IMPORT_UID ordersImportUid,"
     		+ "ORDERS_DATE ordersDate,"
+    		+ "ORDERS_STATUS ordersStatus,"
     		+ "ORDERS_PAYMENT_TYPE ordersPaymentType,"
     		+ "ORDERS_MESSAGE ordersMessage, "
     		+ "ADDRESS_NAME addressName "
@@ -107,35 +108,6 @@ public class OrdersRepository {
 	private final static String DELETE_ONE_ORDERS =
 	    "DELETE FROM ORDERS WHERE ACCOUNT_PK = ?";
 
-	// 방금 생성된 주문 번호 조회
-	private final static String SELECT_ONE_ORDERS_PK = 
-		"SELECT LAST_INSERT_ID() AS ordersPk";
-	
-	// 주문 상세 페이지의 주문내역 데이터
-	private static final String SELEC_ONE_ORDERS_PAGE_DATA =
-	      "SELECT " +
-	      "    O.ORDERS_PK 			AS ordersPk, " +
-	      "    OI.ORDERS_ITEM_PK 	AS ordersItemPk, " +
-	      "    I.ITEM_NAME 			AS itemName, " +
-	      "    I.ITEM_PK 			AS itemPk, " +
-	      "    OI.ORDERS_ITEM_COUNT AS ordersItemCount, " +
-	      "    OI.ORDERS_ITEM_PRICE AS ordersItemPrice, " +
-	      "    I.ITEM_IMAGE_URL 	AS itemImageUrl, " +
-	      "    CASE WHEN EXISTS ( " +
-	      "        SELECT 1 " +
-	      "        FROM REVIEW R " +
-	      "        WHERE R.ITEM_PK = I.ITEM_PK " +
-	      "          AND R.ACCOUNT_PK = ? " +
-	      "          AND R.ORDERS_PK = O.ORDERS_PK " +
-	      "    ) THEN 1 ELSE 0 END AS isReviewed " +
-	      "FROM ORDERS O " +
-	      "JOIN ORDERS_ITEM OI ON O.ORDERS_PK = OI.ORDERS_PK " +
-	      "JOIN ITEM I ON OI.ITEM_PK = I.ITEM_PK " +
-	      "WHERE O.ACCOUNT_PK = ? " +       // 로그인 사용자
-	      "  AND O.ORDERS_PK = ? " +        // 조회할 주문
-	      "ORDER BY OI.ORDERS_ITEM_PK";
-
-	
 	
 	
 	
@@ -146,14 +118,13 @@ public class OrdersRepository {
 		if("SELECT_ALL_ORDERS_BY_ACCOUNT_PK".equals(orderDTO.getCondition())) {
 			
 			return jdbcTemplate.query(
-				SELECT_ALL_ORDERS_BY_ACCOUNT_PK,
+					SELECT_ALL_ORDERS_BY_ACCOUNT_PK,
 				new BeanPropertyRowMapper<>(OrdersDTO.class),
 				orderDTO.getAccountPk()
 			);
 		}
-		System.out.println("[로그][경고] OrdersRepository의 selectAll_condition 없음");
-		// 조건이 없으면 빈 리스트 반환
-	    return java.util.Collections.emptyList();
+		
+		return null;
 	}
 	
 	
@@ -161,40 +132,23 @@ public class OrdersRepository {
 		
 
 		// 주문내역 생성 후 해당 주문내역의 주문상세 생성을 위한 주문내역 PK 보내줌
-		if("SELECT_ONE_ORDERS_PK".equals(orderDTO.getCondition())) {
-			System.out.println("[로그] OrdersRepository의 SELECT_ONE_ORDERS_PK");
+		if("SELECT_ONE_ORDERS_PK_BY_UID".equals(orderDTO.getCondition())) {
+			
 			return jdbcTemplate.queryForObject(
-				SELECT_ONE_ORDERS_PK,
-				(rs, rowNum) -> {
-					OrdersDTO data = new OrdersDTO();
-					data.setOrdersPk(rs.getInt("ordersPk"));
-					return data;
-				}
+				SELECT_ORDERS_PK_BY_UID,
+				new BeanPropertyRowMapper<>(OrdersDTO.class),
+				orderDTO.getOrdersImportUid()
+			);
+		}
+		else if("SELECT_ONE_ORDERS_PAGE_DATA".equals(orderDTO.getCondition())) {
+			
+			return jdbcTemplate.queryForObject(
+				SELECT_ONE_ORDERS_PAGE_DATA,
+				new BeanPropertyRowMapper<>(OrdersDTO.class),
+				orderDTO.getOrdersPk()
 			);
 		}
 		
-		// 주문 상세 페이지의 주문 내역 데이터
-		else if("SELEC_ONE_ORDERS_PAGE_DATA".equals(orderDTO.getCondition())) {
-			System.out.println("[로그] OrdersRepository의 SELEC_ONE_ORDERS_PAGE_DATA");
-			return jdbcTemplate.queryForObject(
-				SELEC_ONE_ORDERS_PAGE_DATA,
-				(rs, rowNum) -> {
-					OrdersDTO data = new OrdersDTO();
-					data.setOrdersPk(rs.getInt("ordersPk"));
-		            data.setOrdersItemCount(rs.getInt("ordersItemCount"));
-		            data.setOrdersItemPrice(rs.getInt("ordersItemPrice"));
-		            data.setItemImageUrl(rs.getString("itemImageUrl"));
-		            data.setOrdersSignatureItemName(rs.getString("itemName")); // 대표 아이템 이름 대신
-		            data.setReviewExists(rs.getInt("isReviewed") == 1);        // 1 → true, 0 → false
-		            return data;
-				},
-				orderDTO.getAccountPk(),  // 첫 번째 ? : 로그인 사용자
-		        orderDTO.getAccountPk(),  // 두 번째 ? : 로그인 사용자
-		        orderDTO.getOrdersPk()    // 세 번째 ? : 조회할 주문
-			);
-		}
-		
-		System.out.println("[로그][경고] OrdersRepository의 selectOne_condition 없음");
 		return null;
 	}
 	
@@ -210,6 +164,7 @@ public class OrdersRepository {
 
 		// 주문내역 생성
 		if("INSERT_ORDERS".equals(orderDTO.getCondition())) {
+			
 			result = jdbcTemplate.update(
 				INSERT_ORDERS,
 				orderDTO.getAccountPk(),
@@ -241,8 +196,7 @@ public class OrdersRepository {
 		else {
 			
 		}
-		return result > 0;	
-	}
+		return result > 0;	}
 }
 
 

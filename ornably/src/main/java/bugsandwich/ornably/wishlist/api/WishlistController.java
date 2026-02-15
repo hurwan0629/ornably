@@ -1,7 +1,6 @@
 package bugsandwich.ornably.wishlist.api;
 
 import java.util.List;
-
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,9 +55,6 @@ public class WishlistController {
 		if(ornablyUser==null) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
-		//찜삭제하기
-//		wishlistSevice.delete(ornablyUser.getAccountPk(),itemPk);
-//		return ResponseEntity.noContent().build();
 		WishlistDTO wishlistDTO = new WishlistDTO();
 		wishlistDTO.setItemPk(itemPk);
 		wishlistDTO.setAccountPk(ornablyUser.getAccountPk());
@@ -83,6 +79,7 @@ public class WishlistController {
 		if(ornablyUser==null) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
+
 		WishlistDTO wishlistDTO = new WishlistDTO();
 		wishlistDTO.setAccountPk(ornablyUser.getAccountPk());
 		wishlistDTO.setItemPk(itemPk);
@@ -105,7 +102,3 @@ public class WishlistController {
 		}
 	}
 }
-	
-	
-	
-

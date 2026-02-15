@@ -2,7 +2,6 @@ package bugsandwich.ornably.item.api;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -180,10 +179,10 @@ public class ItemController {
 
 //  ===================== 관리자 상품 등록 =====================
 	@PreAuthorize("hasRole('ADMIN')")
-
 	@PostMapping(value = "/admin/item", consumes = "multipart/form-data")
 	public ResponseEntity<Map<String, Object>> adminInsertItem(@ModelAttribute ItemDTO itemDTO,
 			@RequestPart("itemImage") MultipartFile itemImage) {
+		
 		
 	    // 0) 필수값 검증
 	    if (itemImage == null || itemImage.isEmpty()) {
@@ -192,6 +191,7 @@ public class ItemController {
 	                "message", "상품 이미지는 필수입니다."
 	        ));
 	    }
+		
         else if(!this.reviewService.checkFileSize(itemImage)) {
             return ResponseEntity.status(400).body(Map.of(
                      "code", "TOO_BIG_IMAGE_SIZE",
@@ -379,6 +379,8 @@ public class ItemController {
 	        @RequestPart("itemImage") MultipartFile itemImage,
 	        @ModelAttribute ItemDTO itemDTO
 	) {
+	    
+
 	    // 0) 필수값 검증
 	    if (itemImage == null || itemImage.isEmpty()) {
 	        return ResponseEntity.badRequest().body(Map.of(

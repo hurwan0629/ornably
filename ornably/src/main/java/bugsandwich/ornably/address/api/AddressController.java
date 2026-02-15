@@ -20,16 +20,17 @@ import bugsandwich.ornably.address.AddressDTO;
 import bugsandwich.ornably.address.service.AddressService;
 import bugsandwich.ornably.security.OrnablyUser;
 
-@RestController // 비동기 처리
+@RestController
 @RequestMapping("/api/user/address") // 주소 관련 모든 요청을 처리
 public class AddressController {
 
 	@Autowired
 	private AddressService addressService;
-
+	
+	
 	// =========로그인한 사용자 배송지 목록 조회=========
 
-	@GetMapping({ "/", "/me" }) // ("/api/user/address")
+	@GetMapping({"/", "/me"}) // ("/api/user/address")
 	public ResponseEntity<?> getMyAddresses(
 			// ResponseEntity HTTP 응답(상태코드,응답 바디,헤더)을 내가 원하는대로 조립할수 잇음
 			@AuthenticationPrincipal OrnablyUser ornablyUser,
@@ -45,6 +46,7 @@ public class AddressController {
 		}
 		// 로그인한 사용자 pk 가져오기
 		Integer accountPk = ornablyUser.getAccountPk();
+		
 
 		// DAO 분기용 condition + 조회 대상 accountPk 세팅
 		addressDTO.setAccountPk(accountPk);// 누구의 주소 목록인지
@@ -52,32 +54,30 @@ public class AddressController {
 
 		// 서비스 호출해서 내 주소목록 가져오기
 		List<AddressDTO> addresses = addressService.getAddressList(addressDTO);
-
-		// 서비스 호출해서 내 주소목록 가져오기
-		List<AddressDTO> addressDatas = addressService.getAddressList(addressDTO);
+		
 
 		// 프론트 요청에 맞게 필요한 값만 골라서 보내주기
 		// DTO를 전부 보내지 않고 회원pk와 컨디션을 빼고 보내주기
-		/*
-		 * List<Map<String,Object>> addressDatas = addresses.stream() .map(a -> Map.of(
-		 * "addressPk", a.getAddressPk(), // 주소 PK "addressName", a.getAddressName(), //
-		 * 배송지명 "addressPostalCode", a.getAddressPostalCode(), // 우편번호 "addressRegion",
-		 * a.getAddressRegion(), // 기본 주소 "addressDetail", a.getAddressDetail(), // 상세
-		 * 주소 "addressIsDefault", a.isAddressIsDefault() // 기본 배송지 여부(boolean 게터) ))
-		 * .collect(Collectors.toList());
-		 */
+//		List<Map<String, Object>> addressDatas = addresses.stream().map(a -> Map.of("addressPk", a.getAddressPk(), // 주소
+//																													// PK
+//				"addressName", a.getAddressName(), // 배송지명
+//				"addressPostalCode", a.getAddressPostalCode(), // 우편번호
+//				"addressRegion", a.getAddressRegion(), // 기본 주소
+//				"addressDetail", a.getAddressDetail(), // 상세 주소
+//				"addressIsDefault", a.isAddressIsDefault() // 기본 배송지 여부(boolean 게터)
+//		)).collect(Collectors.toList());
 
 		// json형태 응답만들기
-		return ResponseEntity.ok(Map.of("addressDatas", addressDatas));
+		return ResponseEntity.ok(Map.of("addressDatas", addresses));
 
 	}
 
 	// =========특정주소삭제===============
 	@DeleteMapping("/{addressPk}")
-	public ResponseEntity<Void> deleteMyAddress(
+	public ResponseEntity<?> deleteMyAddress(
 			// url 경로 값받기
 			@PathVariable Integer addressPk,
-			// @PathVariable url 경로에 있는 값을 꺼내서 컨트롤러 메서드 파라이터에 넣어 주는 어노테이션
+			// @PathVariable //url 경로에 있는 값을 거내서 컨트롤러 메서드 파라이터에 넣어 주는 어노테이션
 			// 로그인 사용자 받기
 			@AuthenticationPrincipal OrnablyUser ornablyUser) {
 		// 로그인 체크(예외상황 대비용)
@@ -85,12 +85,10 @@ public class AddressController {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
 		Integer accountPk = ornablyUser.getAccountPk();
+		
 
 		AddressDTO addressDTO = new AddressDTO();
-		// @ModelAttribute를 사용하지 않는 이유는 @ModelAttribute가 json으로 받는 요청을 파싱해서 DTO에 넣지
-		// 못하기때문이다
-		// 사용하고 싶다면 json이 아닌 폼데이터로 보내야한다
-		// 겟 요청은@ModelAttribute 사용가능
+		// @
 		addressDTO.setAccountPk(accountPk);
 		addressDTO.setAddressPk(addressPk);
 		addressDTO.setCondition("DELETE_ADDRESS_BY_ADDRESS_PK");
@@ -113,7 +111,8 @@ public class AddressController {
 
 	// =========기본배송지로 변경===============
 	@PatchMapping("/{addressPk}")
-	public ResponseEntity<?> patchMyAddress(@PathVariable Integer addressPk, // url에 있는 주소PK
+	public ResponseEntity<?> patchMyAddress(
+			@PathVariable Integer addressPk, // url에 있는 주소PK
 			@AuthenticationPrincipal OrnablyUser ornablyUser // 로그인 사용자
 	) {
 		// 예외방지용 로그인 체크
@@ -137,6 +136,7 @@ public class AddressController {
 
 		// 수정 성공
 		return ResponseEntity.ok().build();
+
 	}
 
 //============배송지등록 ==============
@@ -157,7 +157,7 @@ public class AddressController {
 		addressDTO.setAccountPk(ornablyUser.getAccountPk());
 
 		addressDTO.setCondition("INSERT_NEW_ADDRESS");
-
+		
 		// 서비스 호출(DB insert)
 		if (addressService.insertAddress(addressDTO)) {
 			return ResponseEntity.status(HttpStatus.CREATED).build();

@@ -50,42 +50,42 @@ public class AccountController {
 			return ResponseEntity.badRequest()
 					.body(Map.of("code", "VALIDATION_ERROR", "message", "요청 데이터가 올바르지 않습니다."));
 		}
+
 		// 1. 회원가입 시도
-		accountDTO.setAccountRole("LOCAL"); //현재 회원가입하려는 사용자의 롤값을 회원 DTO에 넣고
-		boolean result = this.accountService.registAccount(accountDTO, addressDTO);//실제 회원가입을 진행한다
-		if (result) {//성공시
+		accountDTO.setAccountRole("LOCAL");
+		boolean result = this.accountService.registAccount(accountDTO, addressDTO);
+		if (result) {
 			return ResponseEntity.status(201).body(Map.of("code", "CREATED", "message", "회원이 정상적으로 생성되었습니다."));
-		} else {//실패시
+		} else {
 			return ResponseEntity.status(500)
 					.body(Map.of("code", "INTERNAL_SERVER_ERROR", "message", "회원 생성 도중 오류가 발생했습니다."));
 		}
 	}
 
 	// 아이디 중복 체크 기능 ( 쓰임 : 회원가입 )
-	@PreAuthorize("anonymous()") // 특정 역할을 가진 사용자만 메서드를 호출할수 있다
+	@PreAuthorize("anonymous()")
 	@GetMapping("/guest/account/check-id")
 	public ResponseEntity<Map<String, Object>> checkIdDuplicate(@ModelAttribute AccountDTO accountDTO) {
 		boolean isDuplicated = accountService.checkIdDuplicate(accountDTO);
-		return ResponseEntity.status(200).body(Map.of("isDuplicated", isDuplicated)); //응답반환 
+
+		return ResponseEntity.status(200).body(Map.of("isDuplicated", isDuplicated));
 	}
 
 	// 소셜 회원가입 기본 데이터 응답 로직
 	@PreAuthorize("hasRole('ONBOARD')")
 	@GetMapping("/onboard/account/onboard")
 	public ResponseEntity<Map<String, Object>> onboardSignUpData(@AuthenticationPrincipal OrnablyUser ornablyUser) {
-
 		AccountDTO accountDTO = new AccountDTO();
-		//소셜로그인시 기본 제공되는 값
+
 		Map<String, Object> map = new java.util.HashMap<>();
 		map.put("accountId", ornablyUser.getAccountId());
 		map.put("accountName", ornablyUser.getAttributes().get("name")==null ? null : String.valueOf(ornablyUser.getAttributes().get("name")));
 		map.put("accountEmail", ornablyUser.getAttributes().get("email")==null ? null : String.valueOf(ornablyUser.getAttributes().get("email")));
 		return ResponseEntity.ok(map);
-
 	}
 
 	// 소셜 회원가입 로직
-	@PreAuthorize("hasRole('ONBOARD')")// 롤 온보드인 사람만 접근가능
+	@PreAuthorize("hasRole('ONBOARD')")
 	@PostMapping("/onboard/account/onboard/signup")
 	public ResponseEntity<Map<String, Object>> checkIdDuplicate(@AuthenticationPrincipal OrnablyUser ornablyUser,
 			@RequestBody OnboardSignupRequest req) {
@@ -101,42 +101,40 @@ public class AccountController {
 		// 1. 회원가입 시도
 		accountDTO.setAccountRole(ornablyUser.getAccountRole());
 		addressDTO.setAddressIsDefault(true);
-
 		boolean result = this.accountService.registAccount(accountDTO, addressDTO);
-		if (!result) {//회원가입 실패시 응답
+		if (!result) {
 			return ResponseEntity.status(500)
 					.body(Map.of("code", "INTERNAL_SERVER_ERROR", "message", "회원 생성 도중 오류가 발생했습니다."));
 		}
-		return ResponseEntity.status(201).body(Map.of("code", "CREATED", "message", "회원이 정상적으로 생성되었습니다.")); //성공시 응답
+		return ResponseEntity.status(201).body(Map.of("code", "CREATED", "message", "회원이 정상적으로 생성되었습니다."));
 	}
-	//마이페이지 요청
-	@PreAuthorize("hasRole('USER')") //롤이 유저인 사용자만 접근가능
+
+	@PreAuthorize("hasRole('USER')")
 	@GetMapping("/user/account/mypage")
 	public ResponseEntity<Map<String, Object>> checkIdDuplicate(@AuthenticationPrincipal OrnablyUser ornablyUser) {
 		AccountDTO accountDTO = new AccountDTO();
-		accountDTO.setAccountPk(ornablyUser.getAccountPk()); //회원 pk에 해당하는 유저
+		accountDTO.setAccountPk(ornablyUser.getAccountPk());
 
-		accountDTO = accountService.getMyPageData(accountDTO);//회원 DTO에 있는 마이페이지 데이터 가져오기
+		accountDTO = accountService.getMyPageData(accountDTO);
 
-		return ResponseEntity.status(200).body(Map.of("accountData", accountDTO));//응답반환
+		return ResponseEntity.status(200).body(Map.of("accountData", accountDTO));
 	}
-	//비밀번호 체크
-	@PreAuthorize("hasRole('USER')")// 롤이 유저인 사용자만 접근 가능
+
+	@PreAuthorize("hasRole('USER')")
 	@PostMapping("/user/account/check-password")
 	public ResponseEntity<Map<String, Object>> checkPassword(@RequestBody AccountDTO accountDTO,
 			@AuthenticationPrincipal OrnablyUser ornablyUser) {
 		boolean correct = this.PasswordEncoder.matches(accountDTO.getAccountPassword(), ornablyUser.getPassword());
-		//회원DTO에 있는 비밀번호와 오너블리 유저에 있는 비밀번호를 패스워드인코더로 맞는지 확인한다
 
-		return ResponseEntity.status(200).body(Map.of("correct", correct));//응답반환
+		return ResponseEntity.status(200).body(Map.of("correct", correct));
 	}
-	//회원 탈퇴
-	@PreAuthorize("hasRole('USER')")// 롤이 유저인 사용자만 접근 가능
+
+	@PreAuthorize("hasRole('USER')")
 	@DeleteMapping("/user/account/withdraw")
 	public ResponseEntity<Map<String, Object>> accountWithdraw(
 			@AuthenticationPrincipal OrnablyUser ornablyUser) {
 		AccountDTO accountDTO = new AccountDTO();
-		accountDTO.setAccountPk(ornablyUser.getAccountPk()); //오너블리 유저에있는회원 pk를 회원DTO에 넣기
+		accountDTO.setAccountPk(ornablyUser.getAccountPk());
 		// 1. 회원 주소 싹다 지우고
 		// 2. 장바구니 삭제
 		// 3. 찜 목록 삭제
@@ -197,7 +195,7 @@ public class AccountController {
 
 		// 회원이 쓴 리뷰 받아오기
 		List<ReviewDTO> reviewDatas = reviewService.getReviewByAccountPk(accountPk);
-	
+		
 		Map<String, Object> body = new HashMap<>();
 		body.put("accountPk", accountDTO.getAccountPk());
 		body.put("accountId", accountDTO.getAccountId());

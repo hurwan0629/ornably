@@ -73,9 +73,8 @@ public class AddressRepository {
                 addressDTO.getAccountPk()
             );
 		}
-		System.out.println("[로그][경고] AddressDAO의 selectAll_condition 없음");
-		// 조건이 없으면 빈 리스트 반환
-	    return java.util.Collections.emptyList();
+		
+		return null;
 	}
 
 	public AddressDTO selectOne(AddressDTO addressDTO) {

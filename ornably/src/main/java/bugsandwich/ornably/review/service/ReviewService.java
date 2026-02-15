@@ -16,10 +16,10 @@ public interface ReviewService {
 	List<ReviewDTO> getReviewDatasByReviewPkAdmin(Integer itemPk);
 	ReviewDTO getReviewDataByReviewPk(Integer reviewPk);
 	ReviewDTO getReviewMaxPageByItemPkAndDataCount(ReviewDTO reviewDTO);
-
+	
 	// 작성 기능
-	boolean registReview(ReviewDTO reviewDTO); //리뷰작성
-	boolean updateReview(ReviewDTO reviewDTO); //리뷰수정
+	boolean registReview(ReviewDTO reviewDTO);
+	boolean updateReview(ReviewDTO reviewDTO);
 	
 	// 삭제 기능
 	boolean deleteReviewByReviewPk(Integer reviewPk);
@@ -28,7 +28,8 @@ public interface ReviewService {
 	boolean checkFileSize(MultipartFile file);
 	boolean checkFileExtention(MultipartFile file);
 	public String saveImageAndGetUrl(String resourcePath, String prefix, MultipartFile file) throws IOException;
-		
+	
+	
 	// getter
 	public Set<String> getAllowedExtentionSet();
 	public Long getAllowedImageMaxBytes();

@@ -30,10 +30,9 @@ public class AccountDTO {
 	private String accountVerificationCode;	// 전화번호 인증 키(요청 받을때 사용)
 	
 	// [ 관리자용 멤버 변수 ]
-	private LocalDate accountJoinStartDate;   	// 가입일 시작
-	private LocalDate accountJoinEndDate;     	// 가입일 종료
-	private Integer accountTotalAmountMin;    	// 총 구매금액 최소
-	private Integer accountTotalAmountMax;    	// 총 구매금액 최대
-	private Integer accountTotalAmount;			// 총 구매 금액
-	
+	private Integer accountTotalAmountMin;
+	private Integer accountTotalAmountMax;
+	private Integer accountTotalAmount;
+	private LocalDate accountJoinEndDate;
+	private LocalDate accountJoinStartDate;
 }

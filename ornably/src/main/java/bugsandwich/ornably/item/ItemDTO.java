@@ -24,7 +24,7 @@ public class ItemDTO {
 	
 	// [ 추가 멤버 변수 ]
 	private String condition; 				// 분기점
-	private Integer accountPk;				// 회원 고유 번호 (PK)
+	private Integer accountPk;				// 회원 PK
 	private Boolean itemWishlistToggle; 	// 찜 여부
 	private Integer cartCount;				// 장바구니에 담긴 상품 총 수량
 	
@@ -43,8 +43,8 @@ public class ItemDTO {
 	
 	// [ 요청용 - API 엔트포인트 ]
 	private String search;				// 검색어
-	private String category;			// 카테고리 필터(all·tree·light)
-	private String sort;				// 정렬 조건(default·popular·new·new-reverse·discount)
+	private String category;			// all·tree·light
+	private String sort;				// default·popular·new·new-reverse·discount
 	private Integer page;				// 1부터
 	private Integer dataCount;			// 페이지당 개수
 	
@@ -63,6 +63,6 @@ public class ItemDTO {
 	
 	
 	// [ json 응답 ]
-	private List<ItemDTO> itemDatas;	// 상품 목록 데이터
-	private Integer maxPages;			// 전체 페이지 수
+	private List<ItemDTO> itemDatas;
+	private Integer maxPages;
 }

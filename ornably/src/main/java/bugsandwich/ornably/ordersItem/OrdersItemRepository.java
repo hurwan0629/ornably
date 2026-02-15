@@ -30,7 +30,6 @@ public class OrdersItemRepository {
 		    "INNER JOIN ITEM I ON ORD.ITEM_PK = I.ITEM_PK " +
 		    "WHERE ORD.ORDERS_PK = ? " +
 		    "ORDER BY ORD.ORDERS_ITEM_PK";
-
 					
 	// 주문 상세 등록
 	private static final String INSERT_ORDERS_ITEM = 
@@ -60,8 +59,8 @@ public class OrdersItemRepository {
 				ordersItemDTO.getOrdersPk()
 			);
 		}
-		// 조건이 없으면 빈 리스트 반환
-	    return java.util.Collections.emptyList();
+		
+		return null;
 	}
 	
 
@@ -115,6 +114,3 @@ public class OrdersItemRepository {
 		return result > 0;
 	}
 }
-
-
-

@@ -41,10 +41,9 @@ public class ReviewServiceImpl implements ReviewService {
 	// 허용되는 이미지 크기
 	private static final Long MAX_BYTES = 10L * 1024 * 1024; // 10MB
 
-	//사용자pk로 리뷰 조회
 	// accountPk를 받아서 reviewDatas 반환하는 메서드
 	@Override
-	public List<ReviewDTO> getReviewByAccountPk(Integer accountPk) { 
+	public List<ReviewDTO> getReviewByAccountPk(Integer accountPk) {
 		ReviewDTO reviewDTO = new ReviewDTO();
 		reviewDTO.setCondition("SELECT_ALL_REVIEW_BY_ACCOUNT_PK");
 		reviewDTO.setAccountPk(accountPk);
@@ -52,19 +51,16 @@ public class ReviewServiceImpl implements ReviewService {
 		return this.reviewRepository.selectAll(reviewDTO);
 	}
 
-	//상품pk로 리뷰조회
 	// page / dataCount / itemPk 들어있는 reviewDTO를 인자로 받아서
 	// 상품 상세페이지에 쓰일 reveiwDatas를 반환하는 메서드
 	@Override
 	public List<ReviewDTO> getReviewByItemPk(ReviewDTO reviewDTO) {
-		
-		//페이지네이션
+
 		// LIMIT [dataCount] OFFSET ? 를 주기 위한 데이터
 		reviewDTO.setStartReviewNum((reviewDTO.getPage() - 1) * reviewDTO.getDataCount() + 1);
 		reviewDTO.setEndReviewNum((reviewDTO.getPage()) * reviewDTO.getDataCount());
 		reviewDTO.setCondition("SELECT_ALL_REVIEW_PAGENATION_BY_ITEM_PK");
-		
-		//응답반환
+
 		return this.reviewRepository.selectAll(reviewDTO);
 	}
 	
@@ -111,7 +107,7 @@ public class ReviewServiceImpl implements ReviewService {
 	public boolean registReview(ReviewDTO reviewDTO) {
 		// 2) 이미지 저장 + URL 생성
 		MultipartFile image = reviewDTO.getReviewImage();
-		// 사진이 존재하면 저장후 저장된 경로 문자열을 DTO에 넣어주기
+		// 사진이 존재하면 저장후 저장된 경로 문자열을 DTO에 너허어주기
 		if (image != null && !image.isEmpty()) {
 			
 			try {
@@ -143,8 +139,8 @@ public class ReviewServiceImpl implements ReviewService {
 		
 		Files.createDirectories(saveDir);
 		// 파일명 충돌 방지: 시간 + UUID + 확장자
-				String extention = getExtentionFromFile(file);
-		//2) 현재 시간 문자열
+		
+		String extention = getExtentionFromFile(file);
 		String timeStamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
 		String imageName = timeStamp + "_" + UUID.randomUUID().toString().replace("-", "") + "." + extention;
 
@@ -152,12 +148,11 @@ public class ReviewServiceImpl implements ReviewService {
 		Path target = saveDir.resolve(imageName).normalize();
 
 		// 저장
-		//REPLACE_EXISTING: 같은 이름이 있으면 덮어쓰기(근데 UUID라 충돌 가능성 매우 낮음)
 		Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
 
 		return this.serverOrigin + prefix + imageName; // "http://loaclhost:8088/images/item/" + imageName
 	}
-//에러 응답용 맵 만들 어서 에러 코드 호출
+
 	private static Map<String, Object> err(String code, String message) {
 		return Map.of("code", code, "message", message);
 	}
@@ -166,9 +161,9 @@ public class ReviewServiceImpl implements ReviewService {
 	@Override
 	public boolean checkFileSize(MultipartFile file) {
 		if (file.getSize() > this.MAX_BYTES) {
-			return false;//너무 크면 실패
+			return false;
 		}
-		return true;//허용크기면 성공
+		return true;
 	}
 
 	// 파일 이미지 확장자가 정상인지 확인하는 메서드
@@ -176,7 +171,9 @@ public class ReviewServiceImpl implements ReviewService {
 	public boolean checkFileExtention(MultipartFile file) {
 		// 확장자 문자열 뽑아내기
 		String extention = this.getExtentionFromFile(file);
-//허용확장자 목록에 없으면 실패
+		
+		
+		
 		if (!this.ALLOWED_EXTENTION.contains(extention)) {
 			return false;
 		}
@@ -186,21 +183,14 @@ public class ReviewServiceImpl implements ReviewService {
 	// 서비스 내부에서 사용하는 확장자 뽑아주는 함수. 없으면 "" 을 반환
 	private String getExtentionFromFile(MultipartFile file) {
 		// 확장자 문자열 뽑아내기
-		//원본 파일명 가져오기
-		 //getOriginalFilename()이 null일 수 있으므로 ""로 대체
-	    // cleanPath: 경로 문자(\, / 등) 섞인 입력을 정리해서 안전하게 만듦
 		String original = StringUtils.cleanPath(file.getOriginalFilename() == null ? "" : file.getOriginalFilename());
 
 		// 이미지 확장자 소문자 형태
-		//마지막 "."의 위치를 찾아서 확장자 분리
 		int idx = original.lastIndexOf('.');
-		
 		String extention = null;
 		if (idx < 0 || idx == original.length() - 1) {
-			//"."이 없거나 '.'으로 끝나면 확장자가 없다고 판단
 			extention = "";
 		} else {
-			//"." 뒤의 문자열을 확장자고 사용하고 소문자로 통일
 			extention = original.substring(idx + 1).toLowerCase();
 		}
 		return extention;

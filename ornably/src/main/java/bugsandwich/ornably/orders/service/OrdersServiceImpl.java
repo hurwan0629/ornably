@@ -72,15 +72,26 @@ public class OrdersServiceImpl implements OrdersService{
         if (cartItems.isEmpty()) throw new RuntimeException("결제할 상품이 없습니다."); // 트랜잭션 예외 던지기
 		
         
+        // 1.5) 재고 확인
+        for (CartDTO c : cartItems) {
+        	ItemDTO itemDTO = new ItemDTO();
+	        itemDTO.setItemPk(c.getItemPk());
+	        itemDTO.setItemStock(c.getCartCount()); // itemDTO =>  추가함
+	        itemDTO.setCondition("ITEM_STOCK_ENOUGH");
+	        if (itemRepository.selectOne(itemDTO)==null) {
+	        	return false;
+	        }
+        }
+        
         // 2) 재고차감 
         for (CartDTO c : cartItems) {
-            ItemDTO itemDTO = new ItemDTO();
-            itemDTO.setItemPk(c.getItemPk());
-            itemDTO.setCartCount(c.getCartCount()); // itemDTO =>  추가함
-            itemDTO.setCondition("BUY_ITEM");
-            if (!itemRepository.update(itemDTO)) {
-                throw new RuntimeException("재고 부족"); // 재고 - 막는 수정 필요 -> 쿼리 수정 완료
-            }
+        	 // 1) 재고차감 
+	        ItemDTO itemDTO = new ItemDTO();
+	        itemDTO.setItemPk(c.getItemPk());
+	        itemDTO.setItemStock(c.getCartCount()); // itemDTO =>  추가함
+	        itemDTO.setCondition("ITEM_STOCK_ENOUGH");
+	        itemDTO.setCondition("BUY_ITEM");
+        	itemRepository.update(itemDTO);
         }
         
         // 3) 주문내역 생성
@@ -129,9 +140,14 @@ public class OrdersServiceImpl implements OrdersService{
 	        ItemDTO itemDTO = new ItemDTO();
 	        itemDTO.setItemPk(ordersDTO.getItemPk());
 	        itemDTO.setItemStock(ordersDTO.getItemCount()); // itemDTO =>  추가함
-	        itemDTO.setCondition("BUY_ITEM");
-	        if (!itemRepository.update(itemDTO)) {
-	           throw new RuntimeException("재고 부족"); // 재고 - 막는 수정 필요 -> 쿼리 수정 완료
+	        itemDTO.setCondition("ITEM_STOCK_ENOUGH");
+	        if (itemRepository.selectOne(itemDTO)!=null) {
+	        	itemDTO.setCondition("BUY_ITEM");
+	        	itemRepository.update(itemDTO);
+	           //throw new RuntimeException("재고 부족"); // 재고 - 막는 수정 필요 -> 쿼리 수정 완료
+	        }
+	        else {
+	        	return false;
 	        }
 	        
 	        // 2) 주문내역 생성

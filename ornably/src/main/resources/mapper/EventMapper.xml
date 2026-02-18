@@ -35,6 +35,13 @@
 	    ORDER BY EVENT_START_DATE DESC
 	</select>
 	
+	<!-- 가장 최근 이벤트 pk 추출 -->
+	<select id="selectRecentEventPk" resultType="bugsandwich.ornably.event.EventDTO">
+		SELECT
+			MAX(EVENT_PK)		  AS eventPk
+		FROM EVENT
+	</select>
+	
 	<!-- 현재 진행중인 이벤트 조회 -->
 	<select id="selectAllProgressEvent" resultType="bugsandwich.ornably.event.EventDTO">
 		SELECT

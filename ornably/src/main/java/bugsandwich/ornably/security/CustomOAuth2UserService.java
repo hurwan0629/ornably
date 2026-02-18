@@ -126,7 +126,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 			//카카오 account안에 프로필/이메일 이 들어가는경우
 			String email = null;
-			String name = "kakaoUser";
+			String name = null;
 
 			Object kakaoAccountObj = attributes.get("kakao_account");
 			if(kakaoAccountObj instanceof Map<?,?> kakaoAccount){
@@ -156,15 +156,44 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 			String googleSub = String.valueOf(attributes.get("sub"));
 
 			//구글은 이름과 이메일이 최상위에 온다
-			String name = attributes.get("name") != null ? String.valueOf(attributes.get("name")):"googleUser";
+			String name = attributes.get("name") != null ? String.valueOf(attributes.get("name")): null;
 			String email = attributes.get("email")!= null ? String.valueOf(attributes.get("email")): null;
 
 			// 소셜로그인 사용자 정보 반환
 			return new SocialUserInfo("google",googleSub,name,email);
 		}
+		
+		//====== naver =======
+		if ("naver".equals(registrationId)) {
+
+		    // 네이버는 attributes 최상위에 response라는 Map이 들어있음
+		    Object responseObj = attributes.get("response");
+
+		    if (responseObj instanceof Map<?, ?> response) {
+
+		        // 네이버 고유 ID (필수)
+		        String naverId = response.get("id") != null
+		                ? String.valueOf(response.get("id"))
+		                : "unknown";
+
+		        // 이름/이메일은 동의항목에 따라 null일 수 있음
+		        String name = response.get("name") != null
+		                ? String.valueOf(response.get("name"))
+		                : null;
+
+		        String email = response.get("email") != null
+		                ? String.valueOf(response.get("email"))
+		                : null;
+
+		        return new SocialUserInfo("naver", naverId, name, email);
+		    }
+
+		    // response가 없으면 fallback
+		    return new SocialUserInfo("naver", "unknown", null , null);
+		}
 
 		// 둘다 아니면 기본값 반환(리턴 누락방지)
-		return new SocialUserInfo(registrationId,"unknown","socialUser",null);
+		return new SocialUserInfo(registrationId,"unknown", null, null);
 
 	}// ✅ extract 메서드 끝
 

@@ -229,6 +229,11 @@ public class ItemRepository {
 		    "WHERE W.ACCOUNT_PK = ?";
 
 	
+	// 상품 존재 여부 확인
+	private static final String SELECT_ONE_CHECK_ITEM_EXISTS =
+			"SELECT ITEM_PK AS itemPk " +
+			"FROM ITEM WHERE ITEM_PK = ?";
+	
 
 	// 상품 상세 보기(사용자용)
 	// 사용자 화면 기준 : 상품 기본 정보, 할인율, 할인가, 평균 별점, 내 위시 여부 
@@ -578,7 +583,7 @@ public class ItemRepository {
 	    // 재고 체크
 	    if ("ITEM_STOCK_ENOUGH".equals(itemDTO.getCondition())) {
 						
-	    	return jdbcTemplate.queryForObject(
+	    	List<ItemDTO> list =  jdbcTemplate.query(
                 ITEM_STOCK_ENOUGH,
                 (rs, rowNum) -> {
                     ItemDTO data = new ItemDTO();
@@ -589,6 +594,7 @@ public class ItemRepository {
                 itemDTO.getItemPk(), 
                 itemDTO.getItemStock()
             );
+	    	return list.isEmpty() ? null : list.get(0);
 	    } 
 	    
 	    // 전체 상품 개수
@@ -612,10 +618,19 @@ public class ItemRepository {
 	        );
 	    }	  
 	    
+	    else if ("SELECT_ONE_CHECK_ITEM_EXISTS".equals(itemDTO.getCondition())) {
+	    	List<ItemDTO> list = jdbcTemplate.query(
+	    			SELECT_ONE_CHECK_ITEM_EXISTS,
+	                new BeanPropertyRowMapper<>(ItemDTO.class),
+	                itemDTO.getItemPk()
+	            );
+		    	return list.isEmpty() ? null : list.get(0);
+	    }
+	    
         // 상품 상세 보기
 	    else if ("SELECT_ONE_ITEM_DETAIL".equals(itemDTO.getCondition())) {
 	    		    	
-	    	return jdbcTemplate.queryForObject(
+	    	List<ItemDTO> list = jdbcTemplate.query(
 	    		SELECT_ONE_ITEM_DETAIL,
                 new BeanPropertyRowMapper<>(ItemDTO.class),
                 itemDTO.getAccountPk(),  // 1. CTE용 ACCOUNT_PK (acct CTE에서 사용)
@@ -623,8 +638,8 @@ public class ItemRepository {
                 itemDTO.getAccountPk(),  // 2️. 이벤트 조건용 로그인 여부 (NULL이면 비로그인)
                 itemDTO.getAccountPk(),  // 3️. 이벤트 조건용 로그인 여부 (NOT NULL이면 로그인)
                 itemDTO.getAccountPk()	 // 4️, WISHLIST JOIN용 로그인 사용자 PK
-
             );
+	    	return list.isEmpty() ? null : list.get(0);
 	    }
 	    
 	    // 찜 여부 

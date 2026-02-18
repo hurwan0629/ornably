@@ -49,8 +49,11 @@ public class ItemController {
 			@AuthenticationPrincipal OrnablyUser ornablyUser) {
 		// ResponseBody면 항상 200OK 반환
 		// HTTP 응답을 컨트롤 하기 위해 ResponseEntity 사용
-
-		
+		Integer accountPk = null;
+		if(ornablyUser!=null) {
+			accountPk = ornablyUser.getAccountPk();
+		}
+		itemDTO.setAccountPk(accountPk);
 
 		// 기본값 보정 ( 1페이지 기본값 )
 		if (itemDTO.getPage() == null || itemDTO.getPage() < 1) {
@@ -102,8 +105,20 @@ public class ItemController {
 
 //  ===================== 상품 상세 보기 =====================
 	@GetMapping("/all/item/{itemPk}")
-	public ResponseEntity<?> getItemDetail(@PathVariable Integer itemPk, ItemDTO itemDTO) {
+	public ResponseEntity<?> getItemDetail(@PathVariable Integer itemPk, ItemDTO itemDTO,
+			@AuthenticationPrincipal OrnablyUser ornablyUser) {
+		ItemDTO check = new ItemDTO();
+		check.setItemPk(itemPk);
+		check.setCondition("SELECT_ONE_CHECK_ITEM_EXISTS");
+		if(itemService.getItem(check)==null) {
+			return ResponseEntity.notFound().build();
+		}
 		
+		Integer accountPk = null;
+		if(ornablyUser!=null) {
+			accountPk = ornablyUser.getAccountPk();
+		}
+		itemDTO.setAccountPk(accountPk);
 		itemDTO.setItemPk(itemPk);
 		itemDTO.setCondition("SELECT_ONE_ITEM_DETAIL");
 		ItemDTO item = itemService.getItem(itemDTO);

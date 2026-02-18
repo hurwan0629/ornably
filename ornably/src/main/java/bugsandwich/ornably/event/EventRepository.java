@@ -35,8 +35,8 @@ public class EventRepository {
 		return list;
 	}
 	
-	private EventDTO selectOne(EventDTO eventDTO) {
-		return null;
+	public EventDTO selectOne(EventDTO eventDTO) {
+		return sqlSession.selectOne(NAMESPACE + "selectRecentEventPk");
 	}
 	
 	public boolean insert(EventDTO eventDTO) {

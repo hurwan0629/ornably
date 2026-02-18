@@ -75,8 +75,6 @@ public class OrdersController {
 	// 결제 검증 및 DB 저장 로직
 	private ResponseEntity<Map<String, Object>> processPayment(OrdersDTO ordersDTO, OrnablyUser ornablyUser,
 			Function<OrdersDTO, Boolean> transactional) {
-		
-		System.out.println("controller 79: " + ordersDTO);
 		// 1) 필수값 검증
 		if (ordersDTO.getAddressPk() == null || ordersDTO.getOrdersImportUid() == null) {
 			return ResponseEntity.status(400).body(Map.of("code", "DATA_NULL", "message", "요청 값이 올바르지 않습니다."));
@@ -109,11 +107,10 @@ public class OrdersController {
 		// 총 결제 금액 검증 -> 주문내역 없어서 구현 x
 
 		// 6) 트랜잭션 실행(여기만 달라짐)
-		System.out.println("1. controller: ["+ordersDTO+"]");
 		boolean ok = transactional.apply(ordersDTO);
 
 		if (!ok) {
-			return ResponseEntity.status(404).body(Map.of("code", "PAYMENT_FAILED", "message", "결제가 실패되었습니다."));
+			return ResponseEntity.status(422).body(Map.of("code", "PAYMENT_FAILED", "message", "상품의 재고가 부족합니다."));
 		}
 		return ResponseEntity.ok(Map.of("message", ok));
 	}

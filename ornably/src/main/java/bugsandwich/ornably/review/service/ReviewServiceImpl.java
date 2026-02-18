@@ -150,7 +150,7 @@ public class ReviewServiceImpl implements ReviewService {
 		// 저장
 		Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
 
-		return this.serverOrigin + prefix + imageName; // "http://loaclhost:8088/images/item/" + imageName
+		return this.serverOrigin + prefix + imageName; // "http://loaclhost:8088/images/review/" + imageName
 	}
 
 	private static Map<String, Object> err(String code, String message) {

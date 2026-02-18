@@ -54,11 +54,10 @@ public class SolapiService {
         message.setTo(targetPhone);
         message.setText(text);
 
+        // 만든 메시지 객체 보내기
         MultipleDetailMessageSentResponse response;
 		try {
-			System.out.println("1");
 			response = messageService.send(message, null);
-			System.out.println("2");
 		} catch (SolapiMessageNotReceivedException e) {
 			e.printStackTrace();
 		} catch (SolapiEmptyResponseException e) {
@@ -76,6 +75,7 @@ public class SolapiService {
 	}
 	
 	public boolean validateCode(String code, String key) {
+		// 키를 통해 code와 비교하여 일치하는지 반환하기
 		String redisOptKey = this.getOptKey(key);
 		
 		String redisCode = redisTemplate.opsForValue().get(redisOptKey);

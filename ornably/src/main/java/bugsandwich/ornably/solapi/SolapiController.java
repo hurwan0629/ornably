@@ -29,12 +29,14 @@ public class SolapiController {
 		
 		String accountKey = java.util.UUID.randomUUID().toString();
 		
-		if (true) {
-			return ResponseEntity.ok(
-					Map.of( "success", true,
-							"accountKey", accountKey));
-		}
+		// 솔라피 토큰 안쓰고 무조건 허용 코드
+//		if (true) {
+//			return ResponseEntity.ok(
+//					Map.of( "success", true,
+//							"accountKey", accountKey));
+//		}
 		
+		// 사용자의 인증번호 확인 요청에 대한 본인 확인을 위한 accountKey와 함께 생성하여 응답해주기.
 		if (this.solapiService.sendCodeMessage(accountDTO.getAccountPhone(), accountKey)) {
 			return ResponseEntity.ok(
 					Map.of( "success", true,
@@ -52,11 +54,13 @@ public class SolapiController {
 	public ResponseEntity<?> checkSolapiCodeLocal(
 			@RequestBody AccountDTO accountDTO
 			) {
-		if(true) {
-			return ResponseEntity.ok(
-					Map.of("success", true));
-		}
 		
+		// 솔라피 토큰 안쓰고 무조건 허용 코드
+//		if(true) {
+//			return ResponseEntity.ok(
+//					Map.of("success", true));
+//		}
+//		
 		if(this.solapiService.validateCode(accountDTO.getAccountVerificationCode(), accountDTO.getAccountKey())) {
 			return ResponseEntity.ok(
 					Map.of("success", true));

@@ -31,8 +31,7 @@ public class EventServiceImpl implements EventService{
 
 	@Override
 	public EventDTO getEvent(EventDTO eventDTO) {
-//		 return this.eventRepository.selectOne(eventDTO);
-		return null;
+		 return this.eventRepository.selectOne(eventDTO);
 	}
 
 	@Override

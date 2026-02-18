@@ -173,6 +173,7 @@ public class EventController {
            ));
            
        } catch (Exception e) { // JSON 변환 실패 / 파일 저장 실패 시 예외 처리
+    	   e.printStackTrace();
            return ResponseEntity.status(400).body(Map.of(
                    "code", "BAD_REQUEST",
                    "message", "요청 데이터가 올바르지 않습니다."

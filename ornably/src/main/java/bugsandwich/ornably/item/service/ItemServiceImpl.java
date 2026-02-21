@@ -7,10 +7,8 @@ import org.springframework.stereotype.Service;
 
 import bugsandwich.ornably.item.ItemDTO;
 import bugsandwich.ornably.item.ItemRepository;
-import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
 
 	@Autowired

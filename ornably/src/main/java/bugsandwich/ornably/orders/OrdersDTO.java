@@ -26,4 +26,9 @@ public class OrdersDTO {
 	private Integer addressPk; 				// 배송지 고유 번호 (FK)
 	private Integer ordersTotalAmount; 		// 주문 총 가격
 	private String ordersSignatureItemName; // 주문내역 대표 아이템 이름
+	private String itemImageUrl;			// 대표 상품 이미지 경로
+	private Integer ordersItemCount;		// 총 상품 개수
+	private Integer itemCount;
+	private Integer itemPrice;
+	private Integer itemPk;
 }

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="ConnectLog">
+  	
+  	<!-- 새 접속 기록 추가 -->
+  	<insert id="insert" parameterType="bugsandwich.ornably.connectLog.ConnectLogDTO">
+  		INSERT INTO CONNECT_LOG (ACCOUNT_PK, CONNECT_IP, CONNECT_DEVICE)
+		VALUES (#{accountPk}, #{connectIp}, #{connectDevice})
+  	</insert>
+  	
+  	<!-- 사용자 로그 전체 삭제 -->
+  	<delete id="delete" parameterType="bugsandwich.ornably.connectLog.ConnectLogDTO">
+  		DELETE FROM CONNECT_LOG
+		WHERE ACCOUNT_PK = #{accountPk}
+  	</delete>
+  	
+  	<!-- 특정 사용자 로그 최신 접속 1건 조회 -->
+  	<select id="selectOne" parameterType="bugsandwich.ornably.connectLog.ConnectLogDTO" resultType="bugsandwich.ornably.connectLog.ConnectLogDTO">
+  		SELECT * FROM CONNECT_LOG
+	    WHERE ACCOUNT_PK = #{accountPk}
+	    ORDER BY CONNECT_DATE DESC
+	    LIMIT 1
+  	</select>
+  	
+  	<!-- 특정 사용자 로그 전체 조회 -->
+  	<select id="selectAll" parameterType="bugsandwich.ornably.connectLog.ConnectLogDTO" resultType="bugsandwich.ornably.connectLog.ConnectLogDTO">
+  		SELECT *
+		FROM CONNECT_LOG
+		WHERE ACCOUNT_PK = #{accountPk}
+		ORDER BY CONNECT_DATE DESC
+  	</select>
+  	
+  </mapper>
+
+  

@@ -9,19 +9,21 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 public class LogAdvice {
-	@Before("controllerMethod()")
+	@Before("bugsandwich.ornably.common.PointcutCommon.controllerMethod()")
 	public void logMethodBefore(JoinPoint jp) {
-		System.out.println("[메서드 시작] "+jp.getSignature());
 		
+		System.out.println("[요청 받음 메서드] " + jp.getSignature().toString());
 		Object[] args = jp.getArgs();
 		for(Object arg:args) {
-			System.out.println("인자: ["+arg+"]");
+			System.out.println(arg);
 		}
+		System.out.println("[요청 받음 메서드 끝]");
 	}
 	
-	@AfterReturning(pointcut="controllerMethod()", returning="result")
+	@AfterReturning(pointcut="bugsandwich.ornably.common.PointcutCommon.controllerMethod()", returning="result")
 	public void logMethodAfter(JoinPoint jp, Object result) {
-		System.out.println("[메서드 종료] " + jp.getSignature());
-		System.out.println("반환값: ["+result+"]");
+		System.out.println("[응답 발송 메서드] " + jp.getSignature().toString());
+		System.out.println("결과: ["+result+"]");
+		System.out.println("[응답 발송 메서드 끝]");
 	}
 }

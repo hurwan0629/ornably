@@ -13,7 +13,7 @@ public class AddressDTO {
 	private Integer addressPk;			// 주소 고유 번호 (Pk)
 	private Integer accountPk;			// 회원 고유 번호 (Fk)
 	private String addressName;			// 배송지명
-	private boolean addressIsDefault;	// 기본 배송지 여부
+	private Boolean addressIsDefault;	// 기본 배송지 여부
 	private String addressPostalCode;	// 우편번호
 	private String addressRegion;		// 기본 주소
 	private String addressDetail;		// 상세 주소

@@ -4,18 +4,20 @@ import java.util.List;
 
 import bugsandwich.ornably.account.AccountDTO;
 import bugsandwich.ornably.address.AddressDTO;
-import bugsandwich.ornably.review.ReviewDTO;
 
 public interface AccountService {
+
 	boolean registAccount(AccountDTO accountDTO, AddressDTO addressDTO);
-	
+
 	boolean checkIdDuplicate(AccountDTO accountDTO);
+
+	AccountDTO getMyPageData(AccountDTO accountDTO);
+
+	boolean accountWithdraw(AccountDTO accountDTO);
+
+	List<AccountDTO> getAdminSearchAccount(AccountDTO accountDTO);
+	List<AccountDTO> getEmailDatas();
 	
-	public AccountDTO getMyPageData(AccountDTO accountDTO);
+	AccountDTO getAdminAccountInfo(Integer accountPk);
 	
-	public boolean accountWithdraw(AccountDTO accountDTO);
-	
-	public List<AccountDTO> getAdminSearchAccount(AccountDTO accountDTO);
-	
-	public AccountDTO getAdminAccountInfo(Integer accountPk);
 }

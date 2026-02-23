@@ -50,9 +50,9 @@ Redis, OAuth2, 결제 API, 이메일 API 등의 민감 정보는 개인 환경�
 - React <img src="https://i.namu.wiki/i/pX2jEU81wh0bEgYc4debA8wX5HCOKPHF0K0mPpqY-wK-dJraaUUqR7CwBodmbFrbbFP3hWnSr4RKtun-am04UA.webp" width="20" height="20">
 
 ### Backend
-- Java 17 <img src="https://education.oracle.com/file/general/p-80-java.png" width="30" height="30">
+- Java 17 <img src="https://images.vexels.com/media/users/3/166401/isolated/preview/b82aa7ac3f736dd78570dd3fa3fa9e24-java-programming-language-icon.png" width="30" height="30">
 - Spring Boot 3.2.2 <img src="https://blog.kakaocdn.net/dna/c7hcwQ/btru8Hqw7v1/AAAAAAAAAAAAAAAAAAAAACVdL4zXgcw0hj6e-4Mx1lLyLmDDHKIXQL_anz10XkFt/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1772290799&allow_ip=&allow_referer=&signature=WdKBkgwIdNWPuaTpPQT9aHT5vtc%3D" width="20" height="20">
-- MyBatis <img src="https://downloads.marketplace.jetbrains.com/files/22457/575976/icon/default.png" width="20" height="20">
+- MyBatis <img src="https://www.tc-web.it/wp-content/uploads/2019/12/mybatis-logo.jpg" width="20" height="20">
 - Spring Security<img src="https://blog.kakaocdn.net/dna/b5sGlw/btrSI8ZXQDq/AAAAAAAAAAAAAAAAAAAAAI2KXHb6WvryGUHnOLRssm5PM5XMWE_I2eBT6a3A2lAd/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1772290799&allow_ip=&allow_referer=&signature=tryDANTmxAZztWHeZGPUOWfNZPA%3D" width="20" height="20">
 
 ### Database
@@ -61,7 +61,7 @@ Redis, OAuth2, 결제 API, 이메일 API 등의 민감 정보는 개인 환경�
 
 ### 외부 API
 - PortOne <img src="https://res.cloudinary.com/postman/image/upload/t_user_profile_300/v1694934472/user/qx9ci1e09v1amyvickpz" width="20" height="20"> (결제) 
-- Solapi <img src="https://solapi-content.s3.ap-northeast-2.amazonaws.com/images/2023/10/favicon_60-1.png" width="20" height="20">(문자)
+- Solapi <img src="https://solapi-content.s3.ap-northeast-2.amazonaws.com/images/2023/10/favicon_60-1.png" width="20" height="20">(SMS)
 - Brevo <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzivCFLO2kUG8Sse_uHUd7PMTKfLzg4yinbg&s" width="20" height="20"> (이메일)
 - OAuth2 <img src="https://w7.pngwing.com/pngs/172/389/png-transparent-oauth-hd-logo-thumbnail.png" width="20" height="20">(Google, Kakao, Naver)
 

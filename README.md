@@ -210,6 +210,9 @@ spring.security.oauth2.client.provider.naver.user-name-attribute=response
 
 ---
 
-## 📌 저작권
+## 📌 블로그
 
-본 프로젝트는 학습 및 포트폴리오 목적으로 제작되었습니다.
+- 김유진: [유진개발일기](https://bobaejin.tistory.com/)
+- 변희인: [태어난 김에 개발 일주](https://blog.naver.com/qusakfdl111)
+- 정송이: [꼬부기의 코딩수련소](https://kkobug2.tistory.com/)
+- 허완: [태어났더니 개발이 너무 좋은 건에 대하여](https://www.notion.so/272117a41d4d80b1b0faffde0630da77?v=272117a41d4d8049b8f8000cbceb88a3)

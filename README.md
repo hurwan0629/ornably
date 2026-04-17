@@ -5,6 +5,8 @@
 > React + Spring Boot 기반 REST 아키텍처를 적용한 온라인 쇼핑몰 서비스  
 > 사용자 인증, 결제, 관리자 기능 및 협업 중심 설계 경험을 목표로 개발
 
+[버그샌드위치 포폴 최종프로젝트 (PDF)](docs/presentation.pdf)
+
 ---
 
 # ⚠ 중요
